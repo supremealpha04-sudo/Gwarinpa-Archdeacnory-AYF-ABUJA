@@ -1,0 +1,23 @@
+{
+  "name": "ayf-gwarimpa",
+  "version": "1.0.0",
+  "description": "AYF Gwarimba Archdeaconry",
+  "main": "index.html",
+  "scripts": {
+    "start": "serve .",
+    "build": "echo 'No build step required'",
+    "deploy": "vercel --prod"
+  },
+  "keywords": [
+    "ayf",
+    "conference",
+    "anglican",
+    "youth-fellowship",
+    "pwa"
+  ],
+  "author": "AYF Gwarimba Archdeaconry",
+  "license": "MIT",
+  "devDependencies": {
+    "serve": "^14.0.0"
+  }
+}
