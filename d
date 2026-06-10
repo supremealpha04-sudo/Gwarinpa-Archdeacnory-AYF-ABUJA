@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Gwarimpa Archdeaconry | AYF Conference Portal</title>
+  <meta name="theme-color" content="#0A2E73">
+  <meta name="description" content="Official Conference Registration and Community Platform for Anglican Youth Fellowship, Gwarimpa Archdeaconry">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <!-- QR Code Library -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <!-- HTML5 QR Scanner -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <!-- Supabase - Load once -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <style>
+    * { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 1.5rem;
+      transition: all 0.3s ease;
+    }
+    .dark .glass-card {
+      background: rgba(10, 46, 115, 0.75);
+      border-color: rgba(212, 175, 55, 0.5);
+    }
+    .glass-card:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); }
+    .bottom-nav-active {
+      color: #D4AF37;
+      border-bottom: 2px solid #D4AF37;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+    .notification-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: #ef4444;
+      color: white;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .loader {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #D4AF37;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: { 
+            royal: '#0A2E73', 
+            gold: '#D4AF37' 
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-white transition-all">
+
+  <div id="root" class="relative">
+    <!-- Header -->
+    <header id="mainHeader" class="sticky top-0 z-30 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gold/20 shadow-sm">
+      <div class="flex justify-between items-center px-4 py-3 max-w-7xl mx-auto">
+        <div class="flex items-center gap-2">
+          <i class="fas fa-church text-royal dark:text-gold text-2xl"></i>
+          <h1 class="font-bold text-lg">Gwarimpa Archdeaconry</h1>
+        </div>
+        <div class="flex gap-3">
+          <button id="darkModeToggle" class="text-royal dark:text-gold text-xl"><i class="fas fa-moon"></i></button>
+          <button id="notificationsBtn" class="text-royal dark:text-gold text-xl relative">
+            <i class="fas fa-bell"></i>
+            <span id="notificationCount" class="notification-badge hidden">0</span>
+          </button>
+          <button id="logoutBtn" class="text-red-500 text-sm bg-red-50 dark:bg-red-900/30 px-3 py-1 rounded-full hidden"><i class="fas fa-sign-out-alt"></i> Exit</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="appContainer" class="max-w-7xl mx-auto px-4 py-6">
+      <div class="flex justify-center items-center min-h-[60vh]">
+        <div class="loader"></div>
+      </div>
+    </main>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav id="bottomNav" class="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-t border-gold/30 z-40 lg:hidden">
+      <div class="flex justify-around py-2">
+        <button data-nav="home" class="nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs"><i class="fas fa-home text-xl"></i><span>Home</span></button>
+        <button data-nav="conference" class="nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs"><i class="fas fa-calendar-alt text-xl"></i><span>Conference</span></button>
+        <button data-nav="resources" class="nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs"><i class="fas fa-folder-open text-xl"></i><span>Resources</span></button>
+        <button data-nav="community" class="nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs"><i class="fas fa-users text-xl"></i><span>Community</span></button>
+        <button data-nav="profile" class="nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs"><i class="fas fa-user-circle text-xl"></i><span>Profile</span></button>
+        <button data-nav="admin" class="admin-only-nav nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs hidden"><i class="fas fa-shield-alt text-xl"></i><span>Admin</span></button>
+      </div>
+    </nav>
+  </div>
+
+  <script>
+    // =====================================================
+    // 1. SUPABASE INITIALIZATION (SINGLE INSTANCE)
+    // =====================================================
+    // IMPORTANT: Replace these with your actual Supabase credentials
+    const SUPABASE_URL = 'https://your-project-id.supabase.co';
+    const SUPABASE_ANON_KEY = 'your-anon-key-here';
+    
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // =====================================================
+    // 2. GLOBAL STATE
+    // =====================================================
+    const AppState = {
+      currentUser: null,
+      currentProfile: null,
+      currentView: 'home',
+      darkMode: localStorage.getItem('darkMode') === 'true',
+      adminTab: 'dashboard',
+      realtimeSubscriptions: [],
+      analyticsChart: null,
+      qrScanner: null
+    };
+
+    // =====================================================
+    // 3. HELPER FUNCTIONS
+    // =====================================================
+    function applyDarkMode() {
+      if (AppState.darkMode) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      localStorage.setItem('darkMode', AppState.darkMode);
+    }
+    applyDarkMode();
+
+    async function checkUserPermissions(requiredRole) {
+      if (!AppState.currentProfile) return false;
+      const roleHierarchy = { 
+        'super_admin': 5, 
+        'archdeaconry_admin': 4, 
+        'conference_admin': 3, 
+        'moderator': 2, 
+        'member': 1 
+      };
+      const userLevel = roleHierarchy[AppState.currentProfile.role] || 0;
+      const requiredLevel = roleHierarchy[requiredRole] || 0;
+      return userLevel >= requiredLevel;
+    }
+
+    async function loadNotifications() {
+      if (!AppState.currentUser) return;
+      const { data } = await supabaseClient
+        .from('notifications')
+        .select('*')
+        .eq('user_id', AppState.currentUser.id)
+        .eq('read', false);
+      const count = data?.length || 0;
+      const badge = document.getElementById('notificationCount');
+      if (badge) {
+        if (count > 0) {
+          badge.classList.remove('hidden');
+          badge.textContent = count > 9 ? '9+' : count;
+        } else {
+          badge.classList.add('hidden');
+        }
+      }
+    }
+
+    async function sendNotification(userId, title, message, type = 'info') {
+      await supabaseClient.from('notifications').insert([{ 
+        user_id: userId, 
+        title, 
+        message, 
+        type 
+      }]);
+    }
+
+    // =====================================================
+    // 4. AUTHENTICATION
+    // =====================================================
+    async function renderAuth() {
+      document.getElementById('logoutBtn')?.classList.add('hidden');
+      const container = document.getElementById('appContainer');
+      container.innerHTML = `
+        <div class="flex items-center justify-center min-h-[80vh]">
+          <div class="glass-card p-8 w-full max-w-md animate-fadeIn">
+            <div class="text-center mb-8">
+              <i class="fas fa-church text-royal text-5xl mb-3"></i>
+              <h2 class="text-3xl font-bold bg-gradient-to-r from-royal to-gold bg-clip-text text-transparent">Gwarimpa AYF</h2>
+              <p class="text-gray-500 dark:text-gray-400 mt-2">Gwarimpa Archdeaconry Conference Portal</p>
+            </div>
+            <div id="authError" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded-lg mb-4"></div>
+            <form id="loginForm">
+              <div class="mb-4">
+                <input type="email" id="email" placeholder="Email Address" required class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold">
+              </div>
+              <div class="mb-6">
+                <input type="password" id="password" placeholder="Password" required class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold">
+              </div>
+              <button type="submit" class="w-full bg-royal hover:bg-royal/90 text-white py-3 rounded-xl font-semibold transition-all">Sign In</button>
+            </form>
+            <div class="relative my-6">
+              <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-300"></div></div>
+              <div class="relative flex justify-center text-sm"><span class="px-2 bg-white dark:bg-gray-900 text-gray-500">Or</span></div>
+            </div>
+            <button id="googleBtn" class="w-full border border-gold/50 rounded-xl py-3 flex justify-center gap-3 hover:bg-gold/10 transition-all">
+              <i class="fab fa-google text-gold"></i> Google Login
+            </button>
+            <div class="text-center mt-6 space-y-2">
+              <a href="#" id="signupLink" class="text-gold hover:underline block">Create New Account →</a>
+              <a href="#" id="resetLink" class="text-royal dark:text-gold/70 text-sm hover:underline block">Forgot Password?</a>
+            </div>
+          </div>
+        </div>`;
+      
+      document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) {
+          document.getElementById('authError').textContent = error.message;
+          document.getElementById('authError').classList.remove('hidden');
+        } else {
+          checkUser();
+        }
+      });
+      
+      document.getElementById('googleBtn').onclick = async () => {
+        await supabaseClient.auth.signInWithOAuth({ 
+          provider: 'google', 
+          options: { redirectTo: window.location.origin } 
+        });
+      };
+      
+      document.getElementById('signupLink').onclick = async (e) => {
+        e.preventDefault();
+        const email = prompt("Enter your email address:");
+        const password = prompt("Create a password (min 6 characters):");
+        if (email && password) {
+          const { error } = await supabaseClient.auth.signUp({ email, password });
+          if (error) {
+            alert(error.message);
+          } else {
+            alert("Registration successful! Please check your email to confirm your account.");
+          }
+        }
+      };
+      
+      document.getElementById('resetLink').onclick = async (e) => {
+        e.preventDefault();
+        const email = prompt("Enter your registered email:");
+        if (email) {
+          await supabaseClient.auth.resetPasswordForEmail(email);
+          alert("Password reset link sent to your email!");
+        }
+      };
+    }
+
+    async function showOnboarding(userId) {
+      // Get parishes for dropdown
+      const { data: parishes } = await supabaseClient.from('parishes').select('name');
+      
+      const formHtml = `
+        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div class="glass-card p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <h3 class="text-2xl font-bold mb-4">Complete Your Profile</h3>
+            <div class="space-y-3">
+              <input type="text" id="onboardFullName" placeholder="Full Name" class="w-full p-3 rounded-xl border">
+              <input type="tel" id="onboardPhone" placeholder="Phone Number" class="w-full p-3 rounded-xl border">
+              <select id="onboardGender" class="w-full p-3 rounded-xl border">
+                <option value="">Select Gender</option>
+                <option>Male</option>
+                <option>Female</option>
+              </select>
+              <input type="text" id="onboardAge" placeholder="Age Range (e.g., 18-25)" class="w-full p-3 rounded-xl border">
+              <select id="onboardParish" class="w-full p-3 rounded-xl border">
+                <option value="">Select Parish</option>
+                ${parishes?.map(p => `<option value="${p.name}">${p.name}</option>`).join('')}
+              </select>
+              <input type="text" id="onboardPosition" placeholder="AYF Position" class="w-full p-3 rounded-xl border">
+              <button id="completeOnboarding" class="w-full bg-gold text-royal py-3 rounded-xl font-bold">Register for Conference</button>
+            </div>
+          </div>
+        </div>`;
+      document.body.insertAdjacentHTML('beforeend', formHtml);
+      
+      document.getElementById('completeOnboarding').onclick = async () => {
+        const fullName = document.getElementById('onboardFullName').value;
+        const phone = document.getElementById('onboardPhone').value;
+        const gender = document.getElementById('onboardGender').value;
+        const ageRange = document.getElementById('onboardAge').value;
+        const parish = document.getElementById('onboardParish').value;
+        const ayfPosition = document.getElementById('onboardPosition').value;
+        
+        await supabaseClient.from('profiles').insert([{
+          id: userId,
+          full_name: fullName,
+          phone: phone,
+          gender: gender,
+          age_range: ageRange,
+          parish: parish,
+          ayf_position: ayfPosition,
+          role: 'member',
+          avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=0A2E73&color=fff`
+        }]);
+        
+        await supabaseClient.from('registrations').insert([{ 
+          user_id: userId, 
+          status: 'approved' 
+        }]);
+        
+        document.querySelector('.fixed.bg-black\\/50').remove();
+        alert("Registration complete! Your Conference ID has been generated.");
+        checkUser();
+      };
+    }
+
+    async function checkUser() {
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (!user) {
+        renderAuth();
+        return;
+      }
+      AppState.currentUser = user;
+      
+      let { data: profile } = await supabaseClient
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      
+      if (!profile) {
+        await showOnboarding(user.id);
+        return;
+      }
+      
+      AppState.currentProfile = profile;
+      document.getElementById('logoutBtn')?.classList.remove('hidden');
+      
+      const isAdmin = await checkUserPermissions('moderator');
+      const adminNav = document.querySelector('.admin-only-nav');
+      if (adminNav) {
+        if (isAdmin) adminNav.classList.remove('hidden');
+        else adminNav.classList.add('hidden');
+      }
+      
+      await loadNotifications();
+      setupRealtimeSubscriptions();
+      renderMainView();
+    }
+
+    // =====================================================
+    // 5. REALTIME SUBSCRIPTIONS
+    // =====================================================
+    function setupRealtimeSubscriptions() {
+      // Clean up old subscriptions
+      AppState.realtimeSubscriptions.forEach(sub => {
+        supabaseClient.removeChannel(sub);
+      });
+      AppState.realtimeSubscriptions = [];
+      
+      const postsChannel = supabaseClient.channel('public-posts')
+        .on('postgres_changes', { 
+          event: '*', 
+          schema: 'public', 
+          table: 'posts' 
+        }, () => {
+          if (AppState.currentView === 'home' || AppState.currentView === 'community') {
+            renderMainView();
+          }
+        })
+        .subscribe();
+      
+      const notificationsChannel = supabaseClient.channel('public-notifications')
+        .on('postgres_changes', { 
+          event: 'INSERT', 
+          schema: 'public', 
+          table: 'notifications', 
+          filter: `user_id=eq.${AppState.currentUser.id}` 
+        }, () => {
+          loadNotifications();
+        })
+        .subscribe();
+      
+      AppState.realtimeSubscriptions = [postsChannel, notificationsChannel];
+    }
+
+    // =====================================================
+    // 6. MAIN RENDER DISPATCHER
+    // =====================================================
+    async function renderMainView() {
+      if (!AppState.currentProfile) return;
+      
+      const container = document.getElementById('appContainer');
+      const isAdmin = await checkUserPermissions('moderator');
+      
+      if (AppState.currentView === 'admin' && isAdmin) {
+        await renderAdminPanel(container);
+      } else if (AppState.currentView === 'home') {
+        await renderHomeFeed(container);
+      } else if (AppState.currentView === 'conference') {
+        await renderConferenceModule(container);
+      } else if (AppState.currentView === 'resources') {
+        await renderDocumentCenter(container);
+      } else if (AppState.currentView === 'community') {
+        await renderCommunityModule(container);
+      } else if (AppState.currentView === 'profile') {
+        await renderProfilePage(container);
+      }
+      
+      attachNavigationListeners();
+    }
+
+    // =====================================================
+    // 7. HOME FEED (SOCIAL MEDIA)
+    // =====================================================
+    async function renderHomeFeed(container) {
+      const { data: posts } = await supabaseClient
+        .from('posts')
+        .select(`*, profiles(full_name, avatar_url, role)`)
+        .order('created_at', { ascending: false });
+      
+      const { data: reg } = await supabaseClient
+        .from('registrations')
+        .select('conference_id')
+        .eq('user_id', AppState.currentUser.id)
+        .single();
+      
+      const confDate = new Date(2026, 3, 15);
+      const diffDays = Math.ceil((confDate - new Date()) / (1000 * 60 * 60 * 24));
+      
+      container.innerHTML = `
+        <div class="glass-card p-5 mb-6 bg-gradient-to-r from-royal/10 to-gold/10">
+          <div class="flex justify-between items-center flex-wrap gap-3">
+            <div>
+              <h2 class="text-2xl font-bold">Welcome, ${AppState.currentProfile.full_name}!</h2>
+              <p class="text-gold font-mono">${reg?.conference_id || 'Pending Registration'}</p>
+              <p class="text-sm text-gray-600 dark:text-gray-400">${AppState.currentProfile.parish} Parish</p>
+            </div>
+            <div class="text-center bg-white/50 dark:bg-gray-800/50 px-4 py-2 rounded-xl">
+              <p class="text-sm">📅 Conference in</p>
+              <p class="text-2xl font-bold text-gold">${diffDays} days</p>
+            </div>
+          </div>
+        </div>
+        
+        <button id="createPostBtn" class="w-full glass-card p-4 mb-6 text-left font-semibold hover:shadow-lg transition">
+          <i class="fas fa-pen-alt text-gold mr-2"></i> What's on your mind, ${AppState.currentProfile.full_name.split(' ')[0]}?
+        </button>
+        
+        <div id="postsFeed">
+          ${posts?.map(post => `
+            <div class="glass-card p-5 mb-4 animate-fadeIn">
+              <div class="flex gap-3 mb-3">
+                <img src="${post.profiles.avatar_url}" class="w-12 h-12 rounded-full object-cover">
+                <div class="flex-1">
+                  <b class="text-lg">${post.profiles.full_name}</b>
+                  ${post.profiles.role === 'super_admin' ? '<span class="text-xs bg-gold/20 px-2 py-0.5 rounded-full ml-2">Admin</span>' : ''}
+                  <p class="text-xs text-gray-500">${new Date(post.created_at).toLocaleString()}</p>
+                </div>
+              </div>
+              ${post.title ? `<h3 class="font-bold text-xl mb-2">${post.title}</h3>` : ''}
+              <p class="text-gray-700 dark:text-gray-300 mb-3">${post.content}</p>
+              <div class="flex gap-6 pt-3 border-t border-gray-200 dark:border-gray-700">
+                <button data-like="${post.id}" class="like-btn flex items-center gap-2 hover:text-gold transition">
+                  <i class="far fa-heart"></i> <span>${post.likes_count || 0}</span>
+                </button>
+                <button data-comment="${post.id}" class="comment-toggle flex items-center gap-2 hover:text-gold transition">
+                  <i class="far fa-comment"></i> <span>${post.comments_count || 0}</span>
+                </button>
+                <button data-share="${post.id}" class="share-btn flex items-center gap-2 hover:text-gold transition" 
+                  onclick="navigator.share?.({title:'${post.title || 'Post'}', text:'${post.content?.substring(0,100)}'})">
+                  <i class="fas fa-share-alt"></i> Share
+                </button>
+              </div>
+              <div id="comments-${post.id}" class="hidden mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+                <div id="commentList-${post.id}" class="mb-3 max-h-64 overflow-y-auto"></div>
+                <div class="flex gap-2">
+                  <input type="text" id="commentInput-${post.id}" placeholder="Write a comment..." class="flex-1 p-2 rounded-xl border dark:bg-gray-800">
+                  <button data-comment-post="${post.id}" class="submit-comment bg-royal text-white px-4 py-2 rounded-xl">Post</button>
+                </div>
+              </div>
+            </div>
+          `).join('') || '<div class="glass-card p-8 text-center"><i class="fas fa-newspaper text-4xl text-gray-400 mb-2"></i><p>No posts yet. Be the first to share!</p></div>'}
+        </div>`;
+      
+      document.getElementById('createPostBtn')?.addEventListener('click', () => {
+        const content = prompt("Share your thoughts, prayer requests, or updates:");
+        if (content) {
+          supabaseClient.from('posts').insert([{ 
+            user_id: AppState.currentUser.id, 
+            content 
+          }]).then(() => renderMainView());
+        }
+      });
+      
+      document.querySelectorAll('.like-btn').forEach(btn => {
+        btn.onclick = async () => {
+          await supabaseClient.from('likes').insert([{ 
+            user_id: AppState.currentUser.id, 
+            post_id: btn.dataset.like 
+          }]);
+          await supabaseClient.rpc('increment_post_likes', { post_id: btn.dataset.like });
+          renderMainView();
+        };
+      });
+      
+      document.querySelectorAll('.comment-toggle').forEach(btn => {
+        btn.onclick = async () => {
+          const postId = btn.dataset.comment;
+          const div = document.getElementById(`comments-${postId}`);
+          if (div.classList.contains('hidden')) {
+            div.classList.remove('hidden');
+            const { data: comments } = await supabaseClient
+              .from('comments')
+              .select('*, profiles(full_name, avatar_url)')
+              .eq('post_id', postId)
+              .order('created_at', { ascending: true });
+            const commentList = document.getElementById(`commentList-${postId}`);
+            if (commentList) {
+              commentList.innerHTML = comments?.map(c => `
+                <div class="flex gap-2 mb-2">
+                  <img src="${c.profiles.avatar_url}" class="w-6 h-6 rounded-full">
+                  <div>
+                    <b class="text-sm">${c.profiles.full_name}</b>
+                    <p class="text-sm">${c.content}</p>
+                  </div>
+                </div>
+              `).join('') || '<p class="text-sm text-gray-500">No comments yet</p>';
+            }
+          } else {
+            div.classList.add('hidden');
+          }
+        };
+      });
+      
+      document.querySelectorAll('.submit-comment').forEach(btn => {
+        btn.onclick = async () => {
+          const postId = btn.dataset.commentPost;
+          const input = document.getElementById(`commentInput-${postId}`);
+          if (input.value) {
+            await supabaseClient.from('comments').insert([{ 
+              post_id: postId, 
+              user_id: AppState.currentUser.id, 
+              content: input.value 
+            }]);
+            input.value = '';
+            renderMainView();
+          }
+        };
+      });
+    }
+
+    // =====================================================
+    // 8. CONFERENCE MODULE
+    // =====================================================
+    async function renderConferenceModule(container) {
+      const { data: reg } = await supabaseClient
+        .from('registrations')
+        .select('*')
+        .eq('user_id', AppState.currentUser.id)
+        .single();
+      
+      const { data: events } = await supabaseClient
+        .from('events')
+        .select('*')
+        .order('date', { ascending: true });
+      
+      container.innerHTML = `
+        <div class="space-y-5">
+          <div class="glass-card p-6 text-center">
+            <h2 class="text-3xl font-bold text-royal dark:text-gold">Rise & Build</h2>
+            <p class="text-gray-600 dark:text-gray-400 mt-1">Theme: Empowering the Next Generation</p>
+            <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
+              <div><i class="fas fa-calendar text-gold"></i> April 15-17, 2026</div>
+              <div><i class="fas fa-map-marker-alt text-gold"></i> Archbishop Vining Memorial Church</div>
+            </div>
+          </div>
+          
+          <div class="glass-card p-5 text-center">
+            <h3 class="font-bold text-xl mb-3"><i class="fas fa-ticket-alt text-gold"></i> Your Conference Pass</h3>
+            <div id="qrContainer" class="flex justify-center mb-3"></div>
+            <p class="font-mono font-bold">${reg?.conference_id || 'Not Registered'}</p>
+            ${reg?.check_in_time ? 
+              `<p class="text-green-500 mt-2"><i class="fas fa-check-circle"></i> Checked in at ${new Date(reg.check_in_time).toLocaleTimeString()}</p>` : 
+              '<p class="text-yellow-500 mt-2">Not yet checked in</p>'}
+          </div>
+          
+          <div class="glass-card p-5">
+            <h3 class="font-bold text-xl mb-3"><i class="fas fa-chalkboard-user"></i> Speakers</h3>
+            <div class="space-y-2">
+              <div class="flex justify-between"><span>👨‍🏫 Ven. Dr. Peter Okafor</span><span class="text-gold">Keynote</span></div>
+              <div class="flex justify-between"><span>👩‍🏫 Rev. Sarah Adebayo</span><span class="text-gold">Youth Empowerment</span></div>
+              <div class="flex justify-between"><span>👨‍💼 Bro. Michael Eze</span><span class="text-gold">Tech & Faith</span></div>
+            </div>
+          </div>
+          
+          <div class="glass-card p-5">
+            <h3 class="font-bold text-xl mb-3"><i class="fas fa-clock"></i> Schedule</h3>
+            <div class="space-y-2">
+              <div class="flex justify-between"><span>Day 1 (Apr 15)</span><span>9am - Opening Ceremony</span></div>
+              <div class="flex justify-between"><span>Day 2 (Apr 16)</span><span>10am - Seminars & Workshops</span></div>
+              <div class="flex justify-between"><span>Day 3 (Apr 17)</span><span>9am - Holy Communion & Awards</span></div>
+            </div>
+          </div>
+          
+          <div class="glass-card p-5">
+            <h3 class="font-bold text-xl mb-3"><i class="fas fa-chart-simple"></i> Parish Participation</h3>
+            <div class="space-y-1">
+              <div class="flex justify-between"><span>🏆 St. Philip</span><span>12 registered</span></div>
+              <div class="flex justify-between"><span>🥈 St. Matthew</span><span>8 registered</span></div>
+              <div class="flex justify-between"><span>🥉 St. Barnabas</span><span>6 registered</span></div>
+            </div>
+          </div>
+          
+          <div class="glass-card p-5">
+            <h3 class="font-bold text-xl mb-3"><i class="fas fa-calendar-week"></i> Upcoming Events</h3>
+            ${events?.map(e => `
+              <div class="border-b border-gray-200 dark:border-gray-700 py-2">
+                <div class="font-bold">${e.title}</div>
+                <div class="text-sm">📅 ${e.date} | 🕒 ${e.time || 'TBD'} | 📍 ${e.venue || 'TBD'}</div>
+                <button data-event="${e.id}" class="registerEventBtn mt-1 text-gold text-sm">Register →</button>
+              </div>
+            `).join('') || '<p class="text-gray-500">No upcoming events</p>'}
+          </div>
+        </div>`;
+      
+      if (reg && document.getElementById('qrContainer')) {
+        new QRCode(document.getElementById('qrContainer'), { 
+          text: reg.conference_id, 
+          width: 150, 
+          height: 150 
+        });
+      }
+      
+      document.querySelectorAll('.registerEventBtn').forEach(btn => {
+        btn.onclick = async () => {
+          await supabaseClient.from('event_registrations').insert([{ 
+            event_id: btn.dataset.event, 
+            user_id: AppState.currentUser.id 
+          }]);
+          alert("Registered for event!");
+        };
+      });
+    }
+
+    // =====================================================
+    // 9. DOCUMENT CENTER
+    // =====================================================
+    async function renderDocumentCenter(container) {
+      const { data: docs } = await supabaseClient
+        .from('documents')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      const canUpload = await checkUserPermissions('conference_admin');
+      
+      container.innerHTML = `
+        <div class="glass-card p-5 mb-5">
+          <h2 class="text-2xl font-bold mb-3"><i class="fas fa-folder-open text-gold"></i> Resource Center</h2>
+          <input type="text" id="searchDocs" placeholder="Search documents..." class="w-full p-3 rounded-xl border dark:bg-gray-800">
+        </div>
+        
+        <div class="grid gap-3 md:grid-cols-2" id="documentsList">
+          ${docs?.map(doc => `
+            <div class="glass-card p-4 document-item" data-title="${doc.title.toLowerCase()}">
+              <div class="flex items-start gap-3">
+                <div class="text-3xl">
+                  <i class="fas ${doc.file_type === 'pdf' ? 'fa-file-pdf text-red-500' : 'fa-file-alt text-blue-500'}"></i>
+                </div>
+                <div class="flex-1">
+                  <h3 class="font-bold">${doc.title}</h3>
+                  <p class="text-xs text-gray-500">${doc.description || ''}</p>
+                  <div class="flex gap-3 mt-2 text-xs">
+                    <span><i class="far fa-eye"></i> ${doc.views || 0}</span>
+                    <span><i class="fas fa-download"></i> ${doc.downloads || 0}</span>
+                    <span><i class="far fa-heart"></i> ${doc.likes || 0}</span>
+                  </div>
+                </div>
+                <button data-doc="${doc.id}" class="downloadDoc bg-gold/20 p-2 rounded-xl"><i class="fas fa-download"></i></button>
+              </div>
+            </div>
+          `).join('') || '<div class="glass-card p-8 text-center"><i class="fas fa-file-alt text-4xl text-gray-400 mb-2"></i><p>No documents yet</p></div>'}
+        </div>
+        
+        ${canUpload ? `
+        <div class="glass-card p-5 mt-5">
+          <h3 class="font-bold mb-3"><i class="fas fa-upload"></i> Upload Document</h3>
+          <input type="text" id="docTitle" placeholder="Document Title" class="w-full p-2 border rounded mb-2">
+          <textarea id="docDesc" placeholder="Description (optional)" class="w-full p-2 border rounded mb-2" rows="2"></textarea>
+          <select id="docType" class="w-full p-2 border rounded mb-2">
+            <option value="pdf">PDF</option>
+            <option value="docx">DOCX</option>
+            <option value="image">Image</option>
+          </select>
+          <input type="file" id="docFile" class="mb-2">
+          <button id="uploadDocumentBtn" class="bg-royal text-white px-4 py-2 rounded-xl w-full">Upload Document</button>
+        </div>` : ''}`;
+      
+      document.getElementById('searchDocs')?.addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase();
+        document.querySelectorAll('.document-item').forEach(el => {
+          const title = el.dataset.title;
+          if (title && title.includes(term)) {
+            el.style.display = '';
+          } else {
+            el.style.display = 'none';
+          }
+        });
+      });
+      
+      document.querySelectorAll('.downloadDoc').forEach(btn => {
+        btn.onclick = async () => {
+          await supabaseClient.rpc('increment_document_downloads', { doc_id: btn.dataset.doc });
+          alert("Download started (simulated - configure storage bucket)");
+        };
+      });
+      
+      document.getElementById('uploadDocumentBtn')?.addEventListener('click', async () => {
+        const title = document.getElementById('docTitle').value;
+        const description = document.getElementById('docDesc').value;
+        const fileType = document.getElementById('docType').value;
+        
+        if (!title) {
+          alert("Please enter a document title");
+          return;
+        }
+        
+        await supabaseClient.from('documents').insert([{ 
+          title, 
+          description, 
+          file_url: '#', 
+          file_type: fileType,
+          uploaded_by: AppState.currentUser.id 
+        }]);
+        
+        alert("Document uploaded successfully!");
+        document.getElementById('docTitle').value = '';
+        document.getElementById('docDesc').value = '';
+        renderMainView();
+      });
+    }
+
+    // =====================================================
+    // 10. COMMUNITY MODULE
+    // =====================================================
+    async function renderCommunityModule(container) {
+      const { data: discussions } = await supabaseClient
+        .from('posts')
+        .select('*, profiles(full_name, avatar_url)')
+        .order('created_at', { ascending: false });
+      
+      container.innerHTML = `
+        <div class="glass-card p-5 mb-5">
+          <h2 class="text-2xl font-bold mb-3"><i class="fas fa-users text-gold"></i> AYF Community</h2>
+          <p class="text-gray-600 dark:text-gray-400">Connect, share, and grow together in faith - Gwarimpa Archdeaconry</p>
+        </div>
+        
+        <div class="glass-card p-4 mb-5">
+          <textarea id="discussionInput" rows="3" placeholder="Ask a question, share a testimony, or start a discussion..." class="w-full p-3 rounded-xl border dark:bg-gray-800"></textarea>
+          <button id="postDiscussion" class="mt-3 bg-royal text-white px-6 py-2 rounded-xl w-full font-semibold">Post to Community</button>
+        </div>
+        
+        <div id="discussionsFeed" class="space-y-4">
+          ${discussions?.map(d => `
+            <div class="glass-card p-4">
+              <div class="flex gap-3 mb-3">
+                <img src="${d.profiles.avatar_url}" class="w-10 h-10 rounded-full">
+                <div>
+                  <b>${d.profiles.full_name}</b>
+                  <p class="text-xs text-gray-500">${new Date(d.created_at).toLocaleString()}</p>
+                </div>
+              </div>
+              <p class="mb-3">${d.content}</p>
+              <div class="flex gap-4">
+                <button data-like-community="${d.id}" class="text-sm hover:text-gold"><i class="far fa-heart"></i> Like</button>
+                <button data-comment-community="${d.id}" class="text-sm hover:text-gold"><i class="far fa-comment"></i> Comment</button>
+                <button data-mention="${d.id}" class="text-sm hover:text-gold"><i class="fas fa-at"></i> Mention</button>
+              </div>
+            </div>
+          `).join('') || '<div class="glass-card p-8 text-center"><i class="fas fa-comments text-4xl text-gray-400 mb-2"></i><p>No discussions yet. Start the conversation!</p></div>'}
+        </div>`;
+      
+      document.getElementById('postDiscussion')?.addEventListener('click', async () => {
+        const content = document.getElementById('discussionInput').value;
+        if (content) {
+          await supabaseClient.from('posts').insert([{ 
+            user_id: AppState.currentUser.id, 
+            content 
+          }]);
+          document.getElementById('discussionInput').value = '';
+          renderMainView();
+        } else {
+          alert("Please enter some content before posting");
+        }
+      });
+    }
+
+    // =====================================================
+    // 11. PROFILE PAGE
+    // =====================================================
+    async function renderProfilePage(container) {
+      const { data: reg } = await supabaseClient
+        .from('registrations')
+        .select('*')
+        .eq('user_id', AppState.currentUser.id)
+        .single();
+      
+      const { data: userPosts, count: postsCount } = await supabaseClient
+        .from('posts')
+        .select('*', { count: 'exact' })
+        .eq('user_id', AppState.currentUser.id);
+      
+      const { data: userComments, count: commentsCount } = await supabaseClient
+        .from('comments')
+        .select('*', { count: 'exact' })
+        .eq('user_id', AppState.currentUser.id);
+      
+      container.innerHTML = `
+        <div class="glass-card p-6 text-center mb-5">
+          <img src="${AppState.currentProfile.avatar_url}" class="w-28 h-28 rounded-full mx-auto border-4 border-gold mb-3">
+          <h2 class="text-2xl font-bold">${AppState.currentProfile.full_name}</h2>
+          <p class="text-gold font-mono">${reg?.conference_id || 'Not Registered'}</p>
+          <p class="text-gray-600 dark:text-gray-400">${AppState.currentProfile.parish || 'Parish not set'} | ${AppState.currentProfile.ayf_position || 'Member'}</p>
+          <div class="grid grid-cols-3 gap-3 mt-5">
+            <div class="bg-royal/10 p-2 rounded">
+              <div class="font-bold text-xl">${postsCount || 0}</div>
+              <div class="text-xs">Posts</div>
+            </div>
+            <div class="bg-royal/10 p-2 rounded">
+              <div class="font-bold text-xl">${commentsCount || 0}</div>
+              <div class="text-xs">Comments</div>
+            </div>
+            <div class="bg-royal/10 p-2 rounded">
+              <div class="font-bold text-xl">${reg?.check_in_count || 0}</div>
+              <div class="text-xs">Check-ins</div>
+            </div>
+          </div>
+          <div class="mt-4 p-2 bg-gold/10 rounded-lg">
+            <p class="text-sm"><i class="fas fa-tag"></i> Role: <span class="font-semibold">${AppState.currentProfile.role}</span></p>
+          </div>
+        </div>
+        
+        <div class="glass-card p-5 mb-5">
+          <h3 class="font-bold mb-3"><i class="fas fa-clock"></i> Recent Activity</h3>
+          ${userPosts?.slice(0, 3).map(p => `
+            <div class="border-b border-gray-200 dark:border-gray-700 py-2">
+              <p class="text-sm">📝 ${p.content?.substring(0, 100)}${p.content?.length > 100 ? '...' : ''}</p>
+              <span class="text-xs text-gray-500">${new Date(p.created_at).toLocaleDateString()}</span>
+            </div>
+          `).join('') || '<p class="text-gray-500">No recent activity</p>'}
+        </div>
+        
+        ${await checkUserPermissions('moderator') ? `
+        <button id="adminPortalBtn" class="w-full glass-card p-4 text-center font-bold text-gold hover:bg-gold/10 transition">
+          <i class="fas fa-shield-alt"></i> Enter Admin Portal
+        </button>` : ''}
+      `;
+      
+      document.getElementById('adminPortalBtn')?.addEventListener('click', () => {
+        AppState.currentView = 'admin';
+        renderMainView();
+      });
+    }
+
+    // =====================================================
+    // 12. ADMIN PANEL (FULL DASHBOARD)
+    // =====================================================
+    async function renderAdminPanel(container) {
+      if (!await checkUserPermissions('moderator')) {
+        AppState.currentView = 'home';
+        renderMainView();
+        return;
+      }
+      
+      // Fetch analytics data
+      const { count: totalUsers } = await supabaseClient.from('profiles').select('*', { count: 'exact' });
+      const { count: totalRegistrations } = await supabaseClient.from('registrations').select('*', { count: 'exact' });
+      const { count: checkedInToday } = await supabaseClient
+        .from('attendance_logs')
+        .select('*', { count: 'exact' })
+        .eq('session_date', new Date().toISOString().split('T')[0]);
+      
+      const { data: parishData } = await supabaseClient.from('profiles').select('parish');
+      const parishCounts = parishData?.reduce((acc, p) => { 
+        if (p.parish) acc[p.parish] = (acc[p.parish] || 0) + 1; 
+        return acc; 
+      }, {});
+      
+      const { data: recentCheckins } = await supabaseClient
+        .from('attendance_logs')
+        .select('*, profiles(full_name, parish)')
+        .order('check_in_time', { ascending: false })
+        .limit(10);
+      
+      container.innerHTML = `
+        <div class="lg:hidden mb-4">
+          <button id="backToUser" class="glass-card px-4 py-2"><i class="fas fa-arrow-left"></i> Back to Portal</button>
+        </div>
+        <div class="grid lg:grid-cols-4 gap-4">
+          <div class="lg:col-span-1">
+            <div class="glass-card p-4 sticky top-20">
+              <h3 class="font-bold mb-3 text-gold"><i class="fas fa-shield-alt"></i> Admin Console</h3>
+              <div class="space-y-2">
+                <button data-admin-tab="dashboard" class="admin-tab w-full text-left p-2 rounded hover:bg-gold/20 transition-all">📊 Dashboard</button>
+                <button data-admin-tab="registrations" class="admin-tab w-full text-left p-2 rounded hover:bg-gold/20 transition-all">✅ Approve Registrations</button>
+                <button data-admin-tab="qr-scanner" class="admin-tab w-full text-left p-2 rounded hover:bg-gold/20 transition-all">📷 QR Check-in Scanner</button>
+                <button data-admin-tab="users" class="admin-tab w-full text-left p-2 rounded hover:bg-gold/20 transition-all">👥 Manage Users & Roles</button>
+                <button data-admin-tab="documents" class="admin-tab w-full text-left p-2 rounded hover:bg-gold/20 transition-all">📄 Manage Documents</button>
+                <button data-admin-tab="events" class="admin-tab w-full text-left p-2 rounded hover:bg-gold/20 transition-all">📅 Create Events</button>
+                <button data-admin-tab="announcements" class="admin-tab w-full text-left p-2 rounded hover:bg-gold/20 transition-all">📢 Announcements</button>
+                <button data-admin-tab="reports" class="admin-tab w-full text-left p-2 rounded hover:bg-gold/20 transition-all">📈 Export Reports</button>
+              </div>
+            </div>
+          </div>
+          <div class="lg:col-span-3" id="adminContent">
+            <div class="glass-card p-5">
+              <h2 class="text-2xl font-bold mb-4">Dashboard Overview</h2>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                <div class="bg-royal/10 p-3 rounded text-center">
+                  <div class="text-2xl font-bold">${totalUsers || 0}</div>
+                  <div class="text-sm">Total Users</div>
+                </div>
+                <div class="bg-royal/10 p-3 rounded text-center">
+                  <div class="text-2xl font-bold">${totalRegistrations || 0}</div>
+                  <div class="text-sm">Registrations</div>
+                </div>
+                <div class="bg-royal/10 p-3 rounded text-center">
+                  <div class="text-2xl font-bold">${checkedInToday || 0}</div>
+                  <div class="text-sm">Checked in Today</div>
+                </div>
+                <div class="bg-royal/10 p-3 rounded text-center">
+                  <div class="text-2xl font-bold">${Object.keys(parishCounts || {}).length}</div>
+                  <div class="text-sm">Parishes</div>
+                </div>
+              </div>
+              <canvas id="adminChart" height="200"></canvas>
+              <div class="mt-6">
+                <h3 class="font-bold mb-2">Recent Check-ins</h3>
+                ${recentCheckins?.map(c => `
+                  <div class="flex justify-between border-b border-gray-200 dark:border-gray-700 py-2">
+                    <span><b>${c.profiles?.full_name}</b> (${c.profiles?.parish})</span>
+                    <span class="text-sm">${new Date(c.check_in_time).toLocaleString()}</span>
+                  </div>
+                `).join('') || '<p class="text-gray-500">No check-ins today</p>'}
+              </div>
+            </div>
+          </div>
+        </div>`;
+      
+      // Initialize chart
+      const ctx = document.getElementById('adminChart')?.getContext('2d');
+      if (ctx) {
+        if (AppState.analyticsChart) AppState.analyticsChart.destroy();
+        AppState.analyticsChart = new Chart(ctx, { 
+          type: 'bar', 
+          data: { 
+            labels: Object.keys(parishCounts || {}), 
+            datasets: [{ 
+              label: 'Registrations by Parish', 
+              data: Object.values(parishCounts || {}), 
+              backgroundColor: '#D4AF37',
+              borderRadius: 8
+            }] 
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { position: 'top' },
+              title: { display: true, text: 'Registration Distribution by Parish' }
+            }
+          }
+        });
+      }
+      
+      // Admin tab handlers
+      document.querySelectorAll('.admin-tab').forEach(btn => {
+        btn.onclick = async () => {
+          const tab = btn.dataset.adminTab;
+          const adminContent = document.getElementById('adminContent');
+          
+          if (tab === 'qr-scanner') {
+            adminContent.innerHTML = `
+              <div class="glass-card p-5">
+                <h3 class="font-bold mb-3">QR Scanner - Point camera at attendee's QR code</h3>
+                <div id="qr-reader" style="width:100%; max-width:500px"></div>
+                <div id="scanResult" class="mt-3"></div>
+                <p class="text-sm text-gray-500 mt-3">⚠️ Note: HTTPS required for camera access. Use localhost or deploy with HTTPS.</p>
+              </div>`;
+            
+            if (typeof Html5Qrcode !== 'undefined') {
+              const html5QrCode = new Html5Qrcode("qr-reader");
+              html5QrCode.start(
+                { facingMode: "environment" }, 
+                { fps: 10, qrbox: 250 }, 
+                async (decodedText) => {
+                  await supabaseClient.from('attendance_logs').insert([{ 
+                    user_id: AppState.currentUser.id, 
+                    conference_id: decodedText, 
+                    checked_by: AppState.currentUser.id 
+                  }]);
+                  await supabaseClient.rpc('increment_checkins', { conf_id: decodedText });
+                  document.getElementById('scanResult').innerHTML = `
+                    <div class="bg-green-500 text-white p-3 rounded text-center">
+                      <i class="fas fa-check-circle"></i> Checked in: ${decodedText}
+                    </div>`;
+                  setTimeout(() => html5QrCode.stop(), 2000);
+                },
+                (err) => console.log("Scan error:", err)
+              );
+            } else {
+              adminContent.innerHTML += '<div class="text-red-500 mt-3">QR Scanner library failed to load. Please refresh the page.</div>';
+            }
+          } else if (tab === 'registrations') {
+            const { data: pending } = await supabaseClient
+              .from('registrations')
+              .select('*, profiles(full_name, email, parish, phone)')
+              .eq('status', 'pending');
+            
+            adminContent.innerHTML = `
+              <div class="glass-card p-5">
+                <h3 class="font-bold mb-3">Pending Approvals (${pending?.length || 0})</h3>
+                ${pending?.map(p => `
+                  <div class="border-b border-gray-200 dark:border-gray-700 py-3">
+                    <b>${p.profiles?.full_name}</b>
+                    <p class="text-sm">${p.profiles?.email} | ${p.profiles?.parish} | ${p.profiles?.phone}</p>
+                    <button data-approve="${p.user_id}" class="approveReg bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded mt-2 transition">✓ Approve</button>
+                  </div>
+                `).join('') || '<p class="text-gray-500">No pending registrations</p>'}
+              </div>`;
+            
+            document.querySelectorAll('.approveReg').forEach(btn => {
+              btn.onclick = async () => {
+                await supabaseClient.from('registrations').update({ status: 'approved' }).eq('user_id', btn.dataset.approve);
+                await sendNotification(btn.dataset.approve, "Registration Approved", "Your conference registration has been approved! Welcome to Gwarimpa AYF Conference.");
+                renderAdminPanel(container);
+              };
+            });
+          } else if (tab === 'users') {
+            const { data: users } = await supabaseClient.from('profiles').select('*');
+            
+            adminContent.innerHTML = `
+              <div class="glass-card p-5">
+                <h3 class="font-bold mb-3">User Management - Gwarimpa Archdeaconry</h3>
+                <div class="space-y-2">
+                  ${users?.map(u => `
+                    <div class="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 py-2">
+                      <div>
+                        <b>${u.full_name}</b>
+                        <br><span class="text-xs text-gray-500">${u.email || u.id.substring(0, 8)}... | ${u.parish || 'No parish'}</span>
+                      </div>
+                      <select data-user="${u.id}" class="roleSelect border rounded p-1 bg-white dark:bg-gray-800">
+                        <option ${u.role === 'member' ? 'selected' : ''}>member</option>
+                        <option ${u.role === 'moderator' ? 'selected' : ''}>moderator</option>
+                        <option ${u.role === 'conference_admin' ? 'selected' : ''}>conference_admin</option>
+                        <option ${u.role === 'archdeaconry_admin' ? 'selected' : ''}>archdeaconry_admin</option>
+                        <option ${u.role === 'super_admin' ? 'selected' : ''}>super_admin</option>
+                      </select>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>`;
+            
+            document.querySelectorAll('.roleSelect').forEach(select => {
+              select.onchange = async () => {
+                await supabaseClient.from('profiles').update({ role: select.value }).eq('id', select.dataset.user);
+                alert(`Role updated to ${select.value}`);
+                renderAdminPanel(container);
+              };
+            });
+          } else if (tab === 'reports') {
+            adminContent.innerHTML = `
+              <div class="glass-card p-5">
+                <h3 class="font-bold mb-3">Export Reports</h3>
+                <button id="exportCSV" class="bg-royal text-white px-4 py-2 rounded mb-3 hover:bg-royal/90 transition">📊 Export All Registrations (CSV)</button>
+                <button id="exportParishCSV" class="bg-gold text-royal px-4 py-2 rounded mb-3 ml-2 hover:bg-gold/90 transition">🏘️ Export Parish Report</button>
+                <pre id="reportPreview" class="mt-4 text-sm bg-gray-100 dark:bg-gray-800 p-3 rounded overflow-x-auto max-h-96"></pre>
+              </div>`;
+            
+            document.getElementById('exportCSV')?.addEventListener('click', async () => {
+              const { data } = await supabaseClient
+                .from('registrations')
+                .select('*, profiles(full_name, email, parish, phone, gender, age_range, ayf_position)');
+              
+              const csv = [
+                ["Name", "Email", "Parish", "Phone", "Gender", "Age Range", "AYF Position", "Conference ID", "Status", "Check-in Time"],
+                ...data.map(r => [
+                  r.profiles?.full_name || '',
+                  r.profiles?.email || '',
+                  r.profiles?.parish || '',
+                  r.profiles?.phone || '',
+                  r.profiles?.gender || '',
+                  r.profiles?.age_range || '',
+                  r.profiles?.ayf_position || '',
+                  r.conference_id || '',
+                  r.status || '',
+                  r.check_in_time || ''
+                ])
+              ].map(row => row.map(cell => `"${cell}"`).join(",")).join("\n");
+              
+              document.getElementById('reportPreview').textContent = csv;
+              
+              // Download as file
+              const blob = new Blob([csv], { type: 'text/csv' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `gwarimpa_registrations_${new Date().toISOString().split('T')[0]}.csv`;
+              a.click();
+              URL.revokeObjectURL(url);
+            });
+            
+            document.getElementById('exportParishCSV')?.addEventListener('click', async () => {
+              const { data } = await supabaseClient
+                .from('profiles')
+                .select('parish, role')
+                .not('parish', 'is', null);
+              
+              const parishStats = data.reduce((acc, p) => {
+                if (!acc[p.parish]) acc[p.parish] = { total: 0, roles: {} };
+                acc[p.parish].total++;
+                acc[p.parish].roles[p.role] = (acc[p.parish].roles[p.role] || 0) + 1;
+                return acc;
+              }, {});
+              
+              const csv = [["Parish", "Total Members", "Breakdown"]];
+              for (const [parish, stats] of Object.entries(parishStats)) {
+                csv.push([parish, stats.total, JSON.stringify(stats.roles)]);
+              }
+              
+              const csvString = csv.map(row => row.map(cell => `"${cell}"`).join(",")).join("\n");
+              document.getElementById('reportPreview').textContent = csvString;
+            });
+          } else if (tab === 'announcements') {
+            adminContent.innerHTML = `
+              <div class="glass-card p-5">
+                <h3 class="font-bold mb-3">Post Announcement to All Members</h3>
+                <input type="text" id="announceTitle" placeholder="Announcement Title" class="w-full p-2 border rounded mb-2">
+                <textarea id="announceContent" rows="4" placeholder="Announcement message..." class="w-full p-2 border rounded mb-2"></textarea>
+                <button id="postAnnounceBtn" class="bg-gold text-royal px-4 py-2 rounded font-bold w-full">📢 Publish to All</button>
+              </div>`;
+            
+            document.getElementById('postAnnounceBtn')?.addEventListener('click', async () => {
+              const title = document.getElementById('announceTitle').value;
+              const content = document.getElementById('announceContent').value;
+              
+              if (!title || !content) {
+                alert("Please enter both title and content");
+                return;
+              }
+              
+              await supabaseClient.from('posts').insert([{ 
+                user_id: AppState.currentUser.id, 
+                title: `📢 ${title}`, 
+                content: content,
+                is_announcement: true 
+              }]);
+              
+              // Send notifications to all users
+              const { data: users } = await supabaseClient.from('profiles').select('id');
+              for (const user of users || []) {
+                await sendNotification(user.id, "New Announcement", title, "announcement");
+              }
+              
+              alert("Announcement posted and notifications sent!");
+              document.getElementById('announceTitle').value = '';
+              document.getElementById('announceContent').value = '';
+              renderAdminPanel(container);
+            });
+          } else if (tab === 'events') {
+            adminContent.innerHTML = `
+              <div class="glass-card p-5">
+                <h3 class="font-bold mb-3">Create Conference Event</h3>
+                <input type="text" id="eventTitle" placeholder="Event Title" class="w-full p-2 border rounded mb-2">
+                <textarea id="eventDesc" placeholder="Description" class="w-full p-2 border rounded mb-2" rows="2"></textarea>
+                <div class="grid grid-cols-2 gap-2 mb-2">
+                  <input type="date" id="eventDate" class="p-2 border rounded">
+                  <input type="time" id="eventTime" class="p-2 border rounded">
+                </div>
+                <input type="text" id="eventVenue" placeholder="Venue" class="w-full p-2 border rounded mb-2">
+                <input type="text" id="eventSpeaker" placeholder="Speaker (optional)" class="w-full p-2 border rounded mb-2">
+                <button id="createEventBtn" class="bg-royal text-white px-4 py-2 rounded w-full">🎉 Create Event</button>
+              </div>
+              
+              <div class="glass-card p-5 mt-4">
+                <h3 class="font-bold mb-3">Upcoming Events</h3>
+                <div id="eventList"></div>
+              </div>`;
+            
+            // Load existing events
+            const { data: existingEvents } = await supabaseClient.from('events').select('*').order('date', { ascending: true });
+            const eventListDiv = document.getElementById('eventList');
+            if (eventListDiv) {
+              eventListDiv.innerHTML = existingEvents?.map(e => `
+                <div class="border-b py-2">
+                  <b>${e.title}</b><br>
+                  <span class="text-sm">📅 ${e.date} | 🕒 ${e.time || 'TBD'} | 📍 ${e.venue || 'TBD'}</span>
+                </div>
+              `).join('') || '<p class="text-gray-500">No events created yet</p>';
+            }
+            
+            document.getElementById('createEventBtn')?.addEventListener('click', async () => {
+              const title = document.getElementById('eventTitle').value;
+              const description = document.getElementById('eventDesc').value;
+              const date = document.getElementById('eventDate').value;
+              const time = document.getElementById('eventTime').value;
+              const venue = document.getElementById('eventVenue').value;
+              const speaker = document.getElementById('eventSpeaker').value;
+              
+              if (!title || !date) {
+                alert("Please enter at least a title and date");
+                return;
+              }
+              
+              await supabaseClient.from('events').insert([{ 
+                title, 
+                description, 
+                date, 
+                time: time || null,
+                venue: venue || null,
+                speaker: speaker || null,
+                created_by: AppState.currentUser.id 
+              }]);
+              
+              alert("Event created successfully!");
+              renderAdminPanel(container);
+            });
+          } else if (tab === 'documents') {
+            adminContent.innerHTML = `
+              <div class="glass-card p-5">
+                <h3 class="font-bold mb-3">Manage Documents</h3>
+                <div id="documentList" class="space-y-2"></div>
+              </div>`;
+            
+            const { data: allDocs } = await supabaseClient.from('documents').select('*').order('created_at', { ascending: false });
+            const docListDiv = document.getElementById('documentList');
+            if (docListDiv) {
+              docListDiv.innerHTML = allDocs?.map(doc => `
+                <div class="border-b py-2 flex justify-between items-center">
+                  <div><b>${doc.title}</b><br><span class="text-xs">⬇️ ${doc.downloads} downloads | 👁️ ${doc.views} views</span></div>
+                  <button data-doc-delete="${doc.id}" class="deleteDoc bg-red-500 text-white px-2 py-1 rounded text-sm">Delete</button>
+                </div>
+              `).join('') || '<p class="text-gray-500">No documents uploaded</p>';
+            }
+            
+            document.querySelectorAll('.deleteDoc').forEach(btn => {
+              btn.onclick = async () => {
+                if (confirm("Delete this document?")) {
+                  await supabaseClient.from('documents').delete().eq('id', btn.dataset.docDelete);
+                  renderAdminPanel(container);
+                }
+              };
+            });
+          } else {
+            // Dashboard - refresh data
+            renderAdminPanel(container);
+          }
+        };
+      });
+      
+      document.getElementById('backToUser')?.addEventListener('click', () => {
+        AppState.currentView = 'home';
+        renderMainView();
+      });
+    }
+
+    // =====================================================
+    // 13. NAVIGATION LISTENERS
+    // =====================================================
+    function attachNavigationListeners() {
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.onclick = () => {
+          AppState.currentView = btn.dataset.nav;
+          renderMainView();
+        };
+      });
+      
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) {
+        logoutBtn.onclick = async () => {
+          await supabaseClient.auth.signOut();
+          window.location.reload();
+        };
+      }
+      
+      const darkModeToggle = document.getElementById('darkModeToggle');
+      if (darkModeToggle) {
+        darkModeToggle.onclick = () => {
+          AppState.darkMode = !AppState.darkMode;
+          applyDarkMode();
+        };
+      }
+      
+      const notificationsBtn = document.getElementById('notificationsBtn');
+      if (notificationsBtn) {
+        notificationsBtn.onclick = async () => {
+          const { data } = await supabaseClient
+            .from('notifications')
+            .select('*')
+            .eq('user_id', AppState.currentUser?.id)
+            .order('created_at', { ascending: false })
+            .limit(20);
+          
+          if (data && data.length > 0) {
+            const notificationText = data.map(n => `${n.title}: ${n.message} (${new Date(n.created_at).toLocaleString()})`).join('\n');
+            alert(notificationText);
+            
+            // Mark as read
+            await supabaseClient
+              .from('notifications')
+              .update({ read: true })
+              .eq('user_id', AppState.currentUser.id);
+            loadNotifications();
+          } else {
+            alert("No notifications");
+          }
+        };
+      }
+    }
+    
+    // Start the app
+    checkUser();
+  </script>
+</body>
+</html>
