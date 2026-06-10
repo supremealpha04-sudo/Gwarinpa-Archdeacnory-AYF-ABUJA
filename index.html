@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Gwarimpa Archdeaconry | AYF Conference Portal</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- QR Code Generator -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <style>
+    * { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 1.5rem;
+    }
+    .dark .glass-card {
+      background: rgba(10, 46, 115, 0.75);
+      border-color: rgba(212, 175, 55, 0.5);
+    }
+    .bottom-nav-active {
+      color: #D4AF37;
+      border-bottom: 2px solid #D4AF37;
+    }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+  </style>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: { colors: { royal: '#0A2E73', gold: '#D4AF37' } } }
+    }
+  </script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-white transition-all">
+
+  <div id="root" class="max-w-3xl mx-auto pb-20 md:pb-0 relative">
+    <!-- Header -->
+    <header class="sticky top-0 z-30 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gold/20 shadow-sm">
+      <div class="flex justify-between items-center px-4 py-3">
+        <div class="flex items-center gap-2">
+          <i class="fas fa-church text-royal dark:text-gold text-2xl"></i>
+          <h1 class="font-bold text-lg">Gwarimpa AYF</h1>
+        </div>
+        <div class="flex gap-3">
+          <button id="darkModeToggle" class="text-royal dark:text-gold text-xl"><i class="fas fa-moon"></i></button>
+          <button id="logoutBtn" class="text-red-500 text-sm bg-red-50 dark:bg-red-900/30 px-3 py-1 rounded-full hidden"><i class="fas fa-sign-out-alt"></i></button>
+        </div>
+      </div>
+    </header>
+
+    <main id="appContainer" class="p-4"></main>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-t border-gold/30 z-40 md:hidden">
+      <div class="flex justify-around py-2">
+        <button data-nav="home" class="nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs"><i class="fas fa-home text-xl"></i><span>Home</span></button>
+        <button data-nav="conference" class="nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs"><i class="fas fa-calendar-alt text-xl"></i><span>Conference</span></button>
+        <button data-nav="resources" class="nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs"><i class="fas fa-folder-open text-xl"></i><span>Resources</span></button>
+        <button data-nav="community" class="nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs"><i class="fas fa-users text-xl"></i><span>Community</span></button>
+        <button data-nav="profile" class="nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs"><i class="fas fa-user-circle text-xl"></i><span>Profile</span></button>
+      </div>
+    </nav>
+  </div>
+
+  <script>
+    // ----------------------------------- SUPABASE INIT -----------------------------------
+    const SUPABASE_URL = 'YOUR_SUPABASE_URL'; // <--- PASTE YOUR URL HERE
+    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'; // <--- PASTE YOUR ANON KEY HERE
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let currentUser = null;
+    let currentProfile = null;
+    let currentView = 'home';
+    let darkMode = localStorage.getItem('darkMode') === 'true';
+    let postsSubscription = null;
+
+    // Helper Functions
+    function applyDarkMode() {
+      if (darkMode) document.documentElement.classList.add('dark');
+      else document.documentElement.classList.remove('dark');
+      localStorage.setItem('darkMode', darkMode);
+    }
+    applyDarkMode();
+    document.getElementById('darkModeToggle')?.addEventListener('click', () => { darkMode = !darkMode; applyDarkMode(); });
+
+    // Generate Unique Conference ID
+    async function generateConferenceId() {
+      const { count } = await supabase.from('registrations').select('*', { count: 'exact', head: true });
+      const num = (count + 1).toString().padStart(4, '0');
+      return `GAC2026-${num}`;
+    }
+
+    // Onboarding after signup
+    async function showOnboarding(userId) {
+      const fullName = prompt("Enter your Full Name:");
+      const parish = prompt("Enter your Parish:");
+      const phone = prompt("Phone Number:");
+      const gender = prompt("Gender (Male/Female):");
+      const ageRange = prompt("Age Range (e.g., 18-25):");
+      const ayfPosition = prompt("AYF Position:");
+
+      await supabase.from('profiles').insert([{
+        id: userId, full_name: fullName, phone, gender, age_range: ageRange,
+        parish, ayf_position: ayfPosition, avatar_url: `https://ui-avatars.com/api/?name=${fullName}&background=0A2E73&color=fff`
+      }]);
+
+      const conferenceId = await generateConferenceId();
+      await supabase.from('registrations').insert([{ user_id: userId, conference_id: conferenceId, status: 'approved', qr_code: conferenceId }]);
+      alert(`Registration successful! Your Conference ID: ${conferenceId}`);
+      checkUser();
+    }
+
+    // Authentication State
+    async function checkUser() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { renderAuth(); return; }
+      currentUser = user;
+      const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+      if (!profile) { await showOnboarding(user.id); return; }
+      currentProfile = profile;
+      document.getElementById('logoutBtn')?.classList.remove('hidden');
+      setupRealtime();
+      renderMainView();
+    }
+
+    function setupRealtime() {
+      if (postsSubscription) return;
+      postsSubscription = supabase
+        .channel('posts-feed')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, () => { if (currentView === 'home') renderHomeFeed(); })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'comments' }, () => { if (currentView === 'home') renderHomeFeed(); })
+        .subscribe();
+    }
+
+    // Authentication UI
+    async function renderAuth() {
+      document.getElementById('logoutBtn')?.classList.add('hidden');
+      const container = document.getElementById('appContainer');
+      container.innerHTML = `
+        <div class="flex items-center justify-center min-h-[80vh]">
+          <div class="glass-card p-6 w-full max-w-md">
+            <div class="text-center mb-6"><i class="fas fa-cross text-royal text-4xl"></i><h2 class="text-2xl font-bold">Gwarimpa AYF Portal</h2></div>
+            <form id="loginForm"><input type="email" id="email" placeholder="Email" class="w-full p-3 rounded-xl border mb-3 bg-white dark:bg-gray-800"><input type="password" id="password" placeholder="Password" class="w-full p-3 rounded-xl border mb-4"><button class="w-full bg-royal text-white py-3 rounded-xl font-semibold">Login</button></form>
+            <button id="googleBtn" class="w-full border border-gold/50 rounded-xl py-2 flex justify-center gap-2 mt-2"><i class="fab fa-google"></i> Google Login</button>
+            <p class="text-center text-sm mt-4"><a href="#" id="signupLink" class="text-gold">Create Account</a> | <a href="#" id="resetLink" class="text-royal">Forgot Password?</a></p>
+          </div>
+        </div>`;
+      document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const { error } = await supabase.auth.signInWithPassword({ email: document.getElementById('email').value, password: document.getElementById('password').value });
+        if (error) alert(error.message); else checkUser();
+      });
+      document.getElementById('googleBtn').onclick = async () => { await supabase.auth.signInWithOAuth({ provider: 'google' }); };
+      document.getElementById('signupLink').onclick = async (e) => {
+        e.preventDefault();
+        const email = prompt("Enter email:");
+        const pass = prompt("Enter password:");
+        const { error } = await supabase.auth.signUp({ email, password: pass });
+        if (error) alert(error.message); else alert("Check email for confirmation!");
+      };
+      document.getElementById('resetLink').onclick = async () => { const email = prompt("Enter email:"); await supabase.auth.resetPasswordForEmail(email); alert("Reset link sent!"); };
+    }
+
+    // RENDER ENGINE
+    async function renderMainView() {
+      if (!currentProfile) return;
+      const container = document.getElementById('appContainer');
+      if (currentView === 'home') await renderHomeFeed(container);
+      else if (currentView === 'conference') await renderConference(container);
+      else if (currentView === 'resources') await renderDocuments(container);
+      else if (currentView === 'community') await renderCommunity(container);
+      else if (currentView === 'profile') await renderProfile(container);
+      attachNavListeners();
+    }
+
+    // 1. HOME FEED
+    async function renderHomeFeed(container) {
+      const { data: posts } = await supabase.from('posts').select(`*, profiles(full_name, avatar_url), likes(count), comments(count)`).order('created_at', { ascending: false });
+      const { data: registration } = await supabase.from('registrations').select('conference_id').eq('user_id', currentUser.id).single();
+      const confDate = new Date(2026, 3, 15);
+      const diff = Math.ceil((confDate - new Date()) / (1000 * 60 * 60 * 24));
+      
+      let postsHtml = posts?.map(post => `
+        <div class="glass-card p-4 mb-4">
+          <div class="flex gap-3"><img src="${post.profiles.avatar_url}" class="w-10 h-10 rounded-full"><div><b>${post.profiles.full_name}</b><p class="text-xs">${new Date(post.created_at).toLocaleString()}</p></div></div>
+          <p class="mt-2">${post.content}</p>
+          <div class="flex gap-4 mt-3 text-sm">
+            <button data-like="${post.id}" class="like-btn"><i class="far fa-heart"></i> ${post.likes[0]?.count || 0}</button>
+            <button data-comment="${post.id}" class="comment-toggle"><i class="far fa-comment"></i> ${post.comments[0]?.count || 0}</button>
+            <button data-share="${post.id}" onclick="navigator.share({title:'Check this post', text:'${post.content}'})"><i class="fas fa-share-alt"></i></button>
+          </div>
+          <div id="comments-${post.id}" class="hidden mt-3 border-t pt-2"><textarea id="commentText-${post.id}" placeholder="Write a comment..." class="w-full p-2 rounded border dark:bg-gray-800"></textarea><button data-comment-post="${post.id}" class="submit-comment bg-royal text-white px-3 py-1 rounded mt-1">Reply</button></div>
+        </div>`).join('') || '<div class="glass-card p-4 text-center">No posts yet. Be the first!</div>';
+
+      container.innerHTML = `
+        <div class="glass-card p-4 mb-4"><div class="flex justify-between"><h2 class="font-bold">Welcome, ${currentProfile.full_name}</h2><span class="bg-gold/20 px-2 rounded-full text-sm">${registration?.conference_id || 'Pending'}</span></div><div class="mt-2 text-gold font-bold">⏰ Conference in ${diff} days</div></div>
+        <button id="newPostTrigger" class="w-full glass-card p-3 mb-4 text-left text-gold font-semibold"><i class="fas fa-plus-circle"></i> Share an update, photo, or document...</button>
+        ${postsHtml}`;
+      
+      document.getElementById('newPostTrigger')?.addEventListener('click', async () => {
+        const content = prompt("What's on your mind?");
+        if (content) await supabase.from('posts').insert([{ user_id: currentUser.id, content }]);
+        renderHomeFeed(container);
+      });
+      document.querySelectorAll('.like-btn').forEach(btn => btn.onclick = async () => await supabase.from('likes').insert([{ user_id: currentUser.id, post_id: btn.dataset.like }]));
+      document.querySelectorAll('.submit-comment').forEach(btn => btn.onclick = async () => {
+        const postId = btn.dataset.commentPost;
+        const textarea = document.getElementById(`commentText-${postId}`);
+        await supabase.from('comments').insert([{ post_id: postId, user_id: currentUser.id, content: textarea.value }]);
+        textarea.value = '';
+        renderHomeFeed(container);
+      });
+      document.querySelectorAll('.comment-toggle').forEach(btn => btn.onclick = () => document.getElementById(`comments-${btn.dataset.comment}`).classList.toggle('hidden'));
+    }
+
+    // 2. CONFERENCE MODULE
+    async function renderConference(container) {
+      const { data: reg } = await supabase.from('registrations').select('conference_id').eq('user_id', currentUser.id).single();
+      container.innerHTML = `<div class="space-y-4"><div class="glass-card p-5 text-center"><h2 class="text-2xl font-bold text-royal dark:text-gold">Rise & Build</h2><p class="text-sm">April 15-17, 2026 | Archbishop Vining Memorial Church</p><div class="bg-royal/10 p-2 rounded mt-2">🎤 Speakers: Ven. Dr. Peter, Rev. Sarah</div></div><div class="glass-card p-4"><h3 class="font-bold">📅 Schedule</h3><ul><li>Day1: Opening Ceremony 9am</li><li>Day2: Seminars & Workshops</li><li>Day3: Holy Communion & Awards</li></ul></div><div class="glass-card p-4 text-center"><p><i class="fas fa-qrcode"></i> Your Check-in QR Code</p><div id="qrHere" class="flex justify-center mt-2"></div></div></div>`;
+      if (reg) new QRCode(document.getElementById('qrHere'), { text: reg.conference_id, width: 150, height: 150 });
+    }
+
+    // 3. RESOURCES & DOCUMENTS
+    async function renderDocuments(container) {
+      const { data: docs } = await supabase.from('documents').select('*');
+      container.innerHTML = `<div class="space-y-3">${docs?.map(d => `<div class="glass-card p-3 flex justify-between"><div><i class="fas fa-file-pdf text-red-500"></i> ${d.title}<div class="text-xs">👁️ ${d.views} ⬇️ ${d.downloads}</div></div><a href="${d.file_url}" target="_blank" class="bg-gold/20 p-2 rounded"><i class="fas fa-download"></i></a></div>`).join('') || '<p class="glass-card p-4 text-center">No documents yet</p>'}</div>`;
+    }
+
+    // 4. COMMUNITY (Group style)
+    async function renderCommunity(container) {
+      container.innerHTML = `<div class="glass-card p-4"><textarea id="discussionContent" rows="2" placeholder="Start a discussion or ask a question..." class="w-full p-3 rounded-xl border dark:bg-gray-800"></textarea><button id="publishDiscussion" class="bg-gold text-royal mt-2 px-4 py-2 rounded-full font-bold w-full">Post to Community</button></div><div id="communityFeed" class="mt-4"></div>`;
+      document.getElementById('publishDiscussion').onclick = async () => {
+        const content = document.getElementById('discussionContent').value;
+        if (content) await supabase.from('posts').insert([{ user_id: currentUser.id, content }]);
+        document.getElementById('discussionContent').value = '';
+        renderCommunity(container);
+      };
+      const { data: posts } = await supabase.from('posts').select(`*, profiles(full_name)`).order('created_at', { ascending: false });
+      document.getElementById('communityFeed').innerHTML = posts?.map(p => `<div class="glass-card p-3 mt-2"><b>${p.profiles.full_name}</b><p>${p.content}</p><button class="text-gold text-sm"><i class="far fa-comment"></i> Reply</button></div>`).join('');
+    }
+
+    // 5. PROFILE PAGE
+    async function renderProfile(container) {
+      const { data: reg } = await supabase.from('registrations').select('conference_id, checked_in').eq('user_id', currentUser.id).single();
+      container.innerHTML = `<div class="glass-card p-6 text-center"><img src="${currentProfile.avatar_url}" class="w-24 h-24 rounded-full mx-auto border-4 border-gold"><h2 class="text-xl font-bold mt-2">${currentProfile.full_name}</h2><p class="text-gold">${reg?.conference_id || 'Unregistered'}</p><p>${currentProfile.parish} Parish | ${currentProfile.ayf_position}</p><div class="mt-4 bg-royal/20 p-2 rounded-lg">✅ Check-in Status: ${reg?.checked_in ? 'Attended' : 'Pending'}</div><button id="reportBtn" class="mt-4 text-sm text-red-500">Report Issue with Document</button></div>`;
+      document.getElementById('reportBtn')?.addEventListener('click', () => alert('Feedback sent to Archdeaconry Admin.'));
+    }
+
+    function attachNavListeners() {
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.onclick = () => { currentView = btn.dataset.nav; renderMainView(); });
+      document.getElementById('logoutBtn').onclick = async () => { await supabase.auth.signOut(); location.reload(); };
+    }
+
+    // Auto-subscribe to realtime feed
+    supabase.auth.onAuthStateChange((event) => { if (event === 'SIGNED_IN') checkUser(); if (event === 'SIGNED_OUT') { currentUser = null; renderAuth(); } });
+    checkUser();
+  </script>
+</body>
+</html>
