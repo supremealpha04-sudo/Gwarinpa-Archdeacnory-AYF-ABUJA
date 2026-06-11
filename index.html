@@ -4,49 +4,109 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#0A2E73">
+  <meta name="referrer" content="no-referrer-when-downgrade">
   <title>AYF Conference 2026 | Gwarimpa Archdeaconry</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0-beta3/css/all.css">
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <!-- QR Code -->
+  <!-- QR Code Library -->
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <!-- HTML5 QR Scanner -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- GSAP for animations -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   
   <style>
     * { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-    body { background: #f5f5f0; }
-    .dark body { background: #1a1a1a; }
+    
+    body {
+      background: #f5f5f0 !important;
+    }
+    
+    .dark body {
+      background: #1a1a1a !important;
+    }
     
     .glass-card {
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, 0.92);
       backdrop-filter: blur(12px);
-      border: 1px solid rgba(212, 175, 55, 0.3);
+      border: 1px solid rgba(212, 175, 55, 0.25);
       border-radius: 1.5rem;
-      transition: all 0.3s ease;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    .dark .glass-card { background: rgba(30, 30, 30, 0.95); }
+    
+    .dark .glass-card {
+      background: rgba(26, 26, 26, 0.92);
+      border-color: rgba(212, 175, 55, 0.4);
+    }
     
     .glass-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      transform: translateY(-4px) scale(1.01);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+      border-color: rgba(212, 175, 55, 0.5);
     }
     
-    .btn-gold {
-      background: linear-gradient(135deg, #D4AF37, #C5A028);
-      transition: all 0.3s ease;
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-    .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(212, 175, 55, 0.3); }
     
-    .btn-royal {
-      background: linear-gradient(135deg, #0A2E73, #0d3a8a);
-      transition: all 0.3s ease;
+    @keyframes fadeInScale {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
     }
-    .btn-royal:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(10, 46, 115, 0.3); }
+    
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(50px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    
+    .animate-fadeInUp { animation: fadeInUp 0.6s ease-out forwards; }
+    .animate-fadeInScale { animation: fadeInScale 0.5s ease-out forwards; }
+    .animate-slideInRight { animation: slideInRight 0.5s ease-out forwards; }
+    .animate-pulse-slow { animation: pulse 2s ease-in-out infinite; }
+    
+    .notification-card {
+      background: white;
+      border-left: 4px solid #D4AF37;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .dark .notification-card { background: #2d2d2d; }
+    
+    .notification-card:hover {
+      transform: translateX(5px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .notification-badge {
+      position: absolute;
+      top: -5px;
+      right: -8px;
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
     
     .loader {
       border: 3px solid #e0e0e0;
@@ -62,19 +122,88 @@
       100% { transform: rotate(360deg); }
     }
     
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+    .countdown-number {
+      background: linear-gradient(135deg, #0A2E73, #1a4a9e);
+      border-radius: 16px;
+      padding: 14px 8px;
+      min-width: 80px;
+      text-align: center;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
     }
     
-    .animate-fadeInUp { animation: fadeInUp 0.5s ease-out forwards; }
+    .countdown-number::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(45deg, #D4AF37, #FFD700, #D4AF37);
+      border-radius: 18px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: -1;
+    }
+    
+    .countdown-number:hover::before { opacity: 1; }
+    .countdown-number:hover { transform: translateY(-3px); }
+    
+    .post-card {
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    .post-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+    }
+    
+    input, select, textarea {
+      transition: all 0.3s ease;
+      background: #fafaf8;
+    }
+    
+    .dark input, .dark select, .dark textarea { background: #2d2d2d; }
+    
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #D4AF37;
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+      transform: scale(1.01);
+    }
+    
+    .btn-gold {
+      background: linear-gradient(135deg, #D4AF37, #C5A028);
+      transition: all 0.3s ease;
+    }
+    
+    .btn-gold:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(212, 175, 55, 0.3);
+    }
+    
+    .btn-royal {
+      background: linear-gradient(135deg, #0A2E73, #0d3a8a);
+      transition: all 0.3s ease;
+    }
+    
+    .btn-royal:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(10, 46, 115, 0.3);
+    }
+    
+    .logo-container { transition: all 0.3s ease; }
+    .logo-container:hover { transform: rotate(5deg) scale(1.05); }
     
     .nav-btn {
       transition: all 0.3s ease;
       position: relative;
     }
+    
     .nav-btn:hover { transform: translateY(-3px); color: #D4AF37; }
     .nav-btn.active { color: #D4AF37; }
+    
     .nav-btn.active::after {
       content: '';
       position: absolute;
@@ -85,39 +214,27 @@
       height: 3px;
       background: #D4AF37;
       border-radius: 3px;
+      animation: fadeInScale 0.3s ease-out;
     }
     
-    .notification-badge {
-      position: absolute;
-      top: -8px;
-      right: -8px;
+    .offline-badge {
+      position: fixed;
+      top: 70px;
+      left: 50%;
+      transform: translateX(-50%);
       background: #ef4444;
       color: white;
-      border-radius: 50%;
-      width: 18px;
-      height: 18px;
-      font-size: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-size: 12px;
+      z-index: 100;
+      display: none;
+      animation: slideInRight 0.3s ease-out;
     }
     
-    .countdown-number {
-      background: linear-gradient(135deg, #0A2E73, #1a4a9e);
-      border-radius: 16px;
-      padding: 14px 8px;
-      text-align: center;
-      transition: all 0.3s ease;
-    }
-    .countdown-number:hover { transform: translateY(-3px); }
-    
-    .post-card {
-      transition: all 0.3s ease;
-    }
-    .post-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    }
+    .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #e0e0e0; border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 10px; }
     
     .notification-panel {
       position: fixed;
@@ -131,6 +248,7 @@
       transition: right 0.3s ease;
       overflow-y: auto;
     }
+    
     .dark .notification-panel { background: #1a1a1a; }
     .notification-panel.open { right: 0; }
     
@@ -144,66 +262,91 @@
       z-index: 999;
       display: none;
     }
+    
     .notification-overlay.show { display: block; }
-    
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 1100;
-      animation: fadeInUp 0.3s ease-out;
-    }
-    
-    input, select, textarea {
-      transition: all 0.3s ease;
-    }
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: #D4AF37;
-      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
-    }
   </style>
+  
+  <script>
+    // GSAP null error handler
+    if (typeof gsap !== 'undefined') {
+      const originalTo = gsap.to;
+      gsap.to = function(target, vars) {
+        if (!target) return null;
+        if (vars && vars.onComplete) {
+          const originalOnComplete = vars.onComplete;
+          vars.onComplete = function() {
+            try {
+              if (originalOnComplete) originalOnComplete.apply(this, arguments);
+            } catch(e) {
+              console.warn('GSAP animation error caught:', e);
+            }
+          };
+        }
+        return originalTo.call(this, target, vars);
+      };
+    }
+    
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: { royal: '#0A2E73', gold: '#D4AF37' }
+        }
+      }
+    }
+  </script>
 </head>
-<body class="text-gray-800 dark:text-white">
+<body class="bg-[#f5f5f0] dark:bg-gray-900 text-gray-800 dark:text-white transition-all">
 
-  <!-- Notification Panel -->
-  <div id="notificationOverlay" class="notification-overlay"></div>
-  <div id="notificationPanel" class="notification-panel">
-    <div class="sticky top-0 bg-white dark:bg-gray-800 border-b border-gold/20 p-4 flex justify-between items-center">
-      <h3 class="font-bold text-lg"><i class="fas fa-bell text-gold mr-2"></i>Notifications</h3>
-      <button id="closeNotificationPanel" class="text-gray-500 hover:text-gold text-2xl">&times;</button>
+  <div id="root" class="relative pb-20">
+    <!-- Offline Indicator -->
+    <div id="offlineBadge" class="offline-badge">
+      <i class="fas fa-wifi-slash mr-2"></i> You're offline - some features may be limited
     </div>
-    <div id="notificationList" class="p-4 space-y-3"></div>
-  </div>
 
-  <div id="root" class="pb-20">
+    <!-- Notification Panel -->
+    <div id="notificationOverlay" class="notification-overlay"></div>
+    <div id="notificationPanel" class="notification-panel">
+      <div class="sticky top-0 bg-white dark:bg-gray-800 border-b border-gold/20 p-4 flex justify-between items-center">
+        <h3 class="font-bold text-lg"><i class="fas fa-bell text-gold mr-2"></i>Notifications</h3>
+        <button id="closeNotificationPanel" class="text-gray-500 hover:text-gold text-xl">&times;</button>
+      </div>
+      <div id="notificationList" class="p-4 space-y-3">
+        <div class="text-center text-gray-500 py-8">Loading notifications...</div>
+      </div>
+    </div>
+
     <!-- Header -->
-    <header class="sticky top-0 z-40 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border-b border-gold/20 shadow-sm">
+    <header id="mainHeader" class="sticky top-0 z-40 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border-b border-gold/20 shadow-sm">
       <div class="flex justify-between items-center px-4 py-3 max-w-7xl mx-auto">
-        <div>
-          <h1 class="font-bold text-lg">AYF Conference 2026</h1>
-          <p class="text-xs text-gold">"If God Be For Us" - Romans 8:31</p>
+        <div class="flex items-center gap-3">
+          <div class="logo-container">
+            <img src="/logo.png" alt="Logo" class="w-10 h-10 object-contain" onerror="this.style.display='none'">
+          </div>
+          <div>
+            <h1 class="font-bold text-sm md:text-base bg-gradient-to-r from-royal to-gold bg-clip-text text-transparent">AYF Gwarimba Archdeaconry</h1>
+            <p class="text-xs text-gold hidden md:block">Conference 2026 | If God Be For Us</p>
+          </div>
         </div>
-        <div class="flex gap-4">
-          <button id="darkModeToggle" class="text-xl transition-transform hover:scale-110"><i class="fas fa-moon"></i></button>
-          <button id="notificationsBtn" class="text-xl relative transition-transform hover:scale-110">
+        <div class="flex gap-3">
+          <button id="darkModeToggle" class="text-royal dark:text-gold text-xl transition-transform hover:scale-110"><i class="fas fa-moon"></i></button>
+          <button id="notificationsBtn" class="text-royal dark:text-gold text-xl relative transition-transform hover:scale-110">
             <i class="fas fa-bell"></i>
             <span id="notificationCount" class="notification-badge hidden">0</span>
           </button>
-          <button id="userMenuBtn" class="text-xl transition-transform hover:scale-110"><i class="fas fa-user-circle"></i></button>
+          <div class="relative">
+            <button id="userMenuBtn" class="text-royal dark:text-gold text-xl transition-transform hover:scale-110"><i class="fas fa-user-circle"></i></button>
+            <div id="userDropdown" class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gold/20 z-50 animate-fadeInScale">
+              <a href="#" id="profileDropdownLink" class="block px-4 py-2 hover:bg-gold/10 transition-colors"><i class="fas fa-user mr-2"></i> Profile</a>
+              <a href="#" id="termsDropdownLink" class="block px-4 py-2 hover:bg-gold/10 transition-colors"><i class="fas fa-file-contract mr-2"></i> Terms & Conditions</a>
+              <a href="#" id="privacyDropdownLink" class="block px-4 py-2 hover:bg-gold/10 transition-colors"><i class="fas fa-shield-alt mr-2"></i> Privacy Policy</a>
+              <hr class="my-1 border-gold/20">
+              <button id="logoutDropdownBtn" class="w-full text-left px-4 py-2 hover:bg-red-50 dark:hover:bg-red-900/30 text-red-600 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i> Logout</button>
+            </div>
+          </div>
         </div>
       </div>
     </header>
-
-    <!-- User Dropdown -->
-    <div id="userDropdown" class="hidden fixed right-4 top-16 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-lg z-50 border border-gold/20">
-      <a href="#" id="profileDropdownLink" class="block px-4 py-2 hover:bg-gold/10 transition-colors"><i class="fas fa-user mr-2"></i> Profile</a>
-      <a href="#" id="adminDropdownLink" class="admin-only hidden block px-4 py-2 hover:bg-gold/10 transition-colors"><i class="fas fa-shield-alt mr-2"></i> Admin Panel</a>
-      <a href="#" id="termsDropdownLink" class="block px-4 py-2 hover:bg-gold/10 transition-colors"><i class="fas fa-file-contract mr-2"></i> Terms & Conditions</a>
-      <a href="#" id="privacyDropdownLink" class="block px-4 py-2 hover:bg-gold/10 transition-colors"><i class="fas fa-shield-alt mr-2"></i> Privacy Policy</a>
-      <hr class="my-1 border-gold/20">
-      <button id="logoutBtn" class="w-full text-left px-4 py-2 hover:bg-red-50 dark:hover:bg-red-900/30 text-red-600 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i> Logout</button>
-    </div>
 
     <!-- Main Content -->
     <main id="appContainer" class="max-w-7xl mx-auto px-4 py-6">
@@ -212,885 +355,1142 @@
       </div>
     </main>
 
-    <!-- Bottom Navigation -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border-t border-gold/30 z-40">
+    <!-- Mobile Bottom Navigation -->
+    <nav id="bottomNav" class="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border-t border-gold/30 z-40 lg:hidden">
       <div class="flex justify-around py-2">
-        <button data-nav="home" class="nav-btn flex flex-col items-center text-xs px-4 py-1"><i class="fas fa-home text-xl"></i><span>Home</span></button>
-        <button data-nav="conference" class="nav-btn flex flex-col items-center text-xs px-4 py-1"><i class="fas fa-calendar-alt text-xl"></i><span>Conference</span></button>
-        <button data-nav="resources" class="nav-btn flex flex-col items-center text-xs px-4 py-1"><i class="fas fa-folder-open text-xl"></i><span>Resources</span></button>
-        <button data-nav="community" class="nav-btn flex flex-col items-center text-xs px-4 py-1"><i class="fas fa-users text-xl"></i><span>Community</span></button>
+        <button data-nav="home" class="nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs"><i class="fas fa-home text-xl"></i><span>Home</span></button>
+        <button data-nav="conference" class="nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs"><i class="fas fa-calendar-alt text-xl"></i><span>Conference</span></button>
+        <button data-nav="resources" class="nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs"><i class="fas fa-folder-open text-xl"></i><span>Resources</span></button>
+        <button data-nav="community" class="nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs"><i class="fas fa-users text-xl"></i><span>Community</span></button>
+        <button data-nav="admin" class="admin-only-nav nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs hidden"><i class="fas fa-shield-alt text-xl"></i><span>Admin</span></button>
       </div>
     </nav>
   </div>
 
   <script>
-    // =====================================================
-    // SUPABASE CONFIGURATION
-    // =====================================================
-    const SUPABASE_URL = 'https://haxebhwcudkclyxsjaqx.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhheGViaHdjdWRrY2x5eHNqYXF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMDcyMjksImV4cCI6MjA5NjY4MzIyOX0.Iwu6NPRvnJtnfL4D_N2slvKOUidQ1UdLbUPG-4QCuM4';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    (function() {
+      // =====================================================
+      // 1. SUPABASE INITIALIZATION
+      // =====================================================
+      const SUPABASE_URL = 'https://haxebhwcudkclyxsjaqx.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhheGViaHdjdWRrY2x5eHNqYXF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMDcyMjksImV4cCI6MjA5NjY4MzIyOX0.Iwu6NPRvnJtnfL4D_N2slvKOUidQ1UdLbUPG-4QCuM4';
+      
+      const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // =====================================================
-    // GLOBAL STATE
-    // =====================================================
-    let currentUser = null;
-    let currentProfile = null;
-    let currentView = 'home';
-    let darkMode = localStorage.getItem('darkMode') === 'true';
-    let likedPosts = new Set();
-
-    // =====================================================
-    // HELPER FUNCTIONS
-    // =====================================================
-    function showToast(message, type = 'success') {
-      const toast = document.createElement('div');
-      const colors = {
-        success: 'bg-green-500',
-        error: 'bg-red-500',
-        info: 'bg-blue-500',
-        warning: 'bg-yellow-500'
+      // =====================================================
+      // 2. GLOBAL STATE
+      // =====================================================
+      const AppState = {
+        currentUser: null,
+        currentProfile: null,
+        currentView: 'home',
+        darkMode: localStorage.getItem('darkMode') === 'true',
+        adminTab: 'dashboard',
+        realtimeSubscriptions: [],
+        analyticsChart: null,
+        qrScanner: null,
+        likedPosts: new Set()
       };
-      toast.className = `toast ${colors[type]} text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-3`;
-      toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i> ${message}`;
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
-    }
 
-    function applyDarkMode() {
-      if (darkMode) document.documentElement.classList.add('dark');
-      else document.documentElement.classList.remove('dark');
-      localStorage.setItem('darkMode', darkMode);
-    }
-    applyDarkMode();
-
-    // =====================================================
-    // NOTIFICATIONS
-    // =====================================================
-    async function loadNotifications() {
-      if (!currentUser) return;
-      try {
-        const { data } = await supabase
-          .from('notifications')
-          .select('*')
-          .eq('user_id', currentUser.id)
-          .eq('read', false)
-          .order('created_at', { ascending: false });
-        
-        const count = data?.length || 0;
-        const badge = document.getElementById('notificationCount');
-        if (badge) {
-          if (count > 0) {
-            badge.classList.remove('hidden');
-            badge.textContent = count > 9 ? '9+' : count;
-          } else {
-            badge.classList.add('hidden');
-          }
-        }
-        return data || [];
-      } catch(e) { return []; }
-    }
-
-    async function showNotificationPanel() {
-      const notifications = await loadNotifications();
-      const panel = document.getElementById('notificationPanel');
-      const overlay = document.getElementById('notificationOverlay');
-      const list = document.getElementById('notificationList');
-      
-      if (notifications.length === 0) {
-        list.innerHTML = '<div class="text-center text-gray-500 py-8"><i class="fas fa-bell-slash text-4xl mb-2 block"></i>No new notifications</div>';
-      } else {
-        list.innerHTML = notifications.map(n => `
-          <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
-            <div class="flex items-start gap-3">
-              <div class="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center">
-                <i class="fas fa-bell text-gold"></i>
-              </div>
-              <div class="flex-1">
-                <h4 class="font-semibold text-sm">${escapeHtml(n.title)}</h4>
-                <p class="text-xs text-gray-500 mt-1">${escapeHtml(n.message)}</p>
-                <span class="text-xs text-gold mt-1 block">${new Date(n.created_at).toLocaleString()}</span>
-              </div>
-            </div>
-          </div>
-        `).join('');
-        
-        setTimeout(async () => {
-          await supabase.from('notifications').update({ read: true }).eq('user_id', currentUser.id);
-          const badge = document.getElementById('notificationCount');
-          if (badge) badge.classList.add('hidden');
-        }, 2000);
-      }
-      
-      panel.classList.add('open');
-      overlay.classList.add('show');
-    }
-
-    function escapeHtml(text) {
-      if (!text) return '';
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
-
-    // =====================================================
-    // AUTHENTICATION
-    // =====================================================
-    async function checkAuth() {
-      try {
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        
-        if (userError || !user) {
-          showLogin();
-          return;
-        }
-        
-        currentUser = user;
-        
-        // Get or create profile
-        let { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .maybeSingle();
-        
-        if (profileError || !profile) {
-          // Create profile
-          const newProfile = {
-            id: user.id,
-            full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
-            email: user.email,
-            phone: user.user_metadata?.phone || '',
-            role: 'member',
-            avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent(user.user_metadata?.full_name || user.email?.split('@')[0] || 'User')}&background=0A2E73&color=fff`,
-            created_at: new Date().toISOString()
-          };
-          
-          const { data: newProfile } = await supabase
-            .from('profiles')
-            .insert([newProfile])
-            .select()
-            .single();
-          
-          currentProfile = newProfile || newProfile;
-        } else {
-          currentProfile = profile;
-        }
-        
-        // Ensure registration exists
-        const { data: existingReg } = await supabase
-          .from('registrations')
-          .select('*')
-          .eq('user_id', user.id)
-          .maybeSingle();
-        
-        if (!existingReg) {
-          const conferenceId = 'AYF-' + Math.random().toString(36).substring(2, 10).toUpperCase();
-          await supabase.from('registrations').insert([{
-            user_id: user.id,
-            conference_id: conferenceId,
-            status: 'pending'
-          }]);
-        }
-        
-        // Show/hide admin link
-        const isAdmin = ['super_admin', 'conference_admin', 'moderator', 'archdeaconry_admin'].includes(currentProfile.role);
-        const adminLink = document.getElementById('adminDropdownLink');
-        if (adminLink) {
-          if (isAdmin) adminLink.classList.remove('hidden');
-          else adminLink.classList.add('hidden');
-        }
-        
-        await loadNotifications();
-        renderMainView();
-        
-      } catch (error) {
-        console.error('Auth error:', error);
-        showLogin();
-      }
-    }
-
-    function showLogin() {
-      const container = document.getElementById('appContainer');
-      container.innerHTML = `
-        <div class="flex items-center justify-center min-h-[80vh] animate-fadeInUp">
-          <div class="glass-card p-8 w-full max-w-md">
-            <div class="text-center mb-8">
-              <h2 class="text-3xl font-bold text-royal">AYF Conference</h2>
-              <p class="text-gold mt-2">"If God Be For Us" - Romans 8:31</p>
-              <p class="text-sm text-gray-500 mt-4">Saturday, June 27th, 2026 | 8:00 AM</p>
-            </div>
-            <div id="errorMsg" class="hidden bg-red-100 text-red-700 p-2 rounded mb-4"></div>
-            <form id="loginForm">
-              <input type="email" id="email" placeholder="Email Address" class="w-full p-3 rounded-xl border mb-3 dark:bg-gray-800 focus:ring-2 focus:ring-gold" required>
-              <input type="password" id="password" placeholder="Password" class="w-full p-3 rounded-xl border mb-4 dark:bg-gray-800 focus:ring-2 focus:ring-gold" required>
-              <button type="submit" class="w-full btn-royal text-white py-3 rounded-xl font-bold">Sign In</button>
-            </form>
-            <button id="googleBtn" class="w-full border border-gold/50 rounded-xl py-3 mt-3 flex justify-center gap-3 hover:bg-gold/10 transition">
-              <i class="fab fa-google text-gold"></i> Continue with Google
-            </button>
-            <div class="text-center mt-6">
-              <a href="#" id="registerLink" class="text-gold hover:underline">Don't have an account? Register →</a>
-              <a href="#" id="forgotLink" class="block text-sm text-gray-500 mt-2 hover:underline">Forgot Password?</a>
-            </div>
-          </div>
-        </div>
-      `;
-      
-      document.getElementById('loginForm').onsubmit = async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) {
-          document.getElementById('errorMsg').textContent = error.message;
-          document.getElementById('errorMsg').classList.remove('hidden');
-        } else {
-          checkAuth();
-        }
-      };
-      
-      document.getElementById('googleBtn').onclick = async () => {
-        await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } });
-      };
-      
-      document.getElementById('registerLink').onclick = (e) => {
-        e.preventDefault();
-        showRegistration();
-      };
-      
-      document.getElementById('forgotLink').onclick = async (e) => {
-        e.preventDefault();
-        const email = prompt("Enter your registered email:");
-        if (email) {
-          const { error } = await supabase.auth.resetPasswordForEmail(email);
-          if (error) showToast(error.message, 'error');
-          else showToast("Password reset link sent to your email!", 'success');
-        }
-      };
-    }
-
-    function showRegistration() {
-      const container = document.getElementById('appContainer');
-      container.innerHTML = `
-        <div class="flex items-center justify-center min-h-[80vh] p-4">
-          <div class="glass-card p-6 w-full max-w-2xl max-h-[85vh] overflow-y-auto">
-            <h2 class="text-2xl font-bold text-center mb-4">Conference Registration</h2>
-            <p class="text-center text-gold mb-4">"If God Be For Us" - Romans 8:31</p>
-            <form id="regForm" class="space-y-3">
-              <input type="text" id="regName" placeholder="Full Name" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold" required>
-              <input type="email" id="regEmail" placeholder="Email Address" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold" required>
-              <input type="password" id="regPassword" placeholder="Password (min 6 characters)" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold" required>
-              <input type="tel" id="regPhone" placeholder="Phone Number" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold" required>
-              <select id="regGender" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold" required>
-                <option value="">Select Gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-              </select>
-              <select id="regAge" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold" required>
-                <option value="">Age Range</option>
-                <option value="13-17">13-17 years</option>
-                <option value="18-25">18-25 years</option>
-                <option value="26-35">26-35 years</option>
-                <option value="36-45">36-45 years</option>
-                <option value="46+">46+ years</option>
-              </select>
-              <input type="text" id="regParish" placeholder="Parish" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold" required>
-              <input type="text" id="regPosition" placeholder="AYF Position (e.g., Member, Executive)" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold" required>
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" id="termsCheck"> 
-                <span class="text-sm">I agree to the <a href="#" class="text-gold">Terms & Conditions</a></span>
-              </label>
-              <button type="submit" id="submitReg" disabled class="w-full bg-gray-400 text-white py-3 rounded-xl font-bold">Accept Terms to Register</button>
-              <button type="button" id="backToLogin" class="w-full border border-gray-300 py-3 rounded-xl hover:bg-gray-100 transition">Back to Login</button>
-            </form>
-          </div>
-        </div>
-      `;
-      
-      const termsCheck = document.getElementById('termsCheck');
-      const submitBtn = document.getElementById('submitReg');
-      termsCheck.onchange = () => {
-        submitBtn.disabled = !termsCheck.checked;
-        if (termsCheck.checked) {
-          submitBtn.className = 'w-full btn-royal text-white py-3 rounded-xl font-bold';
-        } else {
-          submitBtn.className = 'w-full bg-gray-400 text-white py-3 rounded-xl font-bold';
-        }
-      };
-      
-      document.getElementById('regForm').onsubmit = async (e) => {
-        e.preventDefault();
-        if (!termsCheck.checked) {
-          showToast('Please accept terms', 'error');
-          return;
-        }
-        
-        const email = document.getElementById('regEmail').value;
-        const password = document.getElementById('regPassword').value;
-        const fullName = document.getElementById('regName').value;
-        
-        submitBtn.textContent = "Creating account...";
-        submitBtn.disabled = true;
-        
-        const { data, error } = await supabase.auth.signUp({
-          email, password,
-          options: { data: { full_name: fullName, phone: document.getElementById('regPhone').value } }
+      // =====================================================
+      // 3. PWA & OFFLINE SUPPORT
+      // =====================================================
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(err => {
+            console.log('Service Worker registration failed:', err);
+          });
         });
-        
-        if (error) {
-          showToast(error.message, 'error');
-          submitBtn.textContent = "Register";
-          submitBtn.disabled = false;
-          return;
-        }
-        
-        if (data.user) {
-          const conferenceId = 'AYF-' + Math.random().toString(36).substring(2, 10).toUpperCase();
-          
-          await supabase.from('profiles').insert([{
-            id: data.user.id,
-            full_name: fullName,
-            email: email,
-            phone: document.getElementById('regPhone').value,
-            gender: document.getElementById('regGender').value,
-            age_range: document.getElementById('regAge').value,
-            parish: document.getElementById('regParish').value,
-            ayf_position: document.getElementById('regPosition').value,
-            role: 'member',
-            avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=0A2E73&color=fff`
-          }]);
-          
-          await supabase.from('registrations').insert([{
-            user_id: data.user.id,
-            conference_id: conferenceId,
-            status: 'pending'
-          }]);
-          
-          showToast('Registration successful! Please check your email to confirm.', 'success');
-          setTimeout(() => showLogin(), 2000);
-        }
-      };
-      
-      document.getElementById('backToLogin').onclick = () => showLogin();
-    }
-
-    // =====================================================
-    // COUNTDOWN TIMER
-    // =====================================================
-    function getConferenceCountdown() {
-      const targetDate = new Date(2026, 5, 27, 8, 0, 0);
-      const now = new Date();
-      const diff = targetDate - now;
-      if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0, ended: true };
-      return {
-        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((diff % (86400000)) / 3600000),
-        minutes: Math.floor((diff % 3600000) / 60000),
-        seconds: Math.floor((diff % 60000) / 1000),
-        ended: false
-      };
-    }
-
-    function startCountdownTimer(elementId) {
-      const updateTimer = () => {
-        const element = document.getElementById(elementId);
-        if (!element) return;
-        const countdown = getConferenceCountdown();
-        if (!countdown.ended) {
-          element.innerHTML = `
-            <div class="grid grid-cols-4 gap-3 text-center">
-              <div class="countdown-number"><div class="text-2xl font-bold">${countdown.days}</div><div class="text-xs">Days</div></div>
-              <div class="countdown-number"><div class="text-2xl font-bold">${countdown.hours}</div><div class="text-xs">Hours</div></div>
-              <div class="countdown-number"><div class="text-2xl font-bold">${countdown.minutes}</div><div class="text-xs">Minutes</div></div>
-              <div class="countdown-number"><div class="text-2xl font-bold">${countdown.seconds}</div><div class="text-xs">Seconds</div></div>
-            </div>
-          `;
-        } else {
-          element.innerHTML = `<div class="text-center text-gold text-xl font-bold animate-pulse">🎉 CONFERENCE IS HERE! 🎉</div>`;
-        }
-      };
-      updateTimer();
-      setInterval(updateTimer, 1000);
-    }
-
-    // =====================================================
-    // HOME FEED
-    // =====================================================
-    async function renderHome() {
-      const container = document.getElementById('appContainer');
-      
-      const { data: posts } = await supabase
-        .from('posts')
-        .select('*, profiles(full_name, avatar_url, role)')
-        .order('created_at', { ascending: false });
-      
-      // Get liked posts
-      const { data: userLikes } = await supabase.from('likes').select('post_id').eq('user_id', currentUser.id);
-      likedPosts = new Set(userLikes?.map(l => l.post_id) || []);
-      
-      container.innerHTML = `
-        <div class="glass-card p-5 mb-6 bg-gradient-to-r from-royal/20 to-gold/20 animate-fadeInUp">
-          <h2 class="text-2xl font-bold">Welcome, ${currentProfile?.full_name?.split(' ')[0] || 'User'}!</h2>
-          <p class="text-gold font-medium">"If God Be For Us" - Conference 2026</p>
-          <p class="text-sm text-gray-600 dark:text-gray-400">${currentProfile?.parish || 'Parish not set'} | ${currentProfile?.ayf_position || 'Member'}</p>
-        </div>
-        
-        <button id="createPostBtn" class="glass-card p-4 mb-6 w-full text-left font-semibold hover:shadow-lg transition flex items-center gap-3 group">
-          <i class="fas fa-pen-alt text-gold text-xl group-hover:scale-110 transition"></i>
-          <span>What's on your mind, ${currentProfile?.full_name?.split(' ')[0] || 'User'}?</span>
-        </button>
-        
-        <div id="postsList" class="space-y-4">
-          ${posts?.map(post => `
-            <div class="glass-card p-4 post-card animate-fadeInUp">
-              <div class="flex gap-3 mb-3">
-                <img src="${post.profiles?.avatar_url}" class="w-12 h-12 rounded-full object-cover" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(post.profiles?.full_name || 'User')}&background=0A2E73&color=fff'">
-                <div class="flex-1">
-                  <div class="flex items-center gap-2">
-                    <b class="text-lg">${escapeHtml(post.profiles?.full_name)}</b>
-                    ${post.profiles?.role === 'super_admin' ? '<span class="text-xs bg-gold/20 px-2 py-0.5 rounded-full">Admin</span>' : ''}
-                  </div>
-                  <p class="text-xs text-gray-500">${new Date(post.created_at).toLocaleString()}</p>
-                </div>
-              </div>
-              <p class="text-gray-700 dark:text-gray-300 mb-3">${escapeHtml(post.content)}</p>
-              ${post.image_url ? `<img src="${post.image_url}" class="mb-3 rounded-lg max-h-64">` : ''}
-              <div class="flex gap-6 pt-3 border-t border-gray-200 dark:border-gray-700">
-                <button data-like="${post.id}" class="like-btn flex items-center gap-2 hover:text-gold transition ${likedPosts.has(post.id) ? 'text-red-500' : ''}">
-                  <i class="fas fa-heart ${likedPosts.has(post.id) ? 'text-red-500' : ''}"></i> <span>${post.likes_count || 0}</span>
-                </button>
-                <button data-comment="${post.id}" class="comment-toggle flex items-center gap-2 hover:text-gold transition">
-                  <i class="far fa-comment"></i> <span>${post.comments_count || 0}</span>
-                </button>
-              </div>
-              <div id="comments-${post.id}" class="hidden mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
-                <div id="commentList-${post.id}" class="mb-3 max-h-64 overflow-y-auto space-y-2"></div>
-                <div class="flex gap-2">
-                  <input type="text" id="commentInput-${post.id}" placeholder="Write a comment..." class="flex-1 p-2 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold">
-                  <button data-comment-post="${post.id}" class="submit-comment btn-royal text-white px-4 py-2 rounded-xl">Post</button>
-                </div>
-              </div>
-            </div>
-          `).join('') || '<div class="glass-card p-8 text-center">No posts yet. Be the first to share!</div>'}
-        </div>
-      `;
-      
-      // Create post modal
-      let selectedImage = null;
-      const modalHtml = `
-        <div id="postModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden p-4">
-          <div class="glass-card w-full max-w-lg p-6">
-            <div class="flex justify-between items-center mb-4">
-              <h2 class="text-xl font-bold">Create Post</h2>
-              <button id="closeModal" class="text-gray-500 text-2xl hover:text-gold">&times;</button>
-            </div>
-            <textarea id="postContent" rows="4" placeholder="What's on your mind?" class="w-full p-3 rounded-xl border dark:bg-gray-800 mb-3"></textarea>
-            <div id="imagePreview" class="hidden mb-3 relative">
-              <img id="previewImg" class="rounded-xl max-h-48">
-              <button id="removeImage" class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6">&times;</button>
-            </div>
-            <div class="flex gap-3">
-              <button id="uploadImageBtn" class="flex-1 border rounded-xl py-2 hover:bg-gold/10 transition"><i class="fas fa-image"></i> Add Image</button>
-              <input type="file" id="imageInput" accept="image/*" class="hidden">
-              <button id="submitPost" class="flex-1 btn-gold text-white rounded-xl py-2 font-bold">Post</button>
-            </div>
-          </div>
-        </div>
-      `;
-      
-      if (!document.getElementById('postModal')) {
-        document.body.insertAdjacentHTML('beforeend', modalHtml);
       }
-      
-      const postModal = document.getElementById('postModal');
-      const postContent = document.getElementById('postContent');
-      const imageInput = document.getElementById('imageInput');
-      const imagePreview = document.getElementById('imagePreview');
-      const previewImg = document.getElementById('previewImg');
-      
-      document.getElementById('createPostBtn').onclick = () => postModal.classList.remove('hidden');
-      document.getElementById('closeModal').onclick = () => {
-        postModal.classList.add('hidden');
-        if (postContent) postContent.value = '';
-        if (imagePreview) imagePreview.classList.add('hidden');
-        selectedImage = null;
-      };
-      document.getElementById('uploadImageBtn').onclick = () => imageInput.click();
-      imageInput.onchange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = (ev) => {
-            selectedImage = ev.target.result;
-            previewImg.src = selectedImage;
-            imagePreview.classList.remove('hidden');
-          };
-          reader.readAsDataURL(file);
-        }
-      };
-      document.getElementById('removeImage').onclick = () => {
-        selectedImage = null;
-        imagePreview.classList.add('hidden');
-        imageInput.value = '';
-      };
-      document.getElementById('submitPost').onclick = async () => {
-        const content = postContent?.value;
-        if (!content?.trim() && !selectedImage) return;
-        
-        const postData = { user_id: currentUser.id, content: content || '' };
-        if (selectedImage) postData.image_url = selectedImage;
-        
-        await supabase.from('posts').insert([postData]);
-        postModal.classList.add('hidden');
-        postContent.value = '';
-        imagePreview.classList.add('hidden');
-        selectedImage = null;
-        showToast('Post shared!', 'success');
-        renderHome();
-      };
-      
-      // Like handler
-      document.querySelectorAll('.like-btn').forEach(btn => {
-        btn.onclick = async () => {
-          const postId = btn.dataset.like;
-          const isLiked = likedPosts.has(postId);
-          
-          if (isLiked) {
-            await supabase.from('likes').delete().eq('user_id', currentUser.id).eq('post_id', postId);
-            likedPosts.delete(postId);
-          } else {
-            await supabase.from('likes').insert([{ user_id: currentUser.id, post_id: postId }]);
-            likedPosts.add(postId);
+
+      // PWA Install Prompt
+      let deferredPrompt;
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        setTimeout(() => {
+          if (!document.getElementById('installPwaBtn')) {
+            const installBtn = document.createElement('button');
+            installBtn.id = 'installPwaBtn';
+            installBtn.className = 'fixed bottom-24 right-4 btn-gold text-white px-4 py-2 rounded-full shadow-lg z-50 flex items-center gap-2 animate-pulse-slow';
+            installBtn.innerHTML = '<i class="fas fa-download"></i> Install App';
+            installBtn.onclick = async () => {
+              if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') console.log('App installed');
+                deferredPrompt = null;
+                installBtn.remove();
+              }
+            };
+            document.body.appendChild(installBtn);
           }
-          
-          const { data } = await supabase.from('posts').select('likes_count').eq('id', postId).single();
-          btn.querySelector('span').textContent = data?.likes_count || 0;
-          const icon = btn.querySelector('i');
-          if (icon) {
-            if (!isLiked) icon.classList.add('text-red-500');
-            else icon.classList.remove('text-red-500');
-          }
-        };
+        }, 1000);
       });
-      
-      // Comment toggle handler
-      document.querySelectorAll('.comment-toggle').forEach(btn => {
-        btn.onclick = async () => {
-          const postId = btn.dataset.comment;
-          const div = document.getElementById(`comments-${postId}`);
-          if (div.classList.contains('hidden')) {
-            div.classList.remove('hidden');
-            const { data: comments } = await supabase
-              .from('comments')
-              .select('*, profiles(full_name, avatar_url)')
-              .eq('post_id', postId)
-              .order('created_at', { ascending: true });
-            const commentList = document.getElementById(`commentList-${postId}`);
-            if (commentList) {
-              commentList.innerHTML = comments?.map(c => `
-                <div class="flex gap-2"><img src="${c.profiles?.avatar_url}" class="w-6 h-6 rounded-full"><div><b class="text-sm">${c.profiles?.full_name}</b><p class="text-sm">${c.content}</p></div></div>
-              `).join('') || '<p class="text-sm text-gray-500">No comments yet</p>';
+
+      window.addEventListener('online', () => {
+        const badge = document.getElementById('offlineBadge');
+        if (badge) badge.style.display = 'none';
+        showAlert('Back online!', 'success');
+        checkUser();
+      });
+
+      window.addEventListener('offline', () => {
+        const badge = document.getElementById('offlineBadge');
+        if (badge) badge.style.display = 'block';
+      });
+
+      function showAlert(message, type = 'info') {
+        let container = document.getElementById('alertContainer');
+        if (!container) {
+          container = document.createElement('div');
+          container.id = 'alertContainer';
+          container.className = 'fixed bottom-20 right-4 z-50 space-y-2';
+          document.body.appendChild(container);
+        }
+        
+        const colors = {
+          success: 'border-green-500 bg-green-50 dark:bg-green-900/20',
+          error: 'border-red-500 bg-red-50 dark:bg-red-900/20',
+          warning: 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20',
+          info: 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+        };
+        
+        const icons = {
+          success: 'fa-check-circle text-green-500',
+          error: 'fa-exclamation-circle text-red-500',
+          warning: 'fa-exclamation-triangle text-yellow-500',
+          info: 'fa-info-circle text-blue-500'
+        };
+        
+        const alert = document.createElement('div');
+        alert.className = `notification-card rounded-xl p-4 shadow-lg border-l-4 ${colors[type]} animate-slideInRight mb-3 flex items-start gap-3`;
+        alert.innerHTML = `
+          <i class="fas ${icons[type]} text-xl"></i>
+          <div class="flex-1"><p class="text-sm font-medium">${escapeHtml(message)}</p></div>
+          <button class="close-alert text-gray-400 hover:text-gray-600">&times;</button>
+        `;
+        container.appendChild(alert);
+        
+        alert.querySelector('.close-alert').onclick = () => alert.remove();
+        setTimeout(() => alert.remove(), 4000);
+      }
+
+      function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      function applyDarkMode() {
+        if (AppState.darkMode) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+        localStorage.setItem('darkMode', AppState.darkMode);
+      }
+      applyDarkMode();
+
+      async function checkUserPermissions(requiredRole) {
+        if (!AppState.currentProfile) return false;
+        const roleHierarchy = { 
+          'super_admin': 5, 
+          'archdeaconry_admin': 4, 
+          'conference_admin': 3, 
+          'moderator': 2, 
+          'member': 1 
+        };
+        const userLevel = roleHierarchy[AppState.currentProfile.role] || 0;
+        const requiredLevel = roleHierarchy[requiredRole] || 0;
+        return userLevel >= requiredLevel;
+      }
+
+      async function loadNotifications() {
+        if (!AppState.currentUser) return [];
+        try {
+          const { data } = await supabaseClient
+            .from('notifications')
+            .select('*')
+            .eq('user_id', AppState.currentUser.id)
+            .eq('read', false)
+            .order('created_at', { ascending: false });
+          const count = data?.length || 0;
+          const badge = document.getElementById('notificationCount');
+          if (badge) {
+            if (count > 0) {
+              badge.classList.remove('hidden');
+              badge.textContent = count > 9 ? '9+' : count;
+            } else {
+              badge.classList.add('hidden');
+            }
+          }
+          return data || [];
+        } catch (error) {
+          console.error('Error loading notifications:', error);
+          return [];
+        }
+      }
+
+      async function showNotificationPanel() {
+        const notifications = await loadNotifications();
+        const panel = document.getElementById('notificationPanel');
+        const overlay = document.getElementById('notificationOverlay');
+        const list = document.getElementById('notificationList');
+        
+        if (!panel || !overlay || !list) return;
+        
+        if (notifications.length === 0) {
+          list.innerHTML = '<div class="text-center text-gray-500 py-8"><i class="fas fa-bell-slash text-4xl mb-2 block"></i>No new notifications</div>';
+        } else {
+          list.innerHTML = notifications.map(n => `
+            <div class="notification-card p-3 rounded-lg" data-id="${n.id}">
+              <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0">
+                  <i class="fas fa-bell text-gold"></i>
+                </div>
+                <div class="flex-1">
+                  <h4 class="font-semibold text-sm">${escapeHtml(n.title)}</h4>
+                  <p class="text-xs text-gray-500 mt-1">${escapeHtml(n.message)}</p>
+                  <span class="text-xs text-gold mt-1 block">${new Date(n.created_at).toLocaleString()}</span>
+                </div>
+              </div>
+            </div>
+          `).join('');
+          
+          setTimeout(async () => {
+            await supabaseClient.from('notifications').update({ read: true }).eq('user_id', AppState.currentUser.id);
+            const badge = document.getElementById('notificationCount');
+            if (badge) badge.classList.add('hidden');
+          }, 2000);
+        }
+        
+        panel.classList.add('open');
+        overlay.classList.add('show');
+      }
+
+      // =====================================================
+      // 4. COUNTDOWN TO JUNE 27, 2026 8:00 AM
+      // =====================================================
+      function getConferenceCountdown() {
+        const targetDate = new Date(2026, 5, 27, 8, 0, 0);
+        const now = new Date();
+        const diff = targetDate - now;
+        
+        if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0, ended: true };
+        
+        return {
+          days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((diff % (86400000)) / (3600000)),
+          minutes: Math.floor((diff % 3600000) / 60000),
+          seconds: Math.floor((diff % 60000) / 1000),
+          ended: false
+        };
+      }
+
+      function startCountdownTimer(elementId) {
+        const updateTimer = () => {
+          const element = document.getElementById(elementId);
+          if (!element) return;
+          
+          const countdown = getConferenceCountdown();
+          if (!countdown.ended) {
+            element.innerHTML = `
+              <div class="grid grid-cols-4 gap-3 text-center">
+                <div class="countdown-number"><div class="text-2xl md:text-3xl font-bold">${countdown.days}</div><div class="text-xs">Days</div></div>
+                <div class="countdown-number"><div class="text-2xl md:text-3xl font-bold">${countdown.hours}</div><div class="text-xs">Hours</div></div>
+                <div class="countdown-number"><div class="text-2xl md:text-3xl font-bold">${countdown.minutes}</div><div class="text-xs">Minutes</div></div>
+                <div class="countdown-number"><div class="text-2xl md:text-3xl font-bold">${countdown.seconds}</div><div class="text-xs">Seconds</div></div>
+              </div>
+            `;
+            // Safe GSAP animation
+            if (typeof gsap !== 'undefined' && document.querySelector('.countdown-number')) {
+              try {
+                gsap.fromTo('.countdown-number', 
+                  { scale: 0.8, opacity: 0 },
+                  { scale: 1, opacity: 1, duration: 0.5, stagger: 0.1 }
+                );
+              } catch(e) {}
             }
           } else {
-            div.classList.add('hidden');
+            element.innerHTML = `<div class="text-center text-gold text-xl font-bold animate-pulse">🎉 CONFERENCE IS HERE! 🎉</div>`;
           }
         };
-      });
-      
-      // Submit comment handler
-      document.querySelectorAll('.submit-comment').forEach(btn => {
-        btn.onclick = async () => {
-          const postId = btn.dataset.commentPost;
-          const input = document.getElementById(`commentInput-${postId}`);
-          if (input?.value.trim()) {
-            await supabase.from('comments').insert([{ post_id: postId, user_id: currentUser.id, content: input.value }]);
-            input.value = '';
-            const countSpan = document.querySelector(`.comment-toggle[data-comment="${postId}"] span`);
-            if (countSpan) countSpan.textContent = parseInt(countSpan.textContent) + 1;
-            document.getElementById(`comments-${postId}`).classList.add('hidden');
-            showToast('Comment posted!', 'success');
-          }
-        };
-      });
-    }
-
-    // =====================================================
-    // CONFERENCE VIEW
-    // =====================================================
-    async function renderConference() {
-      const container = document.getElementById('appContainer');
-      
-      const { data: reg } = await supabase
-        .from('registrations')
-        .select('*')
-        .eq('user_id', currentUser.id)
-        .maybeSingle();
-      
-      const { data: speakers } = await supabase.from('speakers').select('*');
-      
-      container.innerHTML = `
-        <div class="space-y-5 animate-fadeInUp">
-          <div class="glass-card p-6 text-center bg-gradient-to-r from-royal/20 to-gold/20">
-            <h2 class="text-3xl font-bold text-royal dark:text-gold">If God Be For Us</h2>
-            <p class="text-gray-600 dark:text-gray-300 mt-2 italic">Romans 8:31</p>
-            <div class="mt-3 text-sm">
-              <p><i class="fas fa-church text-gold"></i> AYF Gwarimba Archdeaconry Conference 2026</p>
-              <p><i class="fas fa-map-marker-alt text-gold"></i> St Philip Gwarimpa</p>
-              <p><i class="fas fa-calendar-day text-gold"></i> Saturday, 27th June, 2026 | 8:00 AM - 6:00 PM</p>
-            </div>
-          </div>
-          
-          <div class="glass-card p-5 text-center">
-            <h3 class="font-bold text-xl mb-3"><i class="fas fa-hourglass-half text-gold"></i> Conference Countdown</h3>
-            <div id="countdownDisplay"></div>
-          </div>
-          
-          <div class="glass-card p-5">
-            <h3 class="font-bold text-xl mb-3"><i class="fas fa-microphone-alt text-gold"></i> Conference Speakers</h3>
-            <div class="grid md:grid-cols-2 gap-4">
-              ${speakers?.map(s => `
-                <div class="flex items-center gap-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl">
-                  <div class="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center"><i class="fas fa-user text-gold text-xl"></i></div>
-                  <div><div class="font-bold">${escapeHtml(s.name)}</div><div class="text-sm text-gold">${escapeHtml(s.position)}</div></div>
-                </div>
-              `).join('') || `
-                <div class="flex items-center gap-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl"><div class="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center"><i class="fas fa-user text-gold text-xl"></i></div><div><div class="font-bold">Sis. Blessing Ifemenam</div><div class="text-sm text-gold">Youth President</div></div></div>
-                <div class="flex items-center gap-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl"><div class="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center"><i class="fas fa-user text-gold text-xl"></i></div><div><div class="font-bold">Bro. Simi</div><div class="text-sm text-gold">General Secretary</div></div></div>
-                <div class="flex items-center gap-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl"><div class="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center"><i class="fas fa-user text-gold text-xl"></i></div><div><div class="font-bold">Bro. Avan</div><div class="text-sm text-gold">Vice President</div></div></div>
-              `}
-            </div>
-          </div>
-          
-          <div class="glass-card p-5 text-center">
-            <h3 class="font-bold text-xl mb-3"><i class="fas fa-ticket-alt text-gold"></i> Your Conference Pass</h3>
-            <div id="qrContainer" class="flex justify-center mb-3"></div>
-            <p class="font-mono font-bold text-lg">${reg?.conference_id || 'Pending Approval'}</p>
-            <p class="text-sm mt-1">Status: ${reg?.status === 'approved' ? '<span class="text-green-500">✅ Approved</span>' : '<span class="text-yellow-500">⏳ Pending Approval</span>'}</p>
-            ${reg?.check_in_time ? `<p class="text-green-500 mt-2"><i class="fas fa-check-circle"></i> Checked in at ${new Date(reg.check_in_time).toLocaleTimeString()}</p>` : ''}
-          </div>
-        </div>
-      `;
-      
-      startCountdownTimer('countdownDisplay');
-      
-      if (reg?.conference_id && document.getElementById('qrContainer') && typeof QRCode !== 'undefined') {
-        new QRCode(document.getElementById('qrContainer'), { text: reg.conference_id, width: 150, height: 150 });
+        updateTimer();
+        setInterval(updateTimer, 1000);
       }
-    }
 
-    // =====================================================
-    // RESOURCES VIEW
-    // =====================================================
-    async function renderResources() {
-      const container = document.getElementById('appContainer');
-      
-      const { data: docs } = await supabase.from('documents').select('*');
-      
-      container.innerHTML = `
-        <div class="glass-card p-4 mb-4 animate-fadeInUp">
-          <h2 class="text-xl font-bold"><i class="fas fa-folder-open text-gold mr-2"></i> Resource Center</h2>
-          <input type="text" id="searchDocs" placeholder="Search documents..." class="w-full p-3 rounded-xl border dark:bg-gray-800 mt-3 focus:ring-2 focus:ring-gold">
-        </div>
-        <div class="grid gap-3 md:grid-cols-2" id="documentsList">
-          ${docs?.map(doc => `
-            <div class="glass-card p-4 document-item" data-title="${doc.title?.toLowerCase()}">
-              <div class="flex items-start gap-3">
-                <div class="text-3xl"><i class="fas ${doc.file_type === 'pdf' ? 'fa-file-pdf text-red-500' : 'fa-file-alt text-blue-500'}"></i></div>
-                <div class="flex-1">
-                  <h3 class="font-bold">${escapeHtml(doc.title)}</h3>
-                  <p class="text-xs text-gray-500">${escapeHtml(doc.description) || ''}</p>
-                  <div class="flex gap-3 mt-2 text-xs"><span><i class="far fa-eye"></i> ${doc.views || 0}</span><span><i class="fas fa-download"></i> ${doc.downloads || 0}</span></div>
+      // =====================================================
+      // 5. REGISTRATION FORM
+      // =====================================================
+      async function showFullRegistrationForm() {
+        try {
+          const { data: parishes } = await supabaseClient.from('parishes').select('name');
+          
+          const formHtml = `
+            <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto animate-fadeInScale">
+              <div class="glass-card p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
+                <div class="text-center mb-6">
+                  <i class="fas fa-registered text-royal text-3xl"></i>
+                  <h2 class="text-2xl font-bold mt-2">Conference Registration</h2>
+                  <p class="text-gold font-bold">"If God Be For Us" - Romans 8:31</p>
+                  <p class="text-gray-600 dark:text-gray-400 text-sm">AYF Gwarimba Archdeaconry Conference 2026</p>
+                  <p class="text-sm mt-1"><i class="fas fa-map-marker-alt text-gold"></i> Venue: St Philip Gwarimpa</p>
+                  <p class="text-sm"><i class="fas fa-calendar"></i> Saturday, June 27th, 2026 | 8:00 AM</p>
                 </div>
-                <button data-doc="${doc.id}" class="download-doc bg-gold/20 p-2 rounded-xl hover:scale-110 transition"><i class="fas fa-download"></i></button>
+                
+                <form id="fullRegistrationForm" class="space-y-4">
+                  <div class="animate-fadeInUp" style="animation-delay: 0.1s">
+                    <label class="block text-sm font-medium mb-1">Full Name *</label>
+                    <input type="text" id="regFullName" required class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold">
+                  </div>
+                  
+                  <div class="animate-fadeInUp" style="animation-delay: 0.15s">
+                    <label class="block text-sm font-medium mb-1">Email Address *</label>
+                    <input type="email" id="regEmail" required class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold">
+                  </div>
+                  
+                  <div class="animate-fadeInUp" style="animation-delay: 0.2s">
+                    <label class="block text-sm font-medium mb-1">Password *</label>
+                    <input type="password" id="regPassword" required minlength="6" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold">
+                  </div>
+                  
+                  <div class="animate-fadeInUp" style="animation-delay: 0.25s">
+                    <label class="block text-sm font-medium mb-1">Phone Number *</label>
+                    <input type="tel" id="regPhone" required class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold">
+                  </div>
+                  
+                  <div class="animate-fadeInUp" style="animation-delay: 0.3s">
+                    <label class="block text-sm font-medium mb-1">Gender *</label>
+                    <select id="regGender" required class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold">
+                      <option value="">Select Gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                    </select>
+                  </div>
+                  
+                  <div class="animate-fadeInUp" style="animation-delay: 0.35s">
+                    <label class="block text-sm font-medium mb-1">Age Range *</label>
+                    <select id="regAgeRange" required class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold">
+                      <option value="">Select Age Range</option>
+                      <option value="13-17">13-17 years</option>
+                      <option value="18-25">18-25 years</option>
+                      <option value="26-35">26-35 years</option>
+                      <option value="36-45">36-45 years</option>
+                      <option value="46+">46+ years</option>
+                    </select>
+                  </div>
+                  
+                  <div class="animate-fadeInUp" style="animation-delay: 0.4s">
+                    <label class="block text-sm font-medium mb-1">Parish *</label>
+                    <select id="regParish" required class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold">
+                      <option value="">Select Parish</option>
+                      ${parishes?.map(p => `<option value="${escapeHtml(p.name)}">${escapeHtml(p.name)}</option>`).join('') || '<option value="St Philip Gwarimpa">St Philip Gwarimpa</option>'}
+                    </select>
+                  </div>
+                  
+                  <div class="animate-fadeInUp" style="animation-delay: 0.45s">
+                    <label class="block text-sm font-medium mb-1">AYF Position *</label>
+                    <input type="text" id="regPosition" placeholder="e.g., Member, Executive, Choir Leader" required class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold">
+                  </div>
+                  
+                  <div class="bg-gold/10 p-4 rounded-xl animate-fadeInUp" style="animation-delay: 0.5s">
+                    <label class="flex items-start gap-3 cursor-pointer">
+                      <input type="checkbox" id="termsCheckbox" class="mt-1">
+                      <span class="text-sm">I have read and agree to the <a href="/terms.html" class="text-gold underline">Terms & Conditions</a> and <a href="/privacy.html" class="text-gold underline">Privacy Policy</a></span>
+                    </label>
+                  </div>
+                  
+                  <div class="flex gap-3 pt-4">
+                    <button type="submit" id="registerSubmitBtn" disabled class="flex-1 bg-gray-400 text-white py-3 rounded-xl font-bold transition-all duration-300">Accept Terms to Register</button>
+                    <button type="button" id="cancelRegistration" class="flex-1 border border-gray-300 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300">Cancel</button>
+                  </div>
+                </form>
               </div>
-            </div>
-          `).join('') || '<div class="glass-card p-8 text-center">No documents available</div>'}
-        </div>
-      `;
-      
-      document.getElementById('searchDocs')?.addEventListener('input', (e) => {
-        const term = e.target.value.toLowerCase();
-        document.querySelectorAll('.document-item').forEach(item => {
-          const title = item.dataset.title;
-          item.style.display = title?.includes(term) ? '' : 'none';
-        });
-      });
-      
-      document.querySelectorAll('.download-doc').forEach(btn => {
-        btn.onclick = () => showToast('Download started', 'success');
-      });
-    }
-
-    // =====================================================
-    // COMMUNITY VIEW
-    // =====================================================
-    async function renderCommunity() {
-      const container = document.getElementById('appContainer');
-      
-      const { data: discussions } = await supabase
-        .from('posts')
-        .select('*, profiles(full_name, avatar_url)')
-        .order('created_at', { ascending: false });
-      
-      container.innerHTML = `
-        <div class="glass-card p-4 mb-4 animate-fadeInUp">
-          <h2 class="text-xl font-bold"><i class="fas fa-users text-gold mr-2"></i> Community Forum</h2>
-          <p class="text-sm text-gray-500">Connect, share, and grow together in faith</p>
-        </div>
-        
-        <div class="glass-card p-4 mb-4 animate-fadeInUp">
-          <textarea id="discussionInput" rows="3" placeholder="Share a testimony or start a discussion..." class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold"></textarea>
-          <button id="postDiscussion" class="mt-3 btn-royal text-white px-6 py-2 rounded-xl w-full font-semibold hover:scale-105 transition">Post to Community</button>
-        </div>
-        
-        <div class="space-y-4">
-          ${discussions?.map(d => `
-            <div class="glass-card p-4 animate-fadeInUp">
-              <div class="flex gap-3 mb-3">
-                <img src="${d.profiles?.avatar_url}" class="w-10 h-10 rounded-full" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(d.profiles?.full_name || 'User')}&background=0A2E73&color=fff'">
-                <div><b>${escapeHtml(d.profiles?.full_name)}</b><p class="text-xs text-gray-500">${new Date(d.created_at).toLocaleString()}</p></div>
-              </div>
-              <p>${escapeHtml(d.content)}</p>
-            </div>
-          `).join('') || '<div class="glass-card p-8 text-center">No discussions yet. Start the conversation!</div>'}
-        </div>
-      `;
-      
-      document.getElementById('postDiscussion')?.addEventListener('click', async () => {
-        const content = document.getElementById('discussionInput')?.value;
-        if (content?.trim()) {
-          await supabase.from('posts').insert([{ user_id: currentUser.id, content }]);
-          document.getElementById('discussionInput').value = '';
-          showToast('Posted to community!', 'success');
-          renderCommunity();
+            </div>`;
+          
+          document.body.insertAdjacentHTML('beforeend', formHtml);
+          
+          const termsCheckbox = document.getElementById('termsCheckbox');
+          const submitBtn = document.getElementById('registerSubmitBtn');
+          
+          if (termsCheckbox && submitBtn) {
+            termsCheckbox.addEventListener('change', () => {
+              submitBtn.disabled = !termsCheckbox.checked;
+              if (termsCheckbox.checked) {
+                submitBtn.className = 'flex-1 btn-royal text-white py-3 rounded-xl font-bold transition-all duration-300';
+              } else {
+                submitBtn.className = 'flex-1 bg-gray-400 text-white py-3 rounded-xl font-bold transition-all duration-300';
+              }
+            });
+          }
+          
+          document.getElementById('fullRegistrationForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const termsCheck = document.getElementById('termsCheckbox');
+            if (!termsCheck?.checked) {
+              showAlert('Please accept Terms & Conditions to register', 'warning');
+              return;
+            }
+            
+            const email = document.getElementById('regEmail')?.value;
+            const password = document.getElementById('regPassword')?.value;
+            const fullName = document.getElementById('regFullName')?.value;
+            const phone = document.getElementById('regPhone')?.value;
+            const gender = document.getElementById('regGender')?.value;
+            const ageRange = document.getElementById('regAgeRange')?.value;
+            const parish = document.getElementById('regParish')?.value;
+            const ayfPosition = document.getElementById('regPosition')?.value;
+            
+            if (submitBtn) {
+              submitBtn.textContent = "Creating Account...";
+              submitBtn.disabled = true;
+            }
+            
+            try {
+              const { data: authData, error: authError } = await supabaseClient.auth.signUp({
+                email: email,
+                password: password,
+                options: { data: { full_name: fullName, phone: phone } }
+              });
+              
+              if (authError) throw new Error(authError.message);
+              if (!authData.user) throw new Error("Failed to create user account");
+              
+              const conferenceId = 'AYF-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+              
+              const { error: profileError } = await supabaseClient.from('profiles').insert([{
+                id: authData.user.id,
+                full_name: fullName,
+                email: email,
+                phone: phone,
+                gender: gender,
+                age_range: ageRange,
+                parish: parish,
+                ayf_position: ayfPosition,
+                role: 'member',
+                avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=0A2E73&color=fff`
+              }]);
+              
+              if (profileError) throw new Error(profileError.message);
+              
+              const { error: regError } = await supabaseClient.from('registrations').insert([{ 
+                user_id: authData.user.id, 
+                conference_id: conferenceId,
+                status: 'pending'
+              }]);
+              
+              if (regError) throw new Error(regError.message);
+              
+              showAlert("Registration successful! Please check your email to confirm your account.", 'success');
+              document.querySelector('.fixed.bg-black\\/60')?.remove();
+              renderAuth();
+              
+            } catch (error) {
+              showAlert("Registration failed: " + error.message, 'error');
+              if (submitBtn) {
+                submitBtn.textContent = "Register for Conference";
+                submitBtn.disabled = false;
+              }
+            }
+          });
+          
+          document.getElementById('cancelRegistration')?.addEventListener('click', () => {
+            document.querySelector('.fixed.bg-black\\/60')?.remove();
+            renderAuth();
+          });
+        } catch (error) {
+          console.error('Registration form error:', error);
+          showAlert('Error loading registration form', 'error');
         }
-      });
-    }
+      }
 
-    // =====================================================
-    // PROFILE VIEW
-    // =====================================================
-    async function renderProfile() {
-      const container = document.getElementById('appContainer');
+      // =====================================================
+      // 6. AUTHENTICATION UI
+      // =====================================================
+      async function renderAuth() {
+        const container = document.getElementById('appContainer');
+        if (!container) return;
+        
+        container.innerHTML = `
+          <div class="flex items-center justify-center min-h-[80vh]">
+            <div class="glass-card p-8 w-full max-w-md animate-fadeInScale">
+              <div class="text-center mb-8">
+                <i class="fas fa-church text-royal text-4xl mb-2"></i>
+                <h2 class="text-3xl font-bold bg-gradient-to-r from-royal to-gold bg-clip-text text-transparent">AYF Gwarimba</h2>
+                <p class="text-gold font-bold mt-2">"If God Be For Us" - Romans 8:31</p>
+                <p class="text-gray-500 dark:text-gray-400 mt-2">Archdeaconry Conference 2026</p>
+              </div>
+              
+              <div id="authError" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded-lg mb-4"></div>
+              
+              <form id="loginForm">
+                <div class="mb-4">
+                  <input type="email" id="email" placeholder="Email Address" required class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all">
+                </div>
+                <div class="mb-6">
+                  <input type="password" id="password" placeholder="Password" required class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all">
+                </div>
+                <button type="submit" class="w-full btn-royal text-white py-3 rounded-xl font-semibold transition-all duration-300">Sign In</button>
+              </form>
+              
+              <div class="relative my-6">
+                <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-300"></div></div>
+                <div class="relative flex justify-center text-sm"><span class="px-2 bg-[#f5f5f0] dark:bg-gray-900 text-gray-500">Or</span></div>
+              </div>
+              
+              <button id="googleBtn" class="w-full border border-gold/50 rounded-xl py-3 flex justify-center gap-3 hover:bg-gold/10 transition-all duration-300">
+                <i class="fab fa-google text-gold"></i> Continue with Google
+              </button>
+              
+              <div class="text-center mt-6">
+                <a href="#" id="showRegisterLink" class="text-gold hover:underline block font-semibold transition-all">📝 Register for Conference →</a>
+                <a href="#" id="resetLink" class="text-royal dark:text-gold/70 text-sm hover:underline block mt-2">Forgot Password?</a>
+              </div>
+            </div>
+          </div>`;
+        
+        document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const email = document.getElementById('email')?.value;
+          const password = document.getElementById('password')?.value;
+          const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+          if (error) {
+            const errorDiv = document.getElementById('authError');
+            if (errorDiv) {
+              errorDiv.textContent = error.message;
+              errorDiv.classList.remove('hidden');
+            }
+          } else {
+            checkUser();
+          }
+        });
+        
+        document.getElementById('googleBtn')?.addEventListener('click', async () => {
+          await supabaseClient.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } });
+        });
+        
+        document.getElementById('showRegisterLink')?.addEventListener('click', async (e) => {
+          e.preventDefault();
+          await showFullRegistrationForm();
+        });
+        
+        document.getElementById('resetLink')?.addEventListener('click', async (e) => {
+          e.preventDefault();
+          const email = prompt("Enter your registered email:");
+          if (email) {
+            const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
+            if (error) {
+              showAlert(error.message, 'error');
+            } else {
+              showAlert("Password reset link sent to your email!", 'success');
+            }
+          }
+        });
+      }
+
+      async function checkUser() {
+        try {
+          const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+          if (userError || !user) {
+            renderAuth();
+            return;
+          }
+          AppState.currentUser = user;
+          
+          // FIX: THE KEY CHANGE - Use maybeSingle() instead of single() to avoid 406 error
+          // This is the ONLY change needed to fix the login redirect issue
+          let { data: profile, error: profileError } = await supabaseClient
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .maybeSingle();  // <--- THIS IS THE FIX (changed from .single() to .maybeSingle())
+          
+          // If profile doesn't exist, create it automatically
+          if (profileError || !profile) {
+            console.log('Profile not found, creating one...');
+            const newProfile = {
+              id: user.id,
+              full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+              email: user.email,
+              phone: user.user_metadata?.phone || '',
+              role: 'member',
+              avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent(user.user_metadata?.full_name || user.email?.split('@')[0] || 'User')}&background=0A2E73&color=fff`
+            };
+            
+            const { data: newProfileData, error: insertError } = await supabaseClient
+              .from('profiles')
+              .insert([newProfile])
+              .select()
+              .single();
+            
+            if (insertError) {
+              console.error('Error creating profile:', insertError);
+              renderAuth();
+              return;
+            }
+            
+            profile = newProfileData;
+            
+            // Also create registration record
+            const conferenceId = 'AYF-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+            await supabaseClient.from('registrations').insert([{
+              user_id: user.id,
+              conference_id: conferenceId,
+              status: 'pending'
+            }]);
+          }
+          
+          AppState.currentProfile = profile;
+          
+          const isAdmin = await checkUserPermissions('moderator');
+          const adminNav = document.querySelector('.admin-only-nav');
+          if (adminNav) {
+            if (isAdmin) adminNav.classList.remove('hidden');
+            else adminNav.classList.add('hidden');
+          }
+          
+          await loadNotifications();
+          setupRealtimeSubscriptions();
+          renderMainView();
+        } catch (error) {
+          console.error('Check user error:', error);
+          renderAuth();
+        }
+      }
+
+      // =====================================================
+      // 7. REALTIME SUBSCRIPTIONS
+      // =====================================================
+      function setupRealtimeSubscriptions() {
+        AppState.realtimeSubscriptions.forEach(sub => {
+          try {
+            supabaseClient.removeChannel(sub);
+          } catch(e) {}
+        });
+        AppState.realtimeSubscriptions = [];
+        
+        if (!AppState.currentUser) return;
+        
+        const postsChannel = supabaseClient.channel('public-posts')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, () => {
+            if (AppState.currentView === 'home' || AppState.currentView === 'community') {
+              renderMainView();
+            }
+          })
+          .subscribe();
+        
+        const notificationsChannel = supabaseClient.channel('public-notifications')
+          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${AppState.currentUser.id}` }, () => {
+            loadNotifications();
+            showAlert('You have a new notification!', 'info');
+          })
+          .subscribe();
+        
+        AppState.realtimeSubscriptions = [postsChannel, notificationsChannel];
+      }
+
+      // =====================================================
+      // 8. CONFERENCE MODULE
+      // =====================================================
+      async function renderConferenceModule(container) {
+        const { data: reg } = await supabaseClient
+          .from('registrations')
+          .select('*')
+          .eq('user_id', AppState.currentUser.id)
+          .maybeSingle();
+        
+        container.innerHTML = `
+          <div class="space-y-5 animate-fadeInUp">
+            <div class="glass-card p-6 text-center bg-gradient-to-r from-royal/20 to-gold/20">
+              <h2 class="text-3xl md:text-4xl font-bold text-royal dark:text-gold">If God Be For Us</h2>
+              <p class="text-gray-600 dark:text-gray-300 mt-2 italic">Romans 8:31 - "What then shall we say to these things? If God is for us, who can be against us?"</p>
+              <div class="mt-3 text-sm">
+                <p><i class="fas fa-church text-gold"></i> AYF Gwarimba Archdeaconry Conference 2026</p>
+                <p><i class="fas fa-map-marker-alt text-gold"></i> St Philip Gwarimpa</p>
+                <p><i class="fas fa-calendar-day text-gold"></i> Saturday, 27th June, 2026 | 8:00 AM - 6:00 PM</p>
+              </div>
+            </div>
+            
+            <div class="glass-card p-5 text-center">
+              <h3 class="font-bold text-xl mb-3"><i class="fas fa-hourglass-half text-gold"></i> Conference Countdown</h3>
+              <div id="countdownDisplay"></div>
+            </div>
+            
+            <div class="glass-card p-5" id="speakersSection">
+              <div class="flex justify-between items-center mb-3">
+                <h3 class="font-bold text-xl"><i class="fas fa-microphone-alt text-gold"></i> Conference Speakers</h3>
+              </div>
+              <div id="speakersContent" class="grid md:grid-cols-2 gap-4"></div>
+            </div>
+            
+            <div class="glass-card p-5 text-center">
+              <h3 class="font-bold text-xl mb-3"><i class="fas fa-ticket-alt text-gold"></i> Your Conference Pass</h3>
+              <div id="qrContainer" class="flex justify-center mb-3"></div>
+              <p class="font-mono font-bold text-lg">${reg?.conference_id || 'Pending Approval'}</p>
+              <p class="text-sm mt-1">Status: ${reg?.status === 'approved' ? '<span class="text-green-500">✅ Approved</span>' : '<span class="text-yellow-500">⏳ Pending Approval</span>'}</p>
+              ${reg?.check_in_time ? `<p class="text-green-500 mt-2"><i class="fas fa-check-circle"></i> Checked in at ${new Date(reg.check_in_time).toLocaleTimeString()}</p>` : ''}
+            </div>
+          </div>`;
+        
+        startCountdownTimer('countdownDisplay');
+        await loadSpeakers();
+        
+        if (reg && reg.conference_id && document.getElementById('qrContainer') && typeof QRCode !== 'undefined') {
+          new QRCode(document.getElementById('qrContainer'), { text: reg.conference_id, width: 150, height: 150 });
+        }
+      }
       
-      const { data: reg } = await supabase
-        .from('registrations')
-        .select('*')
-        .eq('user_id', currentUser.id)
-        .maybeSingle();
+      async function loadSpeakers() {
+        try {
+          const { data: speakers } = await supabaseClient.from('speakers').select('*').order('order_position');
+          const speakersContent = document.getElementById('speakersContent');
+          if (!speakersContent) return;
+          
+          if (speakers && speakers.length > 0) {
+            speakersContent.innerHTML = speakers.map(s => `
+              <div class="flex items-center gap-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl animate-fadeInScale">
+                <div class="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center"><i class="fas fa-user text-gold text-xl"></i></div>
+                <div><div class="font-bold">${escapeHtml(s.name)}</div><div class="text-sm text-gold">${escapeHtml(s.position)}</div></div>
+              </div>
+            `).join('');
+          } else {
+            speakersContent.innerHTML = `
+              <div class="flex items-center gap-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl"><div class="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center"><i class="fas fa-user text-gold text-xl"></i></div><div><div class="font-bold">Sis. Blessing Ifemenam</div><div class="text-sm text-gold">Youth President</div></div></div>
+              <div class="flex items-center gap-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl"><div class="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center"><i class="fas fa-user text-gold text-xl"></i></div><div><div class="font-bold">Bro. Simi</div><div class="text-sm text-gold">General Secretary</div></div></div>
+              <div class="flex items-center gap-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl"><div class="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center"><i class="fas fa-user text-gold text-xl"></i></div><div><div class="font-bold">Bro. Avan</div><div class="text-sm text-gold">Vice President</div></div></div>
+            `;
+          }
+        } catch (error) {
+          console.error('Error loading speakers:', error);
+        }
+      }
+
+      // =====================================================
+      // 9. MAIN RENDER DISPATCHER
+      // =====================================================
+      async function renderMainView() {
+        if (!AppState.currentProfile) return;
+        const container = document.getElementById('appContainer');
+        if (!container) return;
+        
+        const isAdmin = await checkUserPermissions('moderator');
+        
+        if (AppState.currentView === 'admin' && isAdmin) {
+          window.location.href = '/admin.html';
+        } else if (AppState.currentView === 'home') {
+          await renderHomeFeed(container);
+        } else if (AppState.currentView === 'conference') {
+          await renderConferenceModule(container);
+        } else if (AppState.currentView === 'resources') {
+          await renderDocumentCenter(container);
+        } else if (AppState.currentView === 'community') {
+          await renderCommunityModule(container);
+        } else if (AppState.currentView === 'profile') {
+          await renderProfilePage(container);
+        }
+        
+        attachNavigationListeners();
+      }
       
-      container.innerHTML = `
-        <div class="glass-card p-6 text-center animate-fadeInUp">
-          <img src="${currentProfile?.avatar_url}" class="w-28 h-28 rounded-full mx-auto border-4 border-gold mb-4" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(currentProfile?.full_name || 'User')}&background=0A2E73&color=fff&size=100'">
-          <h2 class="text-2xl font-bold">${escapeHtml(currentProfile?.full_name)}</h2>
-          <p class="text-gold">${reg?.conference_id || 'Not registered'}</p>
-          <p class="text-gray-600 dark:text-gray-400 mt-2">${escapeHtml(currentProfile?.parish) || 'Parish not set'} | ${escapeHtml(currentProfile?.ayf_position) || 'Member'}</p>
-          <div class="mt-4 pt-4 border-t border-gold/20">
-            <p class="text-sm"><i class="fas fa-envelope text-gold mr-2"></i> ${escapeHtml(currentProfile?.email)}</p>
-            <p class="text-sm mt-2"><i class="fas fa-phone text-gold mr-2"></i> ${escapeHtml(currentProfile?.phone) || 'Not provided'}</p>
-            <p class="text-sm mt-2"><i class="fas fa-venus-mars text-gold mr-2"></i> ${escapeHtml(currentProfile?.gender) || 'Not specified'}</p>
-            <p class="text-sm mt-2"><i class="fas fa-calendar-alt text-gold mr-2"></i> ${escapeHtml(currentProfile?.age_range) || 'Not specified'}</p>
+      async function renderHomeFeed(container) {
+        const { data: posts } = await supabaseClient
+          .from('posts')
+          .select(`*, profiles(full_name, avatar_url, role)`)
+          .order('created_at', { ascending: false });
+        
+        // Get user's liked posts
+        const { data: userLikes } = await supabaseClient.from('likes').select('post_id').eq('user_id', AppState.currentUser.id);
+        AppState.likedPosts = new Set(userLikes?.map(l => l.post_id) || []);
+        
+        container.innerHTML = `
+          <div class="glass-card p-5 mb-6 bg-gradient-to-r from-royal/20 to-gold/20 animate-fadeInUp">
+            <div class="flex flex-wrap justify-between items-center gap-3">
+              <div class="flex items-center gap-3">
+                <div>
+                  <h2 class="text-2xl font-bold">Welcome, ${escapeHtml(AppState.currentProfile.full_name || 'User')}!</h2>
+                  <p class="text-gold font-medium">"If God Be For Us" - Conference 2026</p>
+                  <p class="text-sm text-gray-600 dark:text-gray-400">${escapeHtml(AppState.currentProfile.parish || 'Parish not set')} | ${escapeHtml(AppState.currentProfile.ayf_position || 'Member')}</p>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      `;
-    }
-
-    // =====================================================
-    // MAIN RENDER FUNCTION
-    // =====================================================
-    async function renderMainView() {
-      if (!currentProfile) {
-        checkAuth();
-        return;
+          
+          <button id="createPostBtn" class="w-full glass-card p-4 mb-6 text-left font-semibold hover:shadow-lg transition-all duration-300 flex items-center gap-3 group">
+            <i class="fas fa-pen-alt text-gold text-xl group-hover:scale-110 transition-transform"></i>
+            <span>What's on your mind, ${(AppState.currentProfile.full_name || 'User').split(' ')[0]}?</span>
+          </button>
+          
+          <div id="postsFeed" class="space-y-4">
+            ${posts?.map((post, index) => `
+              <div class="glass-card p-5 post-card animate-fadeInUp" style="animation-delay: ${index * 0.05}s">
+                <div class="flex gap-3 mb-3">
+                  <img src="${post.profiles?.avatar_url || ''}" class="w-12 h-12 rounded-full object-cover" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(post.profiles?.full_name || 'User')}&background=0A2E73&color=fff'">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <b class="text-lg">${escapeHtml(post.profiles?.full_name || 'Unknown')}</b>
+                      ${post.profiles?.role === 'super_admin' ? '<span class="text-xs bg-gold/20 px-2 py-0.5 rounded-full">Admin</span>' : ''}
+                    </div>
+                    <p class="text-xs text-gray-500">${new Date(post.created_at).toLocaleString()}</p>
+                  </div>
+                </div>
+                <p class="text-gray-700 dark:text-gray-300 mb-3 whitespace-pre-wrap">${escapeHtml(post.content)}</p>
+                ${post.image_url ? `<img src="${post.image_url}" class="mb-3 rounded-lg max-h-64 w-auto">` : ''}
+                <div class="flex gap-6 pt-3 border-t border-gray-200 dark:border-gray-700">
+                  <button data-like="${post.id}" class="like-btn flex items-center gap-2 hover:text-gold transition-all hover:scale-105 ${AppState.likedPosts.has(post.id) ? 'text-red-500' : ''}">
+                    <i class="fas fa-heart ${AppState.likedPosts.has(post.id) ? 'text-red-500' : ''}"></i> <span>${post.likes_count || 0}</span>
+                  </button>
+                  <button data-comment="${post.id}" class="comment-toggle flex items-center gap-2 hover:text-gold transition-all hover:scale-105">
+                    <i class="far fa-comment"></i> <span>${post.comments_count || 0}</span>
+                  </button>
+                </div>
+                <div id="comments-${post.id}" class="hidden mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+                  <div id="commentList-${post.id}" class="mb-3 max-h-64 overflow-y-auto space-y-2"></div>
+                  <div class="flex gap-2">
+                    <input type="text" id="commentInput-${post.id}" placeholder="Write a comment..." class="flex-1 p-2 rounded-xl border dark:bg-gray-800 transition-all focus:ring-2 focus:ring-gold">
+                    <button data-comment-post="${post.id}" class="submit-comment btn-royal text-white px-4 py-2 rounded-xl transition-all hover:scale-105">Post</button>
+                  </div>
+                </div>
+              </div>
+            `).join('') || '<div class="glass-card p-8 text-center animate-fadeInUp"><i class="fas fa-newspaper text-4xl text-gray-400 mb-2"></i><p>No posts yet. Be the first to share!</p></div>'}
+          </div>
+          
+          <!-- Create Post Modal -->
+          <div id="postModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden p-4">
+            <div class="glass-card w-full max-w-lg p-6">
+              <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Create Post</h2>
+                <button id="closeModal" class="text-gray-500 text-2xl hover:text-gold">&times;</button>
+              </div>
+              <textarea id="postContent" rows="4" placeholder="What's on your mind?" class="w-full p-3 rounded-xl border dark:bg-gray-800 mb-3"></textarea>
+              <div id="imagePreview" class="hidden mb-3 relative">
+                <img id="previewImg" class="rounded-xl max-h-48 w-auto">
+                <button id="removeImage" class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6">&times;</button>
+              </div>
+              <div class="flex gap-3">
+                <button id="uploadImageBtn" class="flex-1 border rounded-xl py-2 hover:bg-gold/10 transition"><i class="fas fa-image"></i> Add Image</button>
+                <input type="file" id="imageInput" accept="image/*" class="hidden">
+                <button id="submitPost" class="flex-1 btn-gold text-white rounded-xl py-2 font-bold">Post</button>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        // Post creation handlers
+        let selectedImage = null;
+        const postModal = document.getElementById('postModal');
+        const postContent = document.getElementById('postContent');
+        const imageInput = document.getElementById('imageInput');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('previewImg');
+        
+        document.getElementById('createPostBtn')?.addEventListener('click', () => {
+          if (postModal) postModal.classList.remove('hidden');
+        });
+        
+        document.getElementById('closeModal')?.addEventListener('click', () => {
+          if (postModal) postModal.classList.add('hidden');
+          if (postContent) postContent.value = '';
+          if (imagePreview) imagePreview.classList.add('hidden');
+          selectedImage = null;
+        });
+        
+        document.getElementById('uploadImageBtn')?.addEventListener('click', () => imageInput?.click());
+        
+        imageInput?.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (file && previewImg && imagePreview) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+              selectedImage = ev.target?.result;
+              previewImg.src = selectedImage;
+              imagePreview.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+        
+        document.getElementById('removeImage')?.addEventListener('click', () => {
+          selectedImage = null;
+          if (imagePreview) imagePreview.classList.add('hidden');
+          if (imageInput) imageInput.value = '';
+        });
+        
+        document.getElementById('submitPost')?.addEventListener('click', async () => {
+          const content = postContent?.value;
+          if (!content?.trim() && !selectedImage) return;
+          
+          const postData = { user_id: AppState.currentUser.id, content: content || '' };
+          if (selectedImage) postData.image_url = selectedImage;
+          
+          await supabaseClient.from('posts').insert([postData]);
+          if (postModal) postModal.classList.add('hidden');
+          if (postContent) postContent.value = '';
+          if (imagePreview) imagePreview.classList.add('hidden');
+          selectedImage = null;
+          showAlert('Post shared!', 'success');
+          renderMainView();
+        });
+        
+        // Like handler
+        document.querySelectorAll('.like-btn').forEach(btn => {
+          btn.onclick = async () => {
+            const postId = btn.dataset.like;
+            const isLiked = AppState.likedPosts.has(postId);
+            
+            if (isLiked) {
+              await supabaseClient.from('likes').delete().eq('user_id', AppState.currentUser.id).eq('post_id', postId);
+              AppState.likedPosts.delete(postId);
+              try {
+                await supabaseClient.rpc('decrement_post_likes', { post_id: postId });
+              } catch(e) { console.log('RPC not available'); }
+            } else {
+              await supabaseClient.from('likes').insert([{ user_id: AppState.currentUser.id, post_id: postId }]);
+              AppState.likedPosts.add(postId);
+              try {
+                await supabaseClient.rpc('increment_post_likes', { post_id: postId });
+              } catch(e) { console.log('RPC not available'); }
+            }
+            
+            const { data } = await supabaseClient.from('posts').select('likes_count').eq('id', postId).single();
+            const span = btn.querySelector('span');
+            if (span) span.textContent = data?.likes_count || 0;
+            const icon = btn.querySelector('i');
+            if (icon) {
+              if (!isLiked) icon.classList.add('text-red-500');
+              else icon.classList.remove('text-red-500');
+            }
+          };
+        });
+        
+        // Comment toggle handler
+        document.querySelectorAll('.comment-toggle').forEach(btn => {
+          btn.onclick = async () => {
+            const postId = btn.dataset.comment;
+            const div = document.getElementById(`comments-${postId}`);
+            if (div?.classList.contains('hidden')) {
+              div.classList.remove('hidden');
+              const { data: comments } = await supabaseClient
+                .from('comments')
+                .select('*, profiles(full_name, avatar_url)')
+                .eq('post_id', postId)
+                .order('created_at', { ascending: true });
+              const commentList = document.getElementById(`commentList-${postId}`);
+              if (commentList) {
+                commentList.innerHTML = comments?.map(c => `
+                  <div class="flex gap-2 animate-fadeInUp"><img src="${c.profiles?.avatar_url}" class="w-6 h-6 rounded-full" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(c.profiles?.full_name || 'User')}&background=0A2E73&color=fff'"><div><b class="text-sm">${escapeHtml(c.profiles?.full_name)}</b><p class="text-sm">${escapeHtml(c.content)}</p></div></div>
+                `).join('') || '<p class="text-sm text-gray-500">No comments yet</p>';
+              }
+            } else if (div) {
+              div.classList.add('hidden');
+            }
+          };
+        });
+        
+        // Submit comment handler
+        document.querySelectorAll('.submit-comment').forEach(btn => {
+          btn.onclick = async () => {
+            const postId = btn.dataset.commentPost;
+            const input = document.getElementById(`commentInput-${postId}`);
+            if (input?.value.trim()) {
+              await supabaseClient.from('comments').insert([{ post_id: postId, user_id: AppState.currentUser.id, content: input.value }]);
+              try {
+                await supabaseClient.rpc('increment_post_comments', { post_id: postId });
+              } catch(e) { console.log('RPC not available'); }
+              input.value = '';
+              const countSpan = document.querySelector(`.comment-toggle[data-comment="${postId}"] span`);
+              if (countSpan) {
+                const currentCount = parseInt(countSpan.textContent) || 0;
+                countSpan.textContent = currentCount + 1;
+              }
+              const div = document.getElementById(`comments-${postId}`);
+              if (div) div.classList.add('hidden');
+              showAlert('Comment posted!', 'success');
+            }
+          };
+        });
       }
       
-      if (currentView === 'home') await renderHome();
-      else if (currentView === 'conference') await renderConference();
-      else if (currentView === 'resources') await renderResources();
-      else if (currentView === 'community') await renderCommunity();
-      else if (currentView === 'profile') await renderProfile();
-      
-      // Highlight active nav
-      document.querySelectorAll('.nav-btn').forEach(btn => {
-        if (btn.dataset.nav === currentView) btn.classList.add('active');
-        else btn.classList.remove('active');
-      });
-    }
-
-    // =====================================================
-    // EVENT LISTENERS
-    // =====================================================
-    document.getElementById('darkModeToggle')?.addEventListener('click', () => {
-      darkMode = !darkMode;
-      applyDarkMode();
-    });
-    
-    document.getElementById('userMenuBtn')?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const dropdown = document.getElementById('userDropdown');
-      dropdown.classList.toggle('hidden');
-    });
-    
-    document.addEventListener('click', (e) => {
-      const dropdown = document.getElementById('userDropdown');
-      const userBtn = document.getElementById('userMenuBtn');
-      if (dropdown && !dropdown.classList.contains('hidden') && 
-          !userBtn?.contains(e.target) && !dropdown.contains(e.target)) {
-        dropdown.classList.add('hidden');
+      async function renderDocumentCenter(container) {
+        const { data: docs } = await supabaseClient.from('documents').select('*').order('created_at', { ascending: false });
+        container.innerHTML = `
+          <div class="glass-card p-5 mb-5 animate-fadeInUp">
+            <div class="flex items-center gap-3 mb-3">
+              <h2 class="text-2xl font-bold"><i class="fas fa-folder-open text-gold"></i> Resource Center</h2>
+            </div>
+            <input type="text" id="searchDocs" placeholder="Search documents..." class="w-full p-3 rounded-xl border dark:bg-gray-800 transition-all focus:ring-2 focus:ring-gold">
+          </div>
+          <div class="grid gap-3 md:grid-cols-2" id="documentsList">
+            ${docs?.map((doc, index) => `
+              <div class="glass-card p-4 document-item animate-fadeInUp" style="animation-delay: ${index * 0.05}s" data-title="${doc.title?.toLowerCase() || ''}">
+                <div class="flex items-start gap-3"><div class="text-3xl"><i class="fas ${doc.file_type === 'pdf' ? 'fa-file-pdf text-red-500' : 'fa-file-alt text-blue-500'}"></i></div>
+                <div class="flex-1"><h3 class="font-bold">${escapeHtml(doc.title)}</h3><p class="text-xs text-gray-500">${escapeHtml(doc.description) || ''}</p>
+                <div class="flex gap-3 mt-2 text-xs"><span><i class="far fa-eye"></i> ${doc.views || 0}</span><span><i class="fas fa-download"></i> ${doc.downloads || 0}</span></div></div>
+                <button data-doc="${doc.id}" class="downloadDoc bg-gold/20 p-2 rounded-xl transition-all hover:scale-110"><i class="fas fa-download"></i></button></div>
+              </div>
+            `).join('') || '<div class="glass-card p-8 text-center">No documents yet</div>'}
+          </div>`;
+        
+        const searchInput = document.getElementById('searchDocs');
+        if (searchInput) {
+          searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            document.querySelectorAll('.document-item').forEach(item => {
+              const title = item.dataset.title;
+              item.style.display = title?.includes(term) ? '' : 'none';
+            });
+          });
+        }
+        
+        document.querySelectorAll('.downloadDoc').forEach(btn => {
+          btn.onclick = async () => {
+            try {
+              await supabaseClient.rpc('increment_document_downloads', { doc_id: btn.dataset.doc });
+            } catch(e) {}
+            showAlert('Download started', 'success');
+          };
+        });
       }
-    });
-    
-    document.getElementById('profileDropdownLink')?.addEventListener('click', (e) => {
-      e.preventDefault();
-      currentView = 'profile';
-      renderMainView();
-      document.getElementById('userDropdown').classList.add('hidden');
-    });
-    
-    document.getElementById('adminDropdownLink')?.addEventListener('click', (e) => {
-      e.preventDefault();
-      window.location.href = '/admin.html';
-    });
-    
-    document.getElementById('termsDropdownLink')?.addEventListener('click', (e) => {
-      e.preventDefault();
-      alert("Terms & Conditions:\n\n1. All participants must be registered.\n2. Proper conduct is expected at all times.\n3. Conference materials are for personal use only.\n4. By registering, you agree to receive conference communications.");
-    });
-    
-    document.getElementById('privacyDropdownLink')?.addEventListener('click', (e) => {
-      e.preventDefault();
-      alert("Privacy Policy:\n\nYour personal information is used solely for conference registration and communication. We do not share your data with third parties.");
-    });
-    
-    document.getElementById('logoutBtn')?.addEventListener('click', async () => {
-      await supabase.auth.signOut();
-      window.location.reload();
-    });
-    
-    document.querySelectorAll('.nav-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        currentView = btn.dataset.nav;
-        renderMainView();
-      });
-    });
-    
-    document.getElementById('notificationsBtn')?.addEventListener('click', () => {
-      showNotificationPanel();
-    });
-    
-    document.getElementById('closeNotificationPanel')?.addEventListener('click', () => {
-      document.getElementById('notificationPanel').classList.remove('open');
-      document.getElementById('notificationOverlay').classList.remove('show');
-    });
-    
-    document.getElementById('notificationOverlay')?.addEventListener('click', () => {
-      document.getElementById('notificationPanel').classList.remove('open');
-      document.getElementById('notificationOverlay').classList.remove('show');
-    });
-    
-    // Start the app
-    checkAuth();
+      
+      async function renderCommunityModule(container) {
+        const { data: discussions } = await supabaseClient
+          .from('posts')
+          .select('*, profiles(full_name, avatar_url)')
+          .order('created_at', { ascending: false });
+        
+        container.innerHTML = `
+          <div class="glass-card p-5 mb-5 animate-fadeInUp">
+            <div class="flex items-center gap-3">
+              <div><h2 class="text-2xl font-bold"><i class="fas fa-users text-gold"></i> AYF Community</h2><p class="text-gray-600 dark:text-gray-400">Connect, share, and grow together in faith</p></div>
+            </div>
+          </div>
+          <div class="glass-card p-4 mb-5 animate-fadeInUp">
+            <textarea id="discussionInput" rows="3" placeholder="Share a testimony or start a discussion..." class="w-full p-3 rounded-xl border dark:bg-gray-800 transition-all focus:ring-2 focus:ring-gold"></textarea>
+            <button id="postDiscussion" class="mt-3 btn-royal text-white px-6 py-2 rounded-xl w-full font-semibold transition-all hover:scale-105">Post to Community</button>
+          </div>
+          <div id="discussionsFeed" class="space-y-4">
+            ${discussions?.map((d, index) => `
+              <div class="glass-card p-4 animate-fadeInUp" style="animation-delay: ${index * 0.05}s">
+                <div class="flex gap-3 mb-3">
+                  <img src="${d.profiles?.avatar_url}" class="w-10 h-10 rounded-full" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(d.profiles?.full_name || 'User')}&background=0A2E73&color=fff'">
+                  <div><b>${escapeHtml(d.profiles?.full_name)}</b><p class="text-xs text-gray-500">${new Date(d.created_at).toLocaleString()}</p></div>
+                </div>
+                <p>${escapeHtml(d.content)}</p>
+              </div>
+            `).join('') || '<div class="glass-card p-8 text-center">No discussions yet</div>'}
+          </div>`;
+        
+        document.getElementById('postDiscussion')?.addEventListener('click', async () => {
+          const content = document.getElementById('discussionInput')?.value;
+          if (content?.trim()) {
+            await supabaseClient.from('posts').insert([{ user_id: AppState.currentUser.id, content }]);
+            if (document.getElementById('discussionInput')) document.getElementById('discussionInput').value = '';
+            showAlert('Posted to community!', 'success');
+            renderMainView();
+          }
+        });
+      }
+      
+      async function renderProfilePage(container) {
+        const { data: reg } = await supabaseClient
+          .from('registrations')
+          .select('*')
+          .eq('user_id', AppState.currentUser.id)
+          .maybeSingle();
+        
+        container.innerHTML = `
+          <div class="glass-card p-6 text-center mb-5 animate-fadeInUp">
+            <img src="${AppState.currentProfile.avatar_url}" class="w-28 h-28 rounded-full mx-auto border-4 border-gold mb-3" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(AppState.currentProfile.full_name || 'User')}&background=0A2E73&color=fff'">
+            <h2 class="text-2xl font-bold">${escapeHtml(AppState.currentProfile.full_name)}</h2>
+            <p class="text-gold">${reg?.conference_id || 'Not registered'}</p>
+            <p class="text-gray-600 dark:text-gray-400">${escapeHtml(AppState.currentProfile.parish) || 'Parish not set'} | ${escapeHtml(AppState.currentProfile.ayf_position) || 'Member'}</p>
+            <div class="mt-4 pt-4 border-t border-gold/20">
+              <p class="text-sm"><i class="fas fa-envelope text-gold"></i> ${escapeHtml(AppState.currentProfile.email)}</p>
+              <p class="text-sm mt-1"><i class="fas fa-phone text-gold"></i> ${escapeHtml(AppState.currentProfile.phone) || 'Not provided'}</p>
+              <p class="text-sm mt-1"><i class="fas fa-venus-mars text-gold"></i> ${escapeHtml(AppState.currentProfile.gender) || 'Not specified'}</p>
+            </div>
+          </div>`;
+      }
+      
+      function attachNavigationListeners() {
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+          btn.onclick = () => {
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            AppState.currentView = btn.dataset.nav;
+            renderMainView();
+          };
+        });
+        
+        const userMenuBtn = document.getElementById('userMenuBtn');
+        const userDropdown = document.getElementById('userDropdown');
+        if (userMenuBtn && userDropdown) {
+          userMenuBtn.onclick = (e) => {
+            e.stopPropagation();
+            userDropdown.classList.toggle('hidden');
+          };
+          document.addEventListener('click', (e) => { 
+            if (!userMenuBtn.contains(e.target) && !userDropdown.contains(e.target)) {
+              userDropdown.classList.add('hidden');
+            }
+          });
+        }
+        
+        document.getElementById('profileDropdownLink')?.addEventListener('click', (e) => { 
+          e.preventDefault(); 
+          if (userDropdown) userDropdown.classList.add('hidden');
+          AppState.currentView = 'profile'; 
+          renderMainView(); 
+        });
+        document.getElementById('termsDropdownLink')?.addEventListener('click', (e) => { 
+          e.preventDefault(); 
+          window.open('/terms.html', '_blank'); 
+        });
+        document.getElementById('privacyDropdownLink')?.addEventListener('click', (e) => { 
+          e.preventDefault(); 
+          window.open('/privacy.html', '_blank'); 
+        });
+        document.getElementById('logoutDropdownBtn')?.addEventListener('click', async () => { 
+          await supabaseClient.auth.signOut(); 
+          window.location.reload(); 
+        });
+        
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        if (darkModeToggle) {
+          darkModeToggle.onclick = () => { 
+            AppState.darkMode = !AppState.darkMode; 
+            applyDarkMode();
+          };
+        }
+        
+        const notificationsBtn = document.getElementById('notificationsBtn');
+        if (notificationsBtn) {
+          notificationsBtn.onclick = () => { showNotificationPanel(); };
+        }
+        
+        const closePanel = document.getElementById('closeNotificationPanel');
+        const overlay = document.getElementById('notificationOverlay');
+        if (closePanel) {
+          closePanel.onclick = () => {
+            const panel = document.getElementById('notificationPanel');
+            const overlayEl = document.getElementById('notificationOverlay');
+            if (panel) panel.classList.remove('open');
+            if (overlayEl) overlayEl.classList.remove('show');
+          };
+        }
+        if (overlay) {
+          overlay.onclick = () => {
+            const panel = document.getElementById('notificationPanel');
+            if (panel) panel.classList.remove('open');
+            overlay.classList.remove('show');
+          };
+        }
+      }
+      
+      // Start the app
+      checkUser();
+    })();
   </script>
 </body>
 </html>
