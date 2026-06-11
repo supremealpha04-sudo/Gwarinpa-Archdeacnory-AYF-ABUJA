@@ -8,7 +8,7 @@
   <link rel="manifest" href="/manifest.json">
   <link rel="apple-touch-icon" href="logo.png">
   <title>AYF Conference 2026 | Gwarimpa Archdeaconry</title>
-  
+
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Awesome -->
@@ -24,18 +24,18 @@
   <!-- GSAP for animations -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  
+
   <style>
     * { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-    
+
     body {
       background: #f5f5f0 !important;
     }
-    
+
     .dark body {
       background: #1a1a1a !important;
     }
-    
+
     .glass-card {
       background: rgba(255, 255, 255, 0.92);
       backdrop-filter: blur(12px);
@@ -43,57 +43,74 @@
       border-radius: 1.5rem;
       transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    
+
     .dark .glass-card {
       background: rgba(26, 26, 26, 0.92);
       border-color: rgba(212, 175, 55, 0.4);
     }
-    
+
     .glass-card:hover {
       transform: translateY(-4px) scale(1.01);
       box-shadow: 0 20px 40px rgba(0,0,0,0.12);
       border-color: rgba(212, 175, 55, 0.5);
     }
-    
+
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(30px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    
+
     @keyframes fadeInScale {
       from { opacity: 0; transform: scale(0.9); }
       to { opacity: 1; transform: scale(1); }
     }
-    
+
     @keyframes slideInRight {
       from { opacity: 0; transform: translateX(50px); }
       to { opacity: 1; transform: translateX(0); }
     }
-    
+
     @keyframes pulse {
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.05); }
     }
-    
+
+    @keyframes skeletonPulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 0.8; }
+    }
+
     .animate-fadeInUp { animation: fadeInUp 0.6s ease-out forwards; }
     .animate-fadeInScale { animation: fadeInScale 0.5s ease-out forwards; }
     .animate-slideInRight { animation: slideInRight 0.5s ease-out forwards; }
     .animate-pulse-slow { animation: pulse 2s ease-in-out infinite; }
-    
+
+    .skeleton {
+      background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+      background-size: 200% 100%;
+      animation: skeletonPulse 1.5s ease-in-out infinite;
+      border-radius: 0.75rem;
+    }
+
+    .dark .skeleton {
+      background: linear-gradient(90deg, #333 25%, #444 50%, #333 75%);
+      background-size: 200% 100%;
+    }
+
     .notification-card {
       background: white;
       border-left: 4px solid #D4AF37;
       transition: all 0.3s ease;
       cursor: pointer;
     }
-    
+
     .dark .notification-card { background: #2d2d2d; }
-    
+
     .notification-card:hover {
       transform: translateX(5px);
       box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
-    
+
     .notification-badge {
       position: absolute;
       top: -5px;
@@ -109,7 +126,7 @@
       justify-content: center;
       animation: pulse 1.5s ease-in-out infinite;
     }
-    
+
     .loader {
       border: 3px solid #e0e0e0;
       border-top: 3px solid #D4AF37;
@@ -118,12 +135,12 @@
       height: 50px;
       animation: spin 1s linear infinite;
     }
-    
+
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-    
+
     .countdown-number {
       background: linear-gradient(135deg, #0A2E73, #1a4a9e);
       border-radius: 16px;
@@ -134,7 +151,7 @@
       position: relative;
       overflow: hidden;
     }
-    
+
     .countdown-number::before {
       content: '';
       position: absolute;
@@ -148,64 +165,70 @@
       transition: opacity 0.3s ease;
       z-index: -1;
     }
-    
+
     .countdown-number:hover::before { opacity: 1; }
     .countdown-number:hover { transform: translateY(-3px); }
-    
+
     .post-card {
       transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    
+
     .post-card:hover {
       transform: translateY(-5px);
       box-shadow: 0 15px 35px rgba(0,0,0,0.12);
     }
-    
+
     input, select, textarea {
       transition: all 0.3s ease;
       background: #fafaf8;
     }
-    
+
     .dark input, .dark select, .dark textarea { background: #2d2d2d; }
-    
+
     input:focus, select:focus, textarea:focus {
       outline: none;
       border-color: #D4AF37;
       box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
       transform: scale(1.01);
     }
-    
+
     .btn-gold {
       background: linear-gradient(135deg, #D4AF37, #C5A028);
       transition: all 0.3s ease;
     }
-    
+
     .btn-gold:hover {
       transform: translateY(-2px);
       box-shadow: 0 10px 20px rgba(212, 175, 55, 0.3);
     }
-    
+
     .btn-royal {
       background: linear-gradient(135deg, #0A2E73, #0d3a8a);
       transition: all 0.3s ease;
     }
-    
+
     .btn-royal:hover {
       transform: translateY(-2px);
       box-shadow: 0 10px 20px rgba(10, 46, 115, 0.3);
     }
-    
+
+    .btn-royal:disabled, .btn-gold:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
     .logo-container { transition: all 0.3s ease; }
     .logo-container:hover { transform: rotate(5deg) scale(1.05); }
-    
+
     .nav-btn {
       transition: all 0.3s ease;
       position: relative;
     }
-    
+
     .nav-btn:hover { transform: translateY(-3px); color: #D4AF37; }
     .nav-btn.active { color: #D4AF37; }
-    
+
     .nav-btn.active::after {
       content: '';
       position: absolute;
@@ -218,7 +241,7 @@
       border-radius: 3px;
       animation: fadeInScale 0.3s ease-out;
     }
-    
+
     .offline-badge {
       position: fixed;
       top: 70px;
@@ -233,11 +256,11 @@
       display: none;
       animation: slideInRight 0.3s ease-out;
     }
-    
+
     .custom-scrollbar::-webkit-scrollbar { width: 8px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: #e0e0e0; border-radius: 10px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 10px; }
-    
+
     .notification-panel {
       position: fixed;
       top: 0;
@@ -250,10 +273,10 @@
       transition: right 0.3s ease;
       overflow-y: auto;
     }
-    
+
     .dark .notification-panel { background: #1a1a1a; }
     .notification-panel.open { right: 0; }
-    
+
     .notification-overlay {
       position: fixed;
       top: 0;
@@ -264,10 +287,105 @@
       z-index: 999;
       display: none;
     }
-    
+
     .notification-overlay.show { display: block; }
+
+    /* Lightbox styles */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-out;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox img { max-width: 90%; max-height: 90%; object-fit: contain; border-radius: 8px; }
+    .lightbox-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      color: white;
+      font-size: 2rem;
+      cursor: pointer;
+      z-index: 2001;
+    }
+
+    /* Pull to refresh indicator */
+    .ptr-indicator {
+      text-align: center;
+      padding: 15px;
+      color: #D4AF37;
+      font-size: 0.85rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .ptr-indicator.visible { opacity: 1; }
+
+    /* Reaction buttons */
+    .reaction-btn {
+      transition: all 0.2s ease;
+      padding: 4px 8px;
+      border-radius: 12px;
+    }
+    .reaction-btn:hover { transform: scale(1.2); background: rgba(212, 175, 55, 0.1); }
+    .reaction-btn.active { background: rgba(212, 175, 55, 0.2); }
+
+    /* Toast container */
+    #toastContainer {
+      position: fixed;
+      bottom: 90px;
+      right: 16px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+    .toast {
+      pointer-events: auto;
+      animation: slideInRight 0.3s ease-out;
+    }
+
+    /* Modal improvements */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .modal-backdrop.open { opacity: 1; }
+    .modal-content {
+      transform: scale(0.95);
+      transition: transform 0.3s ease;
+    }
+    .modal-backdrop.open .modal-content { transform: scale(1); }
+
+    /* Image compression progress */
+    .compress-progress {
+      height: 4px;
+      background: #e0e0e0;
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .compress-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #D4AF37, #FFD700);
+      border-radius: 2px;
+      transition: width 0.3s ease;
+      width: 0%;
+    }
   </style>
-  
+
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -286,6 +404,20 @@
     <div id="offlineBadge" class="offline-badge">
       <i class="fas fa-wifi-slash mr-2"></i> You're offline - some features may be limited
     </div>
+
+    <!-- Pull to Refresh Indicator -->
+    <div id="ptrIndicator" class="ptr-indicator">
+      <i class="fas fa-sync-alt fa-spin mr-2"></i> Pull to refresh...
+    </div>
+
+    <!-- Lightbox -->
+    <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+      <span class="lightbox-close">&times;</span>
+      <img id="lightboxImg" src="" alt="Full size">
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer"></div>
 
     <!-- Notification Panel -->
     <div id="notificationOverlay" class="notification-overlay"></div>
@@ -307,18 +439,18 @@
             <img src="/logo.png" alt="Logo" class="w-10 h-10 object-contain" onerror="this.style.display='none'">
           </div>
           <div>
-            <h1 class="font-bold text-sm md:text-base bg-gradient-to-r from-royal to-gold bg-clip-text text-transparent">AYF Gwarimba Archdeaconry</h1>
+            <h1 class="font-bold text-sm md:text-base bg-gradient-to-r from-royal to-gold bg-clip-text text-transparent">AYF Gwarimpa Archdeaconry</h1>
             <p class="text-xs text-gold hidden md:block">Conference 2026 | If God Be For Us</p>
           </div>
         </div>
         <div class="flex gap-3">
-          <button id="darkModeToggle" class="text-royal dark:text-gold text-xl transition-transform hover:scale-110"><i class="fas fa-moon"></i></button>
-          <button id="notificationsBtn" class="text-royal dark:text-gold text-xl relative transition-transform hover:scale-110">
+          <button id="darkModeToggle" class="text-royal dark:text-gold text-xl transition-transform hover:scale-110" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
+          <button id="notificationsBtn" class="text-royal dark:text-gold text-xl relative transition-transform hover:scale-110" aria-label="Notifications">
             <i class="fas fa-bell"></i>
             <span id="notificationCount" class="notification-badge hidden">0</span>
           </button>
           <div class="relative">
-            <button id="userMenuBtn" class="text-royal dark:text-gold text-xl transition-transform hover:scale-110"><i class="fas fa-user-circle"></i></button>
+            <button id="userMenuBtn" class="text-royal dark:text-gold text-xl transition-transform hover:scale-110" aria-label="User menu"><i class="fas fa-user-circle"></i></button>
             <div id="userDropdown" class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gold/20 z-50 animate-fadeInScale">
               <a href="#" id="profileDropdownLink" class="block px-4 py-2 hover:bg-gold/10 transition-colors"><i class="fas fa-user mr-2"></i> Profile</a>
               <a href="#" id="termsDropdownLink" class="block px-4 py-2 hover:bg-gold/10 transition-colors"><i class="fas fa-file-contract mr-2"></i> Terms & Conditions</a>
@@ -341,26 +473,37 @@
     <!-- Mobile Bottom Navigation -->
     <nav id="bottomNav" class="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border-t border-gold/30 z-40 lg:hidden">
       <div class="flex justify-around py-2">
-        <button data-nav="home" class="nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs"><i class="fas fa-home text-xl"></i><span>Home</span></button>
-        <button data-nav="conference" class="nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs"><i class="fas fa-calendar-alt text-xl"></i><span>Conference</span></button>
-        <button data-nav="resources" class="nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs"><i class="fas fa-folder-open text-xl"></i><span>Resources</span></button>
-        <button data-nav="community" class="nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs"><i class="fas fa-users text-xl"></i><span>Community</span></button>
-        <button data-nav="admin" class="admin-only-nav nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs hidden"><i class="fas fa-shield-alt text-xl"></i><span>Admin</span></button>
+        <button data-nav="home" class="nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs" aria-label="Home"><i class="fas fa-home text-xl"></i><span>Home</span></button>
+        <button data-nav="conference" class="nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs" aria-label="Conference"><i class="fas fa-calendar-alt text-xl"></i><span>Conference</span></button>
+        <button data-nav="resources" class="nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs" aria-label="Resources"><i class="fas fa-folder-open text-xl"></i><span>Resources</span></button>
+        <button data-nav="community" class="nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs" aria-label="Community"><i class="fas fa-users text-xl"></i><span>Community</span></button>
+        <button data-nav="admin" class="admin-only-nav nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs hidden" aria-label="Admin"><i class="fas fa-shield-alt text-xl"></i><span>Admin</span></button>
       </div>
     </nav>
   </div>
 
   <script>
-    // =====================================================
-    // 1. SUPABASE INITIALIZATION
-    // =====================================================
-    const SUPABASE_URL = 'https://pwdkxynbbsdkekzmmclp.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB3ZGt4eW5iYnNka2Vrem1tY2xwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExODA2MDYsImV4cCI6MjA5Njc1NjYwNn0.IcxHv1sMcSK4pw9ZVJXi6KQz7_0vLy01wRA5Ljw6Tuo';
-    
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // =====================================================
-    // 2. GLOBAL STATE
+    // CONFIGURATION - Load from external config in production
+    // =====================================================
+    const CONFIG = {
+      SUPABASE_URL: 'https://haxebhwcudkclyxsjaqx.supabase.co',
+      SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhheGViaHdjdWRrY2x5eHNqYXF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMDcyMjksImV4cCI6MjA5NjY4MzIyOX0.Iwu6NPRvnJtnfL4D_N2slvKOUidQ1UdLbUPG-4QCuM4',
+      CONFERENCE_DATE: new Date(2026, 5, 27, 8, 0, 0),
+      ITEMS_PER_PAGE: 10,
+      MAX_IMAGE_SIZE_MB: 2,
+      IMAGE_QUALITY: 0.8,
+      MAX_IMAGE_WIDTH: 1200
+    };
+
+    // =====================================================
+    // SUPABASE INITIALIZATION
+    // =====================================================
+    const supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+
+    // =====================================================
+    // GLOBAL STATE
     // =====================================================
     const AppState = {
       currentUser: null,
@@ -371,11 +514,111 @@
       realtimeSubscriptions: [],
       analyticsChart: null,
       qrScanner: null,
-      likedPosts: new Set()
+      likedPosts: new Set(),
+      likedComments: new Set(),
+      postsCache: [],
+      commentsCache: {},
+      docsCache: [],
+      eventsCache: [],
+      currentPage: 1,
+      isLoading: false,
+      hasMorePosts: true,
+      offlineQueue: [],
+      isOnline: navigator.onLine
     };
 
     // =====================================================
-    // 3. PWA & OFFLINE SUPPORT
+    // UTILITY FUNCTIONS
+    // =====================================================
+
+    // XSS Sanitization
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Parse mentions (@username)
+    function parseMentions(text) {
+      if (!text) return '';
+      return escapeHtml(text).replace(/@([\w\s]+?)(?=\s|$|[^\w\s])/g, '<span class="text-gold font-semibold cursor-pointer hover:underline">@$1</span>');
+    }
+
+    // Format relative time
+    function timeAgo(date) {
+      const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+      const intervals = {
+        year: 31536000, month: 2592000, week: 604800,
+        day: 86400, hour: 3600, minute: 60
+      };
+      for (const [unit, secondsInUnit] of Object.entries(intervals)) {
+        const interval = Math.floor(seconds / secondsInUnit);
+        if (interval >= 1) return interval === 1 ? `1 ${unit} ago` : `${interval} ${unit}s ago`;
+      }
+      return 'Just now';
+    }
+
+    // Debounce function
+    function debounce(fn, ms) {
+      let timeout;
+      return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => fn(...args), ms);
+      };
+    }
+
+    // Compress image before upload
+    async function compressImage(file, maxWidth = CONFIG.MAX_IMAGE_WIDTH, quality = CONFIG.IMAGE_QUALITY) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            canvas.toBlob((blob) => {
+              resolve(new File([blob], file.name, { type: 'image/jpeg', lastModified: Date.now() }));
+            }, 'image/jpeg', quality);
+          };
+          img.onerror = reject;
+          img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Upload to Supabase Storage
+    async function uploadImage(file, bucket = 'post-images') {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `${AppState.currentUser.id}/${fileName}`;
+
+      const { error: uploadError } = await supabaseClient.storage
+        .from(bucket)
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabaseClient.storage
+        .from(bucket)
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    }
+
+    // =====================================================
+    // PWA & OFFLINE SUPPORT
     // =====================================================
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -409,51 +652,109 @@
     });
 
     window.addEventListener('online', () => {
+      AppState.isOnline = true;
       document.getElementById('offlineBadge').style.display = 'none';
-      showAlert('Back online!', 'success');
+      showToast('Back online!', 'success');
+      syncOfflineQueue();
       checkUser();
     });
 
     window.addEventListener('offline', () => {
+      AppState.isOnline = false;
       document.getElementById('offlineBadge').style.display = 'block';
+      showToast('You are offline', 'warning');
     });
 
-    function showAlert(message, type = 'info') {
-      const container = document.getElementById('alertContainer') || (() => {
-        const div = document.createElement('div');
-        div.id = 'alertContainer';
-        div.className = 'fixed bottom-20 right-4 z-50 space-y-2';
-        document.body.appendChild(div);
-        return div;
-      })();
-      
+    // Offline queue for posts/comments
+    function queueOfflineAction(action) {
+      AppState.offlineQueue.push({ ...action, timestamp: Date.now() });
+      localStorage.setItem('offlineQueue', JSON.stringify(AppState.offlineQueue));
+    }
+
+    async function syncOfflineQueue() {
+      if (AppState.offlineQueue.length === 0) return;
+      showToast(`Syncing ${AppState.offlineQueue.length} offline items...`, 'info');
+
+      for (const action of [...AppState.offlineQueue]) {
+        try {
+          if (action.type === 'post') {
+            await supabaseClient.from('posts').insert([action.data]);
+          } else if (action.type === 'comment') {
+            await supabaseClient.from('comments').insert([action.data]);
+            await supabaseClient.rpc('increment_post_comments', { post_id: action.data.post_id });
+          }
+          AppState.offlineQueue = AppState.offlineQueue.filter(a => a.timestamp !== action.timestamp);
+        } catch (err) {
+          console.error('Failed to sync offline action:', err);
+        }
+      }
+      localStorage.setItem('offlineQueue', JSON.stringify(AppState.offlineQueue));
+      showToast('Sync complete!', 'success');
+    }
+
+    // =====================================================
+    // TOAST NOTIFICATIONS (Replaces showAlert)
+    // =====================================================
+    function showToast(message, type = 'info', duration = 4000) {
+      const container = document.getElementById('toastContainer');
+
       const colors = {
-        success: 'border-green-500 bg-green-50 dark:bg-green-900/20',
-        error: 'border-red-500 bg-red-50 dark:bg-red-900/20',
-        warning: 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20',
-        info: 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+        success: 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-200',
+        error: 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200',
+        warning: 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200',
+        info: 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200'
       };
-      
+
       const icons = {
         success: 'fa-check-circle text-green-500',
         error: 'fa-exclamation-circle text-red-500',
         warning: 'fa-exclamation-triangle text-yellow-500',
         info: 'fa-info-circle text-blue-500'
       };
-      
-      const alert = document.createElement('div');
-      alert.className = `notification-card rounded-xl p-4 shadow-lg border-l-4 ${colors[type]} animate-slideInRight mb-3 flex items-start gap-3`;
-      alert.innerHTML = `
-        <i class="fas ${icons[type]} text-xl"></i>
-        <div class="flex-1"><p class="text-sm font-medium">${message}</p></div>
-        <button class="close-alert text-gray-400 hover:text-gray-600">&times;</button>
+
+      const toast = document.createElement('div');
+      toast.className = `toast notification-card rounded-xl p-4 shadow-lg border-l-4 ${colors[type]} flex items-start gap-3 max-w-sm`;
+      toast.innerHTML = `
+        <i class="fas ${icons[type]} text-xl flex-shrink-0 mt-0.5"></i>
+        <div class="flex-1"><p class="text-sm font-medium">${escapeHtml(message)}</p></div>
+        <button class="close-toast text-gray-400 hover:text-gray-600 flex-shrink-0" aria-label="Close">&times;</button>
       `;
-      container.appendChild(alert);
-      
-      alert.querySelector('.close-alert').onclick = () => alert.remove();
-      setTimeout(() => alert.remove(), 4000);
+
+      container.appendChild(toast);
+
+      toast.querySelector('.close-toast').onclick = () => {
+        gsap.to(toast, { opacity: 0, x: 50, duration: 0.3, onComplete: () => toast.remove() });
+      };
+
+      setTimeout(() => {
+        if (toast.parentNode) {
+          gsap.to(toast, { opacity: 0, x: 50, duration: 0.3, onComplete: () => toast.remove() });
+        }
+      }, duration);
     }
 
+    // Legacy alias for backward compatibility
+    function showAlert(message, type) { showToast(message, type); }
+
+    // =====================================================
+    // LIGHTBOX
+    // =====================================================
+    function openLightbox(src) {
+      const lightbox = document.getElementById('lightbox');
+      const img = document.getElementById('lightboxImg');
+      img.src = src;
+      lightbox.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    // =====================================================
+    // DARK MODE
+    // =====================================================
     function applyDarkMode() {
       if (AppState.darkMode) {
         document.documentElement.classList.add('dark');
@@ -464,6 +765,9 @@
     }
     applyDarkMode();
 
+    // =====================================================
+    // PERMISSIONS
+    // =====================================================
     async function checkUserPermissions(requiredRole) {
       if (!AppState.currentProfile) return false;
       const roleHierarchy = { 
@@ -478,25 +782,33 @@
       return userLevel >= requiredLevel;
     }
 
+    // =====================================================
+    // NOTIFICATIONS
+    // =====================================================
     async function loadNotifications() {
-      if (!AppState.currentUser) return;
-      const { data } = await supabaseClient
-        .from('notifications')
-        .select('*')
-        .eq('user_id', AppState.currentUser.id)
-        .eq('read', false)
-        .order('created_at', { ascending: false });
-      const count = data?.length || 0;
-      const badge = document.getElementById('notificationCount');
-      if (badge) {
-        if (count > 0) {
-          badge.classList.remove('hidden');
-          badge.textContent = count > 9 ? '9+' : count;
-        } else {
-          badge.classList.add('hidden');
+      if (!AppState.currentUser) return [];
+      try {
+        const { data } = await supabaseClient
+          .from('notifications')
+          .select('*')
+          .eq('user_id', AppState.currentUser.id)
+          .eq('read', false)
+          .order('created_at', { ascending: false });
+        const count = data?.length || 0;
+        const badge = document.getElementById('notificationCount');
+        if (badge) {
+          if (count > 0) {
+            badge.classList.remove('hidden');
+            badge.textContent = count > 9 ? '9+' : count;
+          } else {
+            badge.classList.add('hidden');
+          }
         }
+        return data || [];
+      } catch (err) {
+        console.error('Error loading notifications:', err);
+        return [];
       }
-      return data || [];
     }
 
     async function showNotificationPanel() {
@@ -504,49 +816,57 @@
       const panel = document.getElementById('notificationPanel');
       const overlay = document.getElementById('notificationOverlay');
       const list = document.getElementById('notificationList');
-      
+
       if (notifications.length === 0) {
-        list.innerHTML = '<div class="text-center text-gray-500 py-8"><i class="fas fa-bell-slash text-4xl mb-2 block"></i>No new notifications</div>';
+        list.innerHTML = `
+          <div class="text-center text-gray-500 py-8">
+            <i class="fas fa-bell-slash text-4xl mb-2 block text-gold/50"></i>
+            <p>No new notifications</p>
+          </div>`;
       } else {
         list.innerHTML = notifications.map(n => `
-          <div class="notification-card p-3 rounded-lg" data-id="${n.id}">
+          <div class="notification-card p-3 rounded-lg hover:bg-gold/5" data-id="${n.id}">
             <div class="flex items-start gap-3">
               <div class="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center flex-shrink-0">
                 <i class="fas fa-bell text-gold"></i>
               </div>
-              <div class="flex-1">
-                <h4 class="font-semibold text-sm">${n.title}</h4>
-                <p class="text-xs text-gray-500 mt-1">${n.message}</p>
-                <span class="text-xs text-gold mt-1 block">${new Date(n.created_at).toLocaleString()}</span>
+              <div class="flex-1 min-w-0">
+                <h4 class="font-semibold text-sm truncate">${escapeHtml(n.title)}</h4>
+                <p class="text-xs text-gray-500 mt-1 line-clamp-2">${escapeHtml(n.message)}</p>
+                <span class="text-xs text-gold mt-1 block">${timeAgo(n.created_at)}</span>
               </div>
             </div>
           </div>
         `).join('');
-        
+
         setTimeout(async () => {
           await supabaseClient.from('notifications').update({ read: true }).eq('user_id', AppState.currentUser.id);
           const badge = document.getElementById('notificationCount');
           if (badge) badge.classList.add('hidden');
         }, 2000);
       }
-      
+
       panel.classList.add('open');
       overlay.classList.add('show');
     }
 
+    function closeNotificationPanel() {
+      document.getElementById('notificationPanel').classList.remove('open');
+      document.getElementById('notificationOverlay').classList.remove('show');
+    }
+
     // =====================================================
-    // 4. COUNTDOWN TO JUNE 27, 2026 8:00 AM
+    // COUNTDOWN
     // =====================================================
     function getConferenceCountdown() {
-      const targetDate = new Date(2026, 5, 27, 8, 0, 0);
       const now = new Date();
-      const diff = targetDate - now;
-      
+      const diff = CONFIG.CONFERENCE_DATE - now;
+
       if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0, ended: true };
-      
+
       return {
         days: Math.floor(diff / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((diff % (86400000)) / (3600000)),
+        hours: Math.floor((diff % 86400000) / 3600000),
         minutes: Math.floor((diff % 3600000) / 60000),
         seconds: Math.floor((diff % 60000) / 1000),
         ended: false
@@ -557,67 +877,88 @@
       const updateTimer = () => {
         const countdown = getConferenceCountdown();
         const element = document.getElementById(elementId);
-        if (element && !countdown.ended) {
+        if (!element) return;
+
+        if (!countdown.ended) {
           element.innerHTML = `
             <div class="grid grid-cols-4 gap-3 text-center">
-              <div class="countdown-number"><div class="text-2xl md:text-3xl font-bold">${countdown.days}</div><div class="text-xs">Days</div></div>
-              <div class="countdown-number"><div class="text-2xl md:text-3xl font-bold">${countdown.hours}</div><div class="text-xs">Hours</div></div>
-              <div class="countdown-number"><div class="text-2xl md:text-3xl font-bold">${countdown.minutes}</div><div class="text-xs">Minutes</div></div>
-              <div class="countdown-number"><div class="text-2xl md:text-3xl font-bold">${countdown.seconds}</div><div class="text-xs">Seconds</div></div>
+              <div class="countdown-number"><div class="text-2xl md:text-3xl font-bold">${String(countdown.days).padStart(2, '0')}</div><div class="text-xs opacity-80">Days</div></div>
+              <div class="countdown-number"><div class="text-2xl md:text-3xl font-bold">${String(countdown.hours).padStart(2, '0')}</div><div class="text-xs opacity-80">Hours</div></div>
+              <div class="countdown-number"><div class="text-2xl md:text-3xl font-bold">${String(countdown.minutes).padStart(2, '0')}</div><div class="text-xs opacity-80">Minutes</div></div>
+              <div class="countdown-number"><div class="text-2xl md:text-3xl font-bold">${String(countdown.seconds).padStart(2, '0')}</div><div class="text-xs opacity-80">Seconds</div></div>
             </div>
           `;
-          gsap.fromTo('.countdown-number', 
-            { scale: 0.8, opacity: 0 },
-            { scale: 1, opacity: 1, duration: 0.5, stagger: 0.1 }
-          );
-        } else if (element && countdown.ended) {
+        } else {
           element.innerHTML = `<div class="text-center text-gold text-xl font-bold animate-pulse">🎉 CONFERENCE IS HERE! 🎉</div>`;
         }
       };
       updateTimer();
-      setInterval(updateTimer, 1000);
+      return setInterval(updateTimer, 1000);
     }
 
     // =====================================================
-    // 5. REGISTRATION FORM
+    // REGISTRATION FORM
     // =====================================================
     async function showFullRegistrationForm() {
-      const { data: parishes } = await supabaseClient.from('parishes').select('name');
-      
+      let parishes = [];
+      try {
+        const { data } = await supabaseClient.from('parishes').select('name');
+        parishes = data || [];
+      } catch (err) {
+        console.error('Failed to load parishes:', err);
+        parishes = [
+          { name: 'St Matthew' },
+          { name: 'St Philips' },
+          { name: 'Anglican Church of Resurrection Kafe' },
+          { name: 'St Barnabas Jahi 1' },
+          { name: 'St Johns Katempe' },
+          { name: 'St Matthias Jahi 2' },
+          { name: 'St Marks Kado Kuchi' },
+          { name: 'St Joseph Bony B' }
+        ];
+      }
+
       const formHtml = `
-        <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto animate-fadeInScale">
-          <div class="glass-card p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
+        <div class="modal-backdrop" id="registrationModal">
+          <div class="modal-content glass-card p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div class="text-center mb-6">
               <img src="/logo.png" alt="Logo" class="w-16 h-16 mx-auto mb-3" onerror="this.style.display='none'">
               <i class="fas fa-registered text-royal text-3xl"></i>
               <h2 class="text-2xl font-bold mt-2">Conference Registration</h2>
               <p class="text-gold font-bold">"If God Be For Us" - Romans 8:31</p>
-              <p class="text-gray-600 dark:text-gray-400 text-sm">AYF Gwarimba Archdeaconry Conference 2026</p>
+              <p class="text-gray-600 dark:text-gray-400 text-sm">AYF Gwarimpa Archdeaconry Conference 2026</p>
               <p class="text-sm mt-1"><i class="fas fa-map-marker-alt text-gold"></i> Venue: St Philip Gwarimpa</p>
               <p class="text-sm"><i class="fas fa-calendar"></i> Saturday, June 27th, 2026 | 8:00 AM</p>
             </div>
-            
-            <form id="fullRegistrationForm" class="space-y-4">
+
+            <form id="fullRegistrationForm" class="space-y-4" novalidate>
               <div class="animate-fadeInUp" style="animation-delay: 0.1s">
                 <label class="block text-sm font-medium mb-1">Full Name *</label>
-                <input type="text" id="regFullName" required class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold">
+                <input type="text" id="regFullName" required class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold" placeholder="Enter your full name">
+                <p class="text-xs text-red-500 mt-1 hidden" id="errorFullName">Full name is required</p>
               </div>
-              
+
               <div class="animate-fadeInUp" style="animation-delay: 0.15s">
                 <label class="block text-sm font-medium mb-1">Email Address *</label>
-                <input type="email" id="regEmail" required class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold">
+                <input type="email" id="regEmail" required class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold" placeholder="your@email.com">
+                <p class="text-xs text-red-500 mt-1 hidden" id="errorEmail">Valid email is required</p>
               </div>
-              
+
               <div class="animate-fadeInUp" style="animation-delay: 0.2s">
                 <label class="block text-sm font-medium mb-1">Password *</label>
-                <input type="password" id="regPassword" required minlength="6" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold">
+                <input type="password" id="regPassword" required minlength="6" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold" placeholder="Min 6 characters">
+                <div class="mt-1 h-1 bg-gray-200 rounded-full overflow-hidden">
+                  <div id="passwordStrength" class="h-full bg-red-500 transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <p class="text-xs text-red-500 mt-1 hidden" id="errorPassword">Password must be at least 6 characters</p>
               </div>
-              
+
               <div class="animate-fadeInUp" style="animation-delay: 0.25s">
                 <label class="block text-sm font-medium mb-1">Phone Number *</label>
-                <input type="tel" id="regPhone" required class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold">
+                <input type="tel" id="regPhone" required class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold" placeholder="+234...">
+                <p class="text-xs text-red-500 mt-1 hidden" id="errorPhone">Phone number is required</p>
               </div>
-              
+
               <div class="animate-fadeInUp" style="animation-delay: 0.3s">
                 <label class="block text-sm font-medium mb-1">Gender *</label>
                 <select id="regGender" required class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold">
@@ -625,8 +966,9 @@
                   <option value="Male">Male</option>
                   <option value="Female">Female</option>
                 </select>
+                <p class="text-xs text-red-500 mt-1 hidden" id="errorGender">Please select gender</p>
               </div>
-              
+
               <div class="animate-fadeInUp" style="animation-delay: 0.35s">
                 <label class="block text-sm font-medium mb-1">Age Range *</label>
                 <select id="regAgeRange" required class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold">
@@ -637,80 +979,132 @@
                   <option value="36-45">36-45 years</option>
                   <option value="46+">46+ years</option>
                 </select>
+                <p class="text-xs text-red-500 mt-1 hidden" id="errorAgeRange">Please select age range</p>
               </div>
-              
+
               <div class="animate-fadeInUp" style="animation-delay: 0.4s">
                 <label class="block text-sm font-medium mb-1">Parish *</label>
                 <select id="regParish" required class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold">
                   <option value="">Select Parish</option>
-                  ${parishes?.map(p => `<option value="${p.name}">${p.name}</option>`).join('')}
+                  ${parishes.map(p => `<option value="${escapeHtml(p.name)}">${escapeHtml(p.name)}</option>`).join('')}
                 </select>
+                <p class="text-xs text-red-500 mt-1 hidden" id="errorParish">Please select your parish</p>
               </div>
-              
+
               <div class="animate-fadeInUp" style="animation-delay: 0.45s">
                 <label class="block text-sm font-medium mb-1">AYF Position *</label>
                 <input type="text" id="regPosition" placeholder="e.g., Member, Executive, Choir Leader" required class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold">
+                <p class="text-xs text-red-500 mt-1 hidden" id="errorPosition">AYF position is required</p>
               </div>
-              
+
               <div class="bg-gold/10 p-4 rounded-xl animate-fadeInUp" style="animation-delay: 0.5s">
                 <label class="flex items-start gap-3 cursor-pointer">
-                  <input type="checkbox" id="termsCheckbox" class="mt-1">
-                  <span class="text-sm">I have read and agree to the <a href="/terms.html" target="_blank" class="text-gold underline">Terms & Conditions</a> and <a href="/privacy.html" target="_blank" class="text-gold underline">Privacy Policy</a></span>
+                  <input type="checkbox" id="termsCheckbox" class="mt-1 w-4 h-4 accent-gold">
+                  <span class="text-sm">I have read and agree to the <a href="/terms.html" target="_blank" class="text-gold underline hover:no-underline">Terms & Conditions</a> and <a href="/privacy.html" target="_blank" class="text-gold underline hover:no-underline">Privacy Policy</a></span>
                 </label>
               </div>
-              
+
               <div class="flex gap-3 pt-4">
-                <button type="submit" id="registerSubmitBtn" disabled class="flex-1 bg-gray-400 text-white py-3 rounded-xl font-bold transition-all duration-300">Accept Terms to Register</button>
+                <button type="submit" id="registerSubmitBtn" disabled class="flex-1 bg-gray-400 text-white py-3 rounded-xl font-bold transition-all duration-300 flex items-center justify-center gap-2">
+                  <span>Accept Terms to Register</span>
+                  <i class="fas fa-spinner fa-spin hidden" id="regSpinner"></i>
+                </button>
                 <button type="button" id="cancelRegistration" class="flex-1 border border-gray-300 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300">Cancel</button>
               </div>
             </form>
           </div>
         </div>`;
-      
+
       document.body.insertAdjacentHTML('beforeend', formHtml);
-      
+
+      const modal = document.getElementById('registrationModal');
+      requestAnimationFrame(() => modal.classList.add('open'));
+
+      // Password strength meter
+      document.getElementById('regPassword').addEventListener('input', (e) => {
+        const val = e.target.value;
+        const strengthBar = document.getElementById('passwordStrength');
+        let strength = 0;
+        if (val.length >= 6) strength += 25;
+        if (val.length >= 8) strength += 25;
+        if (/[A-Z]/.test(val)) strength += 25;
+        if (/[0-9!@#$%^&*]/.test(val)) strength += 25;
+        strengthBar.style.width = strength + '%';
+        strengthBar.className = 'h-full transition-all duration-300 ' + 
+          (strength < 50 ? 'bg-red-500' : strength < 75 ? 'bg-yellow-500' : 'bg-green-500');
+      });
+
+      // Real-time validation
+      const validateField = (id, errorId, validator) => {
+        const el = document.getElementById(id);
+        const err = document.getElementById(errorId);
+        el.addEventListener('blur', () => {
+          if (!validator(el.value)) {
+            err.classList.remove('hidden');
+            el.classList.add('border-red-500');
+          } else {
+            err.classList.add('hidden');
+            el.classList.remove('border-red-500');
+          }
+        });
+      };
+
+      validateField('regFullName', 'errorFullName', v => v.trim().length >= 2);
+      validateField('regEmail', 'errorEmail', v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v));
+      validateField('regPassword', 'errorPassword', v => v.length >= 6);
+      validateField('regPhone', 'errorPhone', v => v.trim().length >= 7);
+      validateField('regPosition', 'errorPosition', v => v.trim().length >= 2);
+
       const termsCheckbox = document.getElementById('termsCheckbox');
       const submitBtn = document.getElementById('registerSubmitBtn');
-      
+
       termsCheckbox.addEventListener('change', () => {
         submitBtn.disabled = !termsCheckbox.checked;
         if (termsCheckbox.checked) {
-          submitBtn.className = 'flex-1 btn-royal text-white py-3 rounded-xl font-bold transition-all duration-300';
-          gsap.to(submitBtn, { scale: 1.05, duration: 0.2, yoyo: true, repeat: 1 });
+          submitBtn.className = 'flex-1 btn-royal text-white py-3 rounded-xl font-bold transition-all duration-300 flex items-center justify-center gap-2';
+          submitBtn.querySelector('span').textContent = 'Register for Conference';
         } else {
-          submitBtn.className = 'flex-1 bg-gray-400 text-white py-3 rounded-xl font-bold transition-all duration-300';
+          submitBtn.className = 'flex-1 bg-gray-400 text-white py-3 rounded-xl font-bold transition-all duration-300 flex items-center justify-center gap-2';
+          submitBtn.querySelector('span').textContent = 'Accept Terms to Register';
         }
       });
-      
+
       document.getElementById('fullRegistrationForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         if (!termsCheckbox.checked) {
-          showAlert('Please accept Terms & Conditions to register', 'warning');
+          showToast('Please accept Terms & Conditions to register', 'warning');
           return;
         }
-        
-        const email = document.getElementById('regEmail').value;
+
+        const email = document.getElementById('regEmail').value.trim();
         const password = document.getElementById('regPassword').value;
-        const fullName = document.getElementById('regFullName').value;
-        const phone = document.getElementById('regPhone').value;
+        const fullName = document.getElementById('regFullName').value.trim();
+        const phone = document.getElementById('regPhone').value.trim();
         const gender = document.getElementById('regGender').value;
         const ageRange = document.getElementById('regAgeRange').value;
         const parish = document.getElementById('regParish').value;
-        const ayfPosition = document.getElementById('regPosition').value;
-        
-        submitBtn.textContent = "Creating Account...";
+        const ayfPosition = document.getElementById('regPosition').value.trim();
+
+        // Final validation
+        if (!email || !password || !fullName || !phone || !gender || !ageRange || !parish || !ayfPosition) {
+          showToast('Please fill in all required fields', 'error');
+          return;
+        }
+
         submitBtn.disabled = true;
-        
+        document.getElementById('regSpinner').classList.remove('hidden');
+        submitBtn.querySelector('span').textContent = 'Creating Account...';
+
         try {
           const { data: authData, error: authError } = await supabaseClient.auth.signUp({
             email: email,
             password: password,
             options: { data: { full_name: fullName, phone: phone } }
           });
-          
+
           if (authError) throw new Error(authError.message);
           if (!authData.user) throw new Error("Failed to create user account");
-          
+
           const { error: profileError } = await supabaseClient.from('profiles').insert([{
             id: authData.user.id,
             full_name: fullName,
@@ -722,37 +1116,45 @@
             role: 'member',
             avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=0A2E73&color=fff`
           }]);
-          
-          if (profileError) throw new Error(profileError.message);
-          
+
+          if (profileError) {
+            // Rollback: delete auth user if profile fails
+            await supabaseClient.auth.admin.deleteUser(authData.user.id);
+            throw new Error(profileError.message);
+          }
+
           const { error: regError } = await supabaseClient.from('registrations').insert([{ 
             user_id: authData.user.id, 
             status: 'pending'
           }]);
-          
+
           if (regError) throw new Error(regError.message);
-          
-          showAlert("Registration successful! Please check your email to confirm your account.", 'success');
-          document.querySelector('.fixed.bg-black\\/60').remove();
+
+          showToast("Registration successful! Please check your email to confirm your account.", 'success');
+          closeModal(modal);
           renderAuth();
-          
+
         } catch (error) {
-          showAlert("Registration failed: " + error.message, 'error');
-          submitBtn.textContent = "Register for Conference";
+          showToast("Registration failed: " + error.message, 'error');
           submitBtn.disabled = false;
+          document.getElementById('regSpinner').classList.add('hidden');
+          submitBtn.querySelector('span').textContent = 'Register for Conference';
         }
       });
-      
+
       document.getElementById('cancelRegistration')?.addEventListener('click', () => {
-        gsap.to('.fixed.bg-black\\/60', { opacity: 0, duration: 0.3, onComplete: () => {
-          document.querySelector('.fixed.bg-black\\/60').remove();
-        }});
+        closeModal(modal);
         renderAuth();
       });
     }
 
+    function closeModal(modalEl) {
+      modalEl.classList.remove('open');
+      setTimeout(() => modalEl.remove(), 300);
+    }
+
     // =====================================================
-    // 6. AUTHENTICATION UI
+    // AUTHENTICATION UI
     // =====================================================
     async function renderAuth() {
       const container = document.getElementById('appContainer');
@@ -762,159 +1164,253 @@
             <div class="text-center mb-8">
               <img src="/logo.png" alt="Logo" class="w-20 h-20 mx-auto mb-3 logo-container" onerror="this.style.display='none'">
               <i class="fas fa-church text-royal text-4xl mb-2"></i>
-              <h2 class="text-3xl font-bold bg-gradient-to-r from-royal to-gold bg-clip-text text-transparent">AYF Gwarimba</h2>
+              <h2 class="text-3xl font-bold bg-gradient-to-r from-royal to-gold bg-clip-text text-transparent">AYF Gwarimpa</h2>
               <p class="text-gold font-bold mt-2">"If God Be For Us" - Romans 8:31</p>
               <p class="text-gray-500 dark:text-gray-400 mt-2">Archdeaconry Conference 2026</p>
             </div>
-            
-            <div id="authError" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded-lg mb-4"></div>
-            
-            <form id="loginForm">
+
+            <div id="authError" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded-lg mb-4 text-sm"></div>
+
+            <form id="loginForm" novalidate>
               <div class="mb-4">
                 <input type="email" id="email" placeholder="Email Address" required class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all">
               </div>
-              <div class="mb-6">
-                <input type="password" id="password" placeholder="Password" required class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all">
+              <div class="mb-6 relative">
+                <input type="password" id="password" placeholder="Password" required class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all pr-10">
+                <button type="button" id="togglePassword" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gold">
+                  <i class="fas fa-eye"></i>
+                </button>
               </div>
-              <button type="submit" class="w-full btn-royal text-white py-3 rounded-xl font-semibold transition-all duration-300">Sign In</button>
+              <button type="submit" id="loginSubmitBtn" class="w-full btn-royal text-white py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2">
+                <span>Sign In</span>
+                <i class="fas fa-spinner fa-spin hidden" id="loginSpinner"></i>
+              </button>
             </form>
-            
+
             <div class="relative my-6">
               <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-300"></div></div>
               <div class="relative flex justify-center text-sm"><span class="px-2 bg-[#f5f5f0] dark:bg-gray-900 text-gray-500">Or</span></div>
             </div>
-            
+
             <button id="googleBtn" class="w-full border border-gold/50 rounded-xl py-3 flex justify-center gap-3 hover:bg-gold/10 transition-all duration-300">
               <i class="fab fa-google text-gold"></i> Continue with Google
             </button>
-            
-            <div class="text-center mt-6">
+
+            <div class="text-center mt-6 space-y-2">
               <a href="#" id="showRegisterLink" class="text-gold hover:underline block font-semibold transition-all">📝 Register for Conference →</a>
-              <a href="#" id="resetLink" class="text-royal dark:text-gold/70 text-sm hover:underline block mt-2">Forgot Password?</a>
+              <a href="#" id="resetLink" class="text-royal dark:text-gold/70 text-sm hover:underline block">Forgot Password?</a>
             </div>
           </div>
         </div>`;
-      
+
+      // Toggle password visibility
+      document.getElementById('togglePassword')?.addEventListener('click', (e) => {
+        const input = document.getElementById('password');
+        const icon = e.currentTarget.querySelector('i');
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.className = 'fas fa-eye-slash';
+        } else {
+          input.type = 'password';
+          icon.className = 'fas fa-eye';
+        }
+      });
+
       document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const email = document.getElementById('email').value;
+        const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
+        const submitBtn = document.getElementById('loginSubmitBtn');
+        const spinner = document.getElementById('loginSpinner');
+
+        if (!email || !password) {
+          document.getElementById('authError').textContent = 'Please enter both email and password';
+          document.getElementById('authError').classList.remove('hidden');
+          return;
+        }
+
+        submitBtn.disabled = true;
+        spinner.classList.remove('hidden');
+
         const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) {
           document.getElementById('authError').textContent = error.message;
           document.getElementById('authError').classList.remove('hidden');
+          submitBtn.disabled = false;
+          spinner.classList.add('hidden');
         } else {
           checkUser();
         }
       });
-      
+
       document.getElementById('googleBtn').onclick = async () => {
-        await supabaseClient.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } });
+        await supabaseClient.auth.signInWithOAuth({ 
+          provider: 'google', 
+          options: { redirectTo: window.location.origin } 
+        });
       };
-      
+
       document.getElementById('showRegisterLink').onclick = async (e) => {
         e.preventDefault();
         await showFullRegistrationForm();
       };
-      
+
       document.getElementById('resetLink').onclick = async (e) => {
         e.preventDefault();
         const email = prompt("Enter your registered email:");
-        if (email) {
-          await supabaseClient.auth.resetPasswordForEmail(email);
-          showAlert("Password reset link sent to your email!", 'success');
+        if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
+          if (error) {
+            showToast(error.message, 'error');
+          } else {
+            showToast("Password reset link sent to your email!", 'success');
+          }
+        } else if (email) {
+          showToast('Please enter a valid email address', 'warning');
         }
       };
     }
 
     async function checkUser() {
-      const { data: { user } } = await supabaseClient.auth.getUser();
-      if (!user) {
+      try {
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (!user) {
+          renderAuth();
+          return;
+        }
+        AppState.currentUser = user;
+
+        let { data: profile, error: profileError } = await supabaseClient
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (profileError || !profile) {
+          // Check if user signed up with OAuth but no profile exists
+          const metadata = user.user_metadata || {};
+          if (metadata.full_name || metadata.name) {
+            // Auto-create profile for OAuth users
+            const newProfile = {
+              id: user.id,
+              full_name: metadata.full_name || metadata.name || 'New User',
+              phone: metadata.phone || '',
+              gender: '',
+              age_range: '',
+              parish: '',
+              ayf_position: 'Member',
+              role: 'member',
+              avatar_url: metadata.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(metadata.full_name || 'User')}&background=0A2E73&color=fff`
+            };
+            await supabaseClient.from('profiles').insert([newProfile]);
+            profile = newProfile;
+          } else {
+            await showFullRegistrationForm();
+            return;
+          }
+        }
+
+        AppState.currentProfile = profile;
+
+        const isAdmin = await checkUserPermissions('moderator');
+        const adminNav = document.querySelector('.admin-only-nav');
+        if (adminNav) {
+          if (isAdmin) adminNav.classList.remove('hidden');
+          else adminNav.classList.add('hidden');
+        }
+
+        await loadNotifications();
+        setupRealtimeSubscriptions();
+        renderMainView();
+
+        // Sync any offline queue
+        if (AppState.isOnline && AppState.offlineQueue.length > 0) {
+          syncOfflineQueue();
+        }
+      } catch (err) {
+        console.error('Error checking user:', err);
+        showToast('Error loading your profile. Please try again.', 'error');
         renderAuth();
-        return;
       }
-      AppState.currentUser = user;
-      
-      let { data: profile } = await supabaseClient
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-      
-      if (!profile) {
-        await showFullRegistrationForm();
-        return;
-      }
-      
-      AppState.currentProfile = profile;
-      
-      const isAdmin = await checkUserPermissions('moderator');
-      const adminNav = document.querySelector('.admin-only-nav');
-      if (adminNav) {
-        if (isAdmin) adminNav.classList.remove('hidden');
-        else adminNav.classList.add('hidden');
-      }
-      
-      await loadNotifications();
-      setupRealtimeSubscriptions();
-      renderMainView();
     }
 
     // =====================================================
-    // 7. REALTIME SUBSCRIPTIONS
+    // REALTIME SUBSCRIPTIONS
     // =====================================================
     function setupRealtimeSubscriptions() {
       AppState.realtimeSubscriptions.forEach(sub => {
         supabaseClient.removeChannel(sub);
       });
       AppState.realtimeSubscriptions = [];
-      
+
       const postsChannel = supabaseClient.channel('public-posts')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, () => {
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, (payload) => {
           if (AppState.currentView === 'home' || AppState.currentView === 'community') {
-            renderMainView();
+            // Smart update: prepend new posts, don't full re-render
+            if (payload.eventType === 'INSERT') {
+              AppState.postsCache.unshift(payload.new);
+              renderMainView();
+            } else if (payload.eventType === 'UPDATE') {
+              const idx = AppState.postsCache.findIndex(p => p.id === payload.new.id);
+              if (idx !== -1) AppState.postsCache[idx] = payload.new;
+              renderMainView();
+            } else if (payload.eventType === 'DELETE') {
+              AppState.postsCache = AppState.postsCache.filter(p => p.id !== payload.old.id);
+              renderMainView();
+            }
           }
         })
         .subscribe();
-      
+
       const notificationsChannel = supabaseClient.channel('public-notifications')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${AppState.currentUser.id}` }, () => {
+        .on('postgres_changes', { 
+          event: 'INSERT', 
+          schema: 'public', 
+          table: 'notifications', 
+          filter: `user_id=eq.${AppState.currentUser.id}` 
+        }, () => {
           loadNotifications();
-          showAlert('You have a new notification!', 'info');
+          showToast('You have a new notification!', 'info');
         })
         .subscribe();
-      
+
       AppState.realtimeSubscriptions = [postsChannel, notificationsChannel];
     }
 
     // =====================================================
-    // 8. CONFERENCE MODULE
+    // CONFERENCE MODULE
     // =====================================================
     async function renderConferenceModule(container) {
-      const { data: reg } = await supabaseClient
-        .from('registrations')
-        .select('*')
-        .eq('user_id', AppState.currentUser.id)
-        .single();
-      
+      let reg = null;
+      try {
+        const { data } = await supabaseClient
+          .from('registrations')
+          .select('*')
+          .eq('user_id', AppState.currentUser.id)
+          .single();
+        reg = data;
+      } catch (err) {
+        console.log('No registration found');
+      }
+
       container.innerHTML = `
         <div class="space-y-5 animate-fadeInUp">
           <div class="glass-card p-6 text-center bg-gradient-to-r from-royal/20 to-gold/20">
             <img src="/logo.png" alt="Logo" class="w-16 h-16 mx-auto mb-3 logo-container" onerror="this.style.display='none'">
             <h2 class="text-3xl md:text-4xl font-bold text-royal dark:text-gold">If God Be For Us</h2>
             <p class="text-gray-600 dark:text-gray-300 mt-2 italic">Romans 8:31 - "What then shall we say to these things? If God is for us, who can be against us?"</p>
-            <div class="mt-3 text-sm">
-              <p><i class="fas fa-church text-gold"></i> AYF Gwarimba Archdeaconry Conference 2026</p>
+            <div class="mt-3 text-sm space-y-1">
+              <p><i class="fas fa-church text-gold"></i> AYF Gwarimpa Archdeaconry Conference 2026</p>
               <p><i class="fas fa-map-marker-alt text-gold"></i> St Philip Gwarimpa</p>
               <p><i class="fas fa-calendar-day text-gold"></i> Saturday, 27th June, 2026 | 8:00 AM - 6:00 PM</p>
             </div>
           </div>
-          
+
           <div class="glass-card p-5 text-center">
             <h3 class="font-bold text-xl mb-3"><i class="fas fa-hourglass-half text-gold"></i> Conference Countdown</h3>
             <div id="countdownDisplay"></div>
           </div>
-          
+
           <div class="glass-card p-5" id="speakersSection">
             <div class="flex justify-between items-center mb-3">
               <h3 class="font-bold text-xl"><i class="fas fa-microphone-alt text-gold"></i> Conference Speakers</h3>
@@ -922,100 +1418,225 @@
             </div>
             <div id="speakersContent" class="grid md:grid-cols-2 gap-4"></div>
           </div>
-          
+
           <div class="glass-card p-5 text-center">
             <h3 class="font-bold text-xl mb-3"><i class="fas fa-ticket-alt text-gold"></i> Your Conference Pass</h3>
-            <div id="qrContainer" class="flex justify-center mb-3"></div>
+            <div id="qrContainer" class="flex justify-center mb-3 min-h-[150px] items-center">
+              ${reg?.conference_id ? '' : '<p class="text-gray-500 text-sm">Complete registration to get your QR pass</p>'}
+            </div>
             <p class="font-mono font-bold text-lg">${reg?.conference_id || 'Pending Approval'}</p>
-            <p class="text-sm mt-1">Status: ${reg?.status === 'approved' ? '<span class="text-green-500">✅ Approved</span>' : '<span class="text-yellow-500">⏳ Pending Approval</span>'}</p>
+            <p class="text-sm mt-1">Status: ${reg?.status === 'approved' ? '<span class="text-green-500 font-semibold">✅ Approved</span>' : '<span class="text-yellow-500 font-semibold">⏳ Pending Approval</span>'}</p>
             ${reg?.check_in_time ? `<p class="text-green-500 mt-2"><i class="fas fa-check-circle"></i> Checked in at ${new Date(reg.check_in_time).toLocaleTimeString()}</p>` : ''}
+            ${reg?.check_in_count > 0 ? `<p class="text-sm text-gray-500 mt-1">Total check-ins: ${reg.check_in_count}</p>` : ''}
+          </div>
+
+          <!-- Events Section -->
+          <div class="glass-card p-5">
+            <h3 class="font-bold text-xl mb-3"><i class="fas fa-calendar-check text-gold"></i> Upcoming Events</h3>
+            <div id="eventsList" class="space-y-3"></div>
           </div>
         </div>`;
-      
-      startCountdownTimer('countdownDisplay');
+
+      const countdownInterval = startCountdownTimer('countdownDisplay');
+
+      // Store interval for cleanup
+      AppState.countdownInterval = countdownInterval;
+
       await loadSpeakers();
-      
-      if (reg && document.getElementById('qrContainer') && reg.conference_id) {
-        new QRCode(document.getElementById('qrContainer'), { text: reg.conference_id, width: 150, height: 150 });
+      await loadEvents();
+
+      if (reg && reg.conference_id && document.getElementById('qrContainer')) {
+        document.getElementById('qrContainer').innerHTML = '';
+        new QRCode(document.getElementById('qrContainer'), { 
+          text: reg.conference_id, 
+          width: 150, 
+          height: 150,
+          colorDark: '#0A2E73',
+          colorLight: '#ffffff'
+        });
       }
-      
+
       document.getElementById('editSpeakersBtn')?.addEventListener('click', () => editSpeakers());
     }
-    
+
     async function loadSpeakers() {
-      const { data: speakers } = await supabaseClient.from('speakers').select('*').order('order_position');
-      const speakersContent = document.getElementById('speakersContent');
-      if (speakers && speakers.length > 0) {
-        speakersContent.innerHTML = speakers.map(s => `
-          <div class="flex items-center gap-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl animate-fadeInScale">
-            <div class="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center animate-pulse-slow"><i class="fas fa-user text-gold text-xl"></i></div>
-            <div><div class="font-bold">${s.name}</div><div class="text-sm text-gold">${s.position}</div></div>
-          </div>
-        `).join('');
-      } else {
-        speakersContent.innerHTML = `
-          <div class="flex items-center gap-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl animate-fadeInScale"><div class="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center"><i class="fas fa-user text-gold text-xl"></i></div><div><div class="font-bold">Sis. Blessing Ifemenam</div><div class="text-sm text-gold">Youth President</div></div></div>
-          <div class="flex items-center gap-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl animate-fadeInScale" style="animation-delay: 0.1s"><div class="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center"><i class="fas fa-user text-gold text-xl"></i></div><div><div class="font-bold">Bro. Simi</div><div class="text-sm text-gold">General Secretary</div></div></div>
-          <div class="flex items-center gap-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl animate-fadeInScale" style="animation-delay: 0.2s"><div class="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center"><i class="fas fa-user text-gold text-xl"></i></div><div><div class="font-bold">Bro. Avan</div><div class="text-sm text-gold">Vice President</div></div></div>
-        `;
+      let speakers = [];
+      try {
+        const { data } = await supabaseClient.from('speakers').select('*').order('order_position');
+        speakers = data || [];
+      } catch (err) {
+        console.log('Speakers table not found, using defaults');
       }
+
+      const speakersContent = document.getElementById('speakersContent');
+      if (!speakersContent) return;
+
+      const defaultSpeakers = [
+        { name: 'Sis. Blessing Ifemenam', position: 'Youth President' },
+        { name: 'Bro. Simi', position: 'General Secretary' },
+        { name: 'Bro. Avan', position: 'Vice President' }
+      ];
+
+      const displaySpeakers = speakers.length > 0 ? speakers : defaultSpeakers;
+
+      speakersContent.innerHTML = displaySpeakers.map((s, i) => `
+        <div class="flex items-center gap-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl animate-fadeInScale" style="animation-delay: ${i * 0.1}s">
+          <div class="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center animate-pulse-slow">
+            <i class="fas fa-user text-gold text-xl"></i>
+          </div>
+          <div>
+            <div class="font-bold">${escapeHtml(s.name)}</div>
+            <div class="text-sm text-gold">${escapeHtml(s.position)}</div>
+          </div>
+        </div>
+      `).join('');
     }
-    
+
+    async function loadEvents() {
+      let events = [];
+      try {
+        const { data } = await supabaseClient
+          .from('events')
+          .select('*')
+          .gte('date', new Date().toISOString().split('T')[0])
+          .order('date', { ascending: true })
+          .limit(5);
+        events = data || [];
+      } catch (err) {
+        console.log('Events table error:', err);
+      }
+
+      const container = document.getElementById('eventsList');
+      if (!container) return;
+
+      if (events.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-center py-4">No upcoming events scheduled</p>';
+        return;
+      }
+
+      container.innerHTML = events.map((event, i) => `
+        <div class="flex items-start gap-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl animate-fadeInUp" style="animation-delay: ${i * 0.1}s">
+          <div class="w-14 h-14 rounded-xl bg-royal/20 flex flex-col items-center justify-center flex-shrink-0">
+            <span class="text-lg font-bold text-royal">${new Date(event.date).getDate()}</span>
+            <span class="text-xs text-royal/70">${new Date(event.date).toLocaleString('default', { month: 'short' })}</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h4 class="font-bold truncate">${escapeHtml(event.title)}</h4>
+            <p class="text-xs text-gray-500">${escapeHtml(event.venue || 'TBD')} | ${event.time || 'TBD'}</p>
+            <p class="text-xs text-gold mt-1">${event.current_registrations || 0} / ${event.max_attendees || '∞'} registered</p>
+          </div>
+          <button data-event="${event.id}" class="registerEventBtn bg-gold/20 text-gold px-3 py-1 rounded-lg text-sm hover:bg-gold/30 transition-colors flex-shrink-0">
+            Register
+          </button>
+        </div>
+      `).join('');
+
+      document.querySelectorAll('.registerEventBtn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const eventId = btn.dataset.event;
+          try {
+            const { error } = await supabaseClient.from('event_registrations').insert([{
+              event_id: eventId,
+              user_id: AppState.currentUser.id
+            }]);
+            if (error) throw error;
+            showToast('Registered for event!', 'success');
+            btn.textContent = 'Registered';
+            btn.disabled = true;
+            btn.classList.add('opacity-50');
+          } catch (err) {
+            if (err.message?.includes('duplicate')) {
+              showToast('You are already registered for this event', 'warning');
+            } else {
+              showToast('Failed to register: ' + err.message, 'error');
+            }
+          }
+        });
+      });
+    }
+
     async function editSpeakers() {
-      const { data: speakers } = await supabaseClient.from('speakers').select('*');
+      let speakers = [];
+      try {
+        const { data } = await supabaseClient.from('speakers').select('*');
+        speakers = data || [];
+      } catch (err) {
+        console.log('No speakers table');
+      }
+
       const formHtml = `
-        <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 animate-fadeInScale">
-          <div class="glass-card p-6 w-full max-w-md">
+        <div class="modal-backdrop" id="speakersModal">
+          <div class="modal-content glass-card p-6 w-full max-w-md">
             <h3 class="font-bold text-xl mb-4">Edit Speakers</h3>
             <div id="speakersEditForm" class="space-y-3">
-              <div><label>Youth President:</label><input type="text" id="speakerYouthPresident" value="${speakers?.find(s => s.position === 'Youth President')?.name || 'Sis. Blessing Ifemenam'}" class="w-full p-2 rounded border transition-all focus:ring-2 focus:ring-gold"></div>
-              <div><label>General Secretary:</label><input type="text" id="speakerGenSec" value="${speakers?.find(s => s.position === 'General Secretary')?.name || 'Bro. Simi'}" class="w-full p-2 rounded border transition-all focus:ring-2 focus:ring-gold"></div>
-              <div><label>Vice President:</label><input type="text" id="speakerVP" value="${speakers?.find(s => s.position === 'Vice President')?.name || 'Bro. Avan'}" class="w-full p-2 rounded border transition-all focus:ring-2 focus:ring-gold"></div>
+              <div>
+                <label class="block text-sm font-medium mb-1">Youth President:</label>
+                <input type="text" id="speakerYouthPresident" value="${escapeHtml(speakers?.find(s => s.position === 'Youth President')?.name || 'Sis. Blessing Ifemenam')}" class="w-full p-2 rounded-xl border dark:bg-gray-800 transition-all focus:ring-2 focus:ring-gold">
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1">General Secretary:</label>
+                <input type="text" id="speakerGenSec" value="${escapeHtml(speakers?.find(s => s.position === 'General Secretary')?.name || 'Bro. Simi')}" class="w-full p-2 rounded-xl border dark:bg-gray-800 transition-all focus:ring-2 focus:ring-gold">
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1">Vice President:</label>
+                <input type="text" id="speakerVP" value="${escapeHtml(speakers?.find(s => s.position === 'Vice President')?.name || 'Bro. Avan')}" class="w-full p-2 rounded-xl border dark:bg-gray-800 transition-all focus:ring-2 focus:ring-gold">
+              </div>
             </div>
             <div class="flex gap-3 mt-4">
-              <button id="saveSpeakersBtn" class="flex-1 btn-royal text-white py-2 rounded transition-all hover:scale-105">Save Changes</button>
-              <button id="closeSpeakersBtn" class="flex-1 border py-2 rounded transition-all hover:bg-gray-100 dark:hover:bg-gray-700">Cancel</button>
+              <button id="saveSpeakersBtn" class="flex-1 btn-royal text-white py-2 rounded-xl transition-all hover:scale-105">Save Changes</button>
+              <button id="closeSpeakersBtn" class="flex-1 border py-2 rounded-xl transition-all hover:bg-gray-100 dark:hover:bg-gray-700">Cancel</button>
             </div>
           </div>
         </div>
       `;
       document.body.insertAdjacentHTML('beforeend', formHtml);
-      
+
+      const modal = document.getElementById('speakersModal');
+      requestAnimationFrame(() => modal.classList.add('open'));
+
       document.getElementById('saveSpeakersBtn').onclick = async () => {
         const updates = [
-          { position: 'Youth President', name: document.getElementById('speakerYouthPresident').value },
-          { position: 'General Secretary', name: document.getElementById('speakerGenSec').value },
-          { position: 'Vice President', name: document.getElementById('speakerVP').value }
+          { position: 'Youth President', name: document.getElementById('speakerYouthPresident').value.trim() },
+          { position: 'General Secretary', name: document.getElementById('speakerGenSec').value.trim() },
+          { position: 'Vice President', name: document.getElementById('speakerVP').value.trim() }
         ];
-        
-        for (const update of updates) {
-          const existing = speakers?.find(s => s.position === update.position);
-          if (existing) {
-            await supabaseClient.from('speakers').update({ name: update.name }).eq('id', existing.id);
-          } else {
-            await supabaseClient.from('speakers').insert([{ position: update.position, name: update.name }]);
+
+        try {
+          for (const update of updates) {
+            const existing = speakers?.find(s => s.position === update.position);
+            if (existing) {
+              await supabaseClient.from('speakers').update({ name: update.name }).eq('id', existing.id);
+            } else {
+              await supabaseClient.from('speakers').insert([{ position: update.position, name: update.name }]);
+            }
           }
+          showToast('Speakers updated successfully!', 'success');
+          closeModal(modal);
+          renderMainView();
+        } catch (err) {
+          showToast('Failed to update speakers: ' + err.message, 'error');
         }
-        showAlert('Speakers updated successfully!', 'success');
-        document.querySelector('.fixed.bg-black\\/60').remove();
-        renderMainView();
       };
-      
-      document.getElementById('closeSpeakersBtn').onclick = () => {
-        document.querySelector('.fixed.bg-black\\/60').remove();
-      };
+
+      document.getElementById('closeSpeakersBtn').onclick = () => closeModal(modal);
     }
 
     // =====================================================
-    // 9. MAIN RENDER DISPATCHER
+    // MAIN RENDER DISPATCHER
     // =====================================================
     async function renderMainView() {
       if (!AppState.currentProfile) return;
       const container = document.getElementById('appContainer');
       const isAdmin = await checkUserPermissions('moderator');
-      
+
+      // Cleanup previous intervals
+      if (AppState.countdownInterval) {
+        clearInterval(AppState.countdownInterval);
+        AppState.countdownInterval = null;
+      }
+
       if (AppState.currentView === 'admin' && isAdmin) {
-        window.location.href = '/admin.html';
+        renderAdminDashboard(container);
       } else if (AppState.currentView === 'home') {
         await renderHomeFeed(container);
       } else if (AppState.currentView === 'conference') {
@@ -1027,345 +1648,1441 @@
       } else if (AppState.currentView === 'profile') {
         await renderProfilePage(container);
       }
-      
+
       attachNavigationListeners();
-      
+
       gsap.fromTo('#appContainer > div', 
         { opacity: 0, y: 20 },
         { opacity: 1, y: 0, duration: 0.5, stagger: 0.1 }
       );
     }
-    
-    async function renderHomeFeed(container) {
-      const { data: posts } = await supabaseClient
-        .from('posts')
-        .select(`*, profiles(full_name, avatar_url, role)`)
-        .order('created_at', { ascending: false });
-      
-      // Get user's liked posts
-      const { data: userLikes } = await supabaseClient.from('likes').select('post_id').eq('user_id', AppState.currentUser.id);
-      AppState.likedPosts = new Set(userLikes?.map(l => l.post_id) || []);
-      
-      container.innerHTML = `
-        <div class="glass-card p-5 mb-6 bg-gradient-to-r from-royal/20 to-gold/20 animate-fadeInUp">
-          <div class="flex flex-wrap justify-between items-center gap-3">
-            <div class="flex items-center gap-3">
-              <img src="/logo.png" alt="Logo" class="w-12 h-12" onerror="this.style.display='none'">
-              <div>
-                <h2 class="text-2xl font-bold">Welcome, ${AppState.currentProfile.full_name}!</h2>
-                <p class="text-gold font-medium">"If God Be For Us" - Conference 2026</p>
-                <p class="text-sm text-gray-600 dark:text-gray-400">${AppState.currentProfile.parish} Parish | ${AppState.currentProfile.ayf_position}</p>
+
+    // =====================================================
+    // SKELETON LOADING
+    // =====================================================
+    function renderSkeletonPosts(count = 3) {
+      return Array(count).fill(0).map(() => `
+        <div class="glass-card p-5 mb-4">
+          <div class="flex gap-3 mb-3">
+            <div class="skeleton w-12 h-12 rounded-full flex-shrink-0"></div>
+            <div class="flex-1 space-y-2">
+              <div class="skeleton h-4 w-32"></div>
+              <div class="skeleton h-3 w-20"></div>
+            </div>
+          </div>
+          <div class="skeleton h-16 w-full mb-3"></div>
+          <div class="flex gap-4">
+            <div class="skeleton h-8 w-16"></div>
+            <div class="skeleton h-8 w-16"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // =====================================================
+    // HOME FEED WITH PAGINATION
+    // =====================================================
+    async function renderHomeFeed(container, reset = true) {
+      if (reset) {
+        AppState.currentPage = 1;
+        AppState.hasMorePosts = true;
+        AppState.postsCache = [];
+      }
+
+      if (AppState.isLoading) return;
+      AppState.isLoading = true;
+
+      if (reset) {
+        container.innerHTML = `
+          <div class="glass-card p-5 mb-6 bg-gradient-to-r from-royal/20 to-gold/20 animate-fadeInUp">
+            <div class="flex flex-wrap justify-between items-center gap-3">
+              <div class="flex items-center gap-3">
+                <img src="/logo.png" alt="Logo" class="w-12 h-12" onerror="this.style.display='none'">
+                <div>
+                  <h2 class="text-2xl font-bold">Welcome, ${escapeHtml(AppState.currentProfile.full_name)}!</h2>
+                  <p class="text-gold font-medium">"If God Be For Us" - Conference 2026</p>
+                  <p class="text-sm text-gray-600 dark:text-gray-400">${escapeHtml(AppState.currentProfile.parish || 'Parish not set')} | ${escapeHtml(AppState.currentProfile.ayf_position || 'Member')}</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        
-        <button id="createPostBtn" class="w-full glass-card p-4 mb-6 text-left font-semibold hover:shadow-lg transition-all duration-300 flex items-center gap-3 group">
-          <i class="fas fa-pen-alt text-gold text-xl group-hover:scale-110 transition-transform"></i>
-          <span>What's on your mind, ${AppState.currentProfile.full_name.split(' ')[0]}?</span>
-        </button>
-        
-        <div id="postsFeed" class="space-y-4">
-          ${posts?.map((post, index) => `
-            <div class="glass-card p-5 post-card animate-fadeInUp" style="animation-delay: ${index * 0.05}s">
-              <div class="flex gap-3 mb-3">
-                <img src="${post.profiles.avatar_url}" class="w-12 h-12 rounded-full object-cover">
-                <div class="flex-1">
-                  <div class="flex items-center gap-2 flex-wrap">
-                    <b class="text-lg">${post.profiles.full_name}</b>
-                    ${post.profiles.role === 'super_admin' ? '<span class="text-xs bg-gold/20 px-2 py-0.5 rounded-full">Admin</span>' : ''}
-                  </div>
-                  <p class="text-xs text-gray-500">${new Date(post.created_at).toLocaleString()}</p>
-                </div>
+
+          <button id="createPostBtn" class="w-full glass-card p-4 mb-6 text-left font-semibold hover:shadow-lg transition-all duration-300 flex items-center gap-3 group">
+            <i class="fas fa-pen-alt text-gold text-xl group-hover:scale-110 transition-transform"></i>
+            <span>What's on your mind, ${escapeHtml(AppState.currentProfile.full_name.split(' ')[0])}?</span>
+          </button>
+
+          <div id="postsFeed" class="space-y-4">
+            ${renderSkeletonPosts(3)}
+          </div>
+
+          <div id="loadMoreContainer" class="text-center mt-6 hidden">
+            <button id="loadMoreBtn" class="btn-gold text-white px-6 py-2 rounded-xl font-semibold transition-all hover:scale-105">
+              Load More <i class="fas fa-chevron-down ml-1"></i>
+            </button>
+          </div>
+
+          <!-- Create Post Modal -->
+          <div id="postModal" class="modal-backdrop hidden">
+            <div class="modal-content glass-card w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
+              <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Create Post</h2>
+                <button id="closeModal" class="text-gray-500 hover:text-gold text-2xl">&times;</button>
               </div>
-              <p class="text-gray-700 dark:text-gray-300 mb-3 whitespace-pre-wrap">${post.content}</p>
-              <div class="flex gap-6 pt-3 border-t border-gray-200 dark:border-gray-700">
-                <button data-like="${post.id}" class="like-btn flex items-center gap-2 hover:text-gold transition-all hover:scale-105 ${AppState.likedPosts.has(post.id) ? 'text-red-500' : ''}">
-                  <i class="fas fa-heart ${AppState.likedPosts.has(post.id) ? 'text-red-500' : ''}"></i> <span>${post.likes_count || 0}</span>
+              <textarea id="postContent" rows="4" placeholder="What's on your mind?" class="w-full p-3 rounded-xl border dark:bg-gray-800 mb-3 resize-none"></textarea>
+              <div class="flex gap-2 mb-3">
+                <select id="postCategory" class="p-2 rounded-xl border dark:bg-gray-800 text-sm">
+                  <option value="general">General</option>
+                  <option value="testimony">Testimony</option>
+                  <option value="announcement">Announcement</option>
+                  <option value="prayer">Prayer Request</option>
+                </select>
+              </div>
+              <div id="imagePreview" class="hidden mb-3 relative">
+                <img id="previewImg" class="rounded-xl max-h-48 w-auto cursor-pointer hover:opacity-90 transition-opacity" onclick="openLightbox(this.src)">
+                <button id="removeImage" class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-600 transition-colors shadow-lg">&times;</button>
+              </div>
+              <div class="compress-progress hidden" id="compressProgress">
+                <div class="compress-progress-bar" id="compressProgressBar"></div>
+              </div>
+              <div class="flex gap-3">
+                <button id="uploadImageBtn" class="flex-1 border rounded-xl py-2 hover:bg-gold/10 transition flex items-center justify-center gap-2">
+                  <i class="fas fa-image text-gold"></i> Add Image
                 </button>
-                <button data-comment="${post.id}" class="comment-toggle flex items-center gap-2 hover:text-gold transition-all hover:scale-105">
-                  <i class="far fa-comment"></i> <span>${post.comments_count || 0}</span>
+                <input type="file" id="imageInput" accept="image/*" class="hidden">
+                <button id="submitPost" class="flex-1 btn-gold text-white rounded-xl py-2 font-bold flex items-center justify-center gap-2">
+                  <span>Post</span>
+                  <i class="fas fa-spinner fa-spin hidden" id="postSpinner"></i>
                 </button>
               </div>
-              <div id="comments-${post.id}" class="hidden mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
-                <div id="commentList-${post.id}" class="mb-3 max-h-64 overflow-y-auto space-y-2"></div>
-                <div class="flex gap-2">
-                  <input type="text" id="commentInput-${post.id}" placeholder="Write a comment..." class="flex-1 p-2 rounded-xl border dark:bg-gray-800 transition-all focus:ring-2 focus:ring-gold">
-                  <button data-comment-post="${post.id}" class="submit-comment btn-royal text-white px-4 py-2 rounded-xl transition-all hover:scale-105">Post</button>
-                </div>
+            </div>
+          </div>
+        `;
+      }
+
+      try {
+        const from = (AppState.currentPage - 1) * CONFIG.ITEMS_PER_PAGE;
+        const to = from + CONFIG.ITEMS_PER_PAGE - 1;
+
+        const { data: posts, error, count } = await supabaseClient
+          .from('posts')
+          .select(`*, profiles(full_name, avatar_url, role)`, { count: 'exact' })
+          .order('created_at', { ascending: false })
+          .range(from, to);
+
+        if (error) throw error;
+
+        if (reset) AppState.postsCache = posts || [];
+        else AppState.postsCache.push(...(posts || []));
+
+        AppState.hasMorePosts = (posts?.length || 0) >= CONFIG.ITEMS_PER_PAGE;
+
+        // Get user's liked posts
+        const postIds = posts?.map(p => p.id) || [];
+        if (postIds.length > 0) {
+          const { data: userLikes } = await supabaseClient
+            .from('likes')
+            .select('post_id')
+            .eq('user_id', AppState.currentUser.id)
+            .in('post_id', postIds);
+          userLikes?.forEach(l => AppState.likedPosts.add(l.post_id));
+        }
+
+        const feedEl = document.getElementById('postsFeed');
+        if (feedEl) {
+          if (AppState.postsCache.length === 0) {
+            feedEl.innerHTML = `
+              <div class="glass-card p-8 text-center animate-fadeInUp">
+                <i class="fas fa-newspaper text-4xl text-gray-400 mb-2"></i>
+                <p class="text-gray-500">No posts yet. Be the first to share!</p>
+              </div>`;
+          } else {
+            feedEl.innerHTML = AppState.postsCache.map((post, index) => renderPostCard(post, index)).join('');
+          }
+        }
+
+        // Show/hide load more button
+        const loadMoreContainer = document.getElementById('loadMoreContainer');
+        if (loadMoreContainer) {
+          loadMoreContainer.classList.toggle('hidden', !AppState.hasMorePosts);
+        }
+
+        attachPostHandlers();
+
+      } catch (err) {
+        console.error('Error loading posts:', err);
+        const feedEl = document.getElementById('postsFeed');
+        if (feedEl && reset) {
+          feedEl.innerHTML = `
+            <div class="glass-card p-8 text-center text-red-500">
+              <i class="fas fa-exclamation-circle text-3xl mb-2"></i>
+              <p>Failed to load posts. Please try again.</p>
+              <button onclick="renderMainView()" class="mt-3 text-gold underline">Retry</button>
+            </div>`;
+        }
+      } finally {
+        AppState.isLoading = false;
+      }
+    }
+
+    function renderPostCard(post, index) {
+      const isLiked = AppState.likedPosts.has(post.id);
+      const isAnnouncement = post.is_announcement;
+      const isPinned = post.is_pinned;
+
+      return `
+        <div class="glass-card p-5 post-card animate-fadeInUp ${isAnnouncement ? 'border-l-4 border-l-gold' : ''} ${isPinned ? 'ring-2 ring-gold/30' : ''}" style="animation-delay: ${index * 0.05}s" data-post-id="${post.id}">
+          ${isPinned ? '<div class="text-xs text-gold font-semibold mb-2"><i class="fas fa-thumbtack"></i> Pinned</div>' : ''}
+          ${isAnnouncement ? '<div class="text-xs bg-gold/20 text-gold px-2 py-0.5 rounded-full inline-block mb-2 font-semibold">Announcement</div>' : ''}
+          <div class="flex gap-3 mb-3">
+            <img src="${escapeHtml(post.profiles?.avatar_url || '')}" class="w-12 h-12 rounded-full object-cover border-2 border-gold/30" onerror="this.src='https://ui-avatars.com/api/?name=User&background=0A2E73&color=fff'">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <b class="text-lg">${escapeHtml(post.profiles?.full_name || 'Unknown')}</b>
+                ${post.profiles?.role !== 'member' ? `<span class="text-xs bg-gold/20 px-2 py-0.5 rounded-full text-gold font-semibold">${escapeHtml(post.profiles.role)}</span>` : ''}
+                <span class="text-xs text-gray-400">${timeAgo(post.created_at)}</span>
               </div>
+              <p class="text-xs text-gray-500">${escapeHtml(post.profiles?.parish || '')}</p>
             </div>
-          `).join('') || '<div class="glass-card p-8 text-center animate-fadeInUp"><i class="fas fa-newspaper text-4xl text-gray-400 mb-2"></i><p>No posts yet. Be the first to share!</p></div>'}
-        </div>
-        
-        <!-- Create Post Modal -->
-        <div id="postModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden p-4">
-          <div class="glass-card w-full max-w-lg p-6">
-            <div class="flex justify-between items-center mb-4">
-              <h2 class="text-xl font-bold">Create Post</h2>
-              <button id="closeModal">&times;</button>
+            ${post.user_id === AppState.currentUser.id ? `
+              <button class="delete-post-btn text-gray-400 hover:text-red-500 transition-colors" data-post="${post.id}" aria-label="Delete post">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            ` : ''}
+          </div>
+          <p class="text-gray-700 dark:text-gray-300 mb-3 whitespace-pre-wrap">${parseMentions(post.content)}</p>
+          ${post.image_url ? `<img src="${escapeHtml(post.image_url)}" class="rounded-xl max-h-64 w-auto mb-3 cursor-pointer hover:opacity-90 transition-opacity" onclick="openLightbox('${escapeHtml(post.image_url)}')" loading="lazy">` : ''}
+          ${post.media_urls?.length ? `<div class="grid grid-cols-2 gap-2 mb-3">${post.media_urls.map(url => `<img src="${escapeHtml(url)}" class="rounded-xl h-32 w-full object-cover cursor-pointer hover:opacity-90 transition-opacity" onclick="openLightbox('${escapeHtml(url)}')" loading="lazy">`).join('')}</div>` : ''}
+          <div class="flex gap-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+            <button data-like="${post.id}" class="like-btn flex items-center gap-2 hover:text-gold transition-all hover:scale-105 ${isLiked ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'}">
+              <i class="fas fa-heart ${isLiked ? 'text-red-500' : ''} transition-transform ${isLiked ? 'scale-110' : ''}"></i> 
+              <span>${post.likes_count || 0}</span>
+            </button>
+            <button data-comment="${post.id}" class="comment-toggle flex items-center gap-2 hover:text-gold transition-all hover:scale-105 text-gray-500 dark:text-gray-400">
+              <i class="far fa-comment"></i> <span>${post.comments_count || 0}</span>
+            </button>
+            <button class="share-btn flex items-center gap-2 hover:text-gold transition-all hover:scale-105 text-gray-500 dark:text-gray-400 ml-auto" data-post="${post.id}">
+              <i class="fas fa-share-alt"></i>
+            </button>
+          </div>
+          <div id="comments-${post.id}" class="hidden mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+            <div id="commentList-${post.id}" class="mb-3 max-h-64 overflow-y-auto space-y-2 custom-scrollbar">
+              <div class="text-center text-gray-400 py-2"><i class="fas fa-spinner fa-spin"></i> Loading comments...</div>
             </div>
-            <textarea id="postContent" rows="4" placeholder="What's on your mind?" class="w-full p-3 rounded-xl border dark:bg-gray-800 mb-3"></textarea>
-            <div id="imagePreview" class="hidden mb-3 relative">
-              <img id="previewImg" class="rounded-xl max-h-48 w-auto">
-              <button id="removeImage" class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6">&times;</button>
-            </div>
-            <div class="flex gap-3">
-              <button id="uploadImageBtn" class="flex-1 border rounded-xl py-2 hover:bg-gold/10 transition"><i class="fas fa-image"></i> Add Image</button>
-              <input type="file" id="imageInput" accept="image/*" class="hidden">
-              <button id="submitPost" class="flex-1 btn-gold text-white rounded-xl py-2 font-bold">Post</button>
+            <div class="flex gap-2">
+              <input type="text" id="commentInput-${post.id}" placeholder="Write a comment..." class="flex-1 p-2 rounded-xl border dark:bg-gray-800 transition-all focus:ring-2 focus:ring-gold text-sm">
+              <button data-comment-post="${post.id}" class="submit-comment btn-royal text-white px-4 py-2 rounded-xl transition-all hover:scale-105 text-sm">
+                <i class="fas fa-paper-plane"></i>
+              </button>
             </div>
           </div>
         </div>
       `;
-      
-      // Post creation handlers
-      let selectedImage = null;
+    }
+
+    function attachPostHandlers() {
+      // Create post modal
       const postModal = document.getElementById('postModal');
       const postContent = document.getElementById('postContent');
       const imageInput = document.getElementById('imageInput');
       const imagePreview = document.getElementById('imagePreview');
       const previewImg = document.getElementById('previewImg');
-      
+      const compressProgress = document.getElementById('compressProgress');
+      const compressProgressBar = document.getElementById('compressProgressBar');
+      let selectedImage = null;
+
       document.getElementById('createPostBtn')?.addEventListener('click', () => {
         postModal.classList.remove('hidden');
+        requestAnimationFrame(() => postModal.classList.add('open'));
+        postContent.focus();
       });
-      
+
       document.getElementById('closeModal')?.addEventListener('click', () => {
-        postModal.classList.add('hidden');
-        postContent.value = '';
-        imagePreview.classList.add('hidden');
-        selectedImage = null;
+        postModal.classList.remove('open');
+        setTimeout(() => {
+          postModal.classList.add('hidden');
+          postContent.value = '';
+          imagePreview.classList.add('hidden');
+          selectedImage = null;
+          document.getElementById('postCategory').value = 'general';
+        }, 300);
       });
-      
+
       document.getElementById('uploadImageBtn')?.addEventListener('click', () => imageInput.click());
-      
-      imageInput?.addEventListener('change', (e) => {
+
+      imageInput?.addEventListener('change', async (e) => {
         const file = e.target.files[0];
-        if (file) {
+        if (!file) return;
+
+        if (file.size > CONFIG.MAX_IMAGE_SIZE_MB * 1024 * 1024) {
+          showToast(`Image too large. Compressing...`, 'info');
+        }
+
+        compressProgress.classList.remove('hidden');
+        compressProgressBar.style.width = '30%';
+
+        try {
+          const compressed = await compressImage(file);
+          compressProgressBar.style.width = '70%';
+
           const reader = new FileReader();
           reader.onload = (ev) => {
-            selectedImage = ev.target.result;
-            previewImg.src = selectedImage;
+            selectedImage = compressed;
+            previewImg.src = ev.target.result;
             imagePreview.classList.remove('hidden');
+            compressProgressBar.style.width = '100%';
+            setTimeout(() => compressProgress.classList.add('hidden'), 500);
           };
-          reader.readAsDataURL(file);
+          reader.readAsDataURL(compressed);
+        } catch (err) {
+          showToast('Failed to process image', 'error');
+          compressProgress.classList.add('hidden');
         }
       });
-      
+
       document.getElementById('removeImage')?.addEventListener('click', () => {
         selectedImage = null;
         imagePreview.classList.add('hidden');
         imageInput.value = '';
       });
-      
+
       document.getElementById('submitPost')?.addEventListener('click', async () => {
-        const content = postContent.value;
-        if (!content.trim() && !selectedImage) return;
-        
-        const postData = { user_id: AppState.currentUser.id, content: content };
-        if (selectedImage) postData.image_url = selectedImage;
-        
-        await supabaseClient.from('posts').insert([postData]);
-        postModal.classList.add('hidden');
-        postContent.value = '';
-        imagePreview.classList.add('hidden');
-        selectedImage = null;
-        showAlert('Post shared!', 'success');
-        renderMainView();
+        const content = postContent.value.trim();
+        const category = document.getElementById('postCategory').value;
+        const submitBtn = document.getElementById('submitPost');
+        const spinner = document.getElementById('postSpinner');
+
+        if (!content && !selectedImage) {
+          showToast('Please write something or add an image', 'warning');
+          return;
+        }
+
+        submitBtn.disabled = true;
+        spinner.classList.remove('hidden');
+
+        try {
+          let imageUrl = null;
+          if (selectedImage) {
+            imageUrl = await uploadImage(selectedImage);
+          }
+
+          const postData = { 
+            user_id: AppState.currentUser.id, 
+            content: content,
+            category: category,
+            is_announcement: category === 'announcement'
+          };
+          if (imageUrl) postData.image_url = imageUrl;
+
+          if (!AppState.isOnline) {
+            queueOfflineAction({ type: 'post', data: postData });
+            showToast('Post queued for when you are back online', 'warning');
+          } else {
+            await supabaseClient.from('posts').insert([postData]);
+            showToast('Post shared!', 'success');
+          }
+
+          postModal.classList.remove('open');
+          setTimeout(() => {
+            postModal.classList.add('hidden');
+            postContent.value = '';
+            imagePreview.classList.add('hidden');
+            selectedImage = null;
+            document.getElementById('postCategory').value = 'general';
+          }, 300);
+
+          renderMainView();
+        } catch (err) {
+          showToast('Failed to post: ' + err.message, 'error');
+        } finally {
+          submitBtn.disabled = false;
+          spinner.classList.add('hidden');
+        }
       });
-      
+
       // Like handler
       document.querySelectorAll('.like-btn').forEach(btn => {
-        btn.onclick = async () => {
+        btn.addEventListener('click', async () => {
           const postId = btn.dataset.like;
           const isLiked = AppState.likedPosts.has(postId);
-          
-          if (isLiked) {
-            await supabaseClient.from('likes').delete().eq('user_id', AppState.currentUser.id).eq('post_id', postId);
-            AppState.likedPosts.delete(postId);
-            await supabaseClient.rpc('decrement_post_likes', { post_id: postId });
-          } else {
-            await supabaseClient.from('likes').insert([{ user_id: AppState.currentUser.id, post_id: postId }]);
-            AppState.likedPosts.add(postId);
-            await supabaseClient.rpc('increment_post_likes', { post_id: postId });
-          }
-          
-          const newCount = await supabaseClient.from('posts').select('likes_count').eq('id', postId).single();
-          btn.querySelector('span').textContent = newCount.data?.likes_count || 0;
           const icon = btn.querySelector('i');
-          if (icon) {
-            if (!isLiked) icon.classList.add('text-red-500');
-            else icon.classList.remove('text-red-500');
+          const countSpan = btn.querySelector('span');
+
+          // Optimistic UI update
+          if (isLiked) {
+            AppState.likedPosts.delete(postId);
+            icon.classList.remove('text-red-500', 'scale-110');
+            btn.classList.remove('text-red-500');
+            countSpan.textContent = Math.max(0, parseInt(countSpan.textContent) - 1);
+          } else {
+            AppState.likedPosts.add(postId);
+            icon.classList.add('text-red-500', 'scale-110');
+            btn.classList.add('text-red-500');
+            countSpan.textContent = parseInt(countSpan.textContent) + 1;
+            gsap.fromTo(icon, { scale: 0.5 }, { scale: 1.2, duration: 0.2, yoyo: true, repeat: 1 });
           }
-        };
+
+          try {
+            if (isLiked) {
+              await supabaseClient.from('likes').delete()
+                .eq('user_id', AppState.currentUser.id)
+                .eq('post_id', postId);
+              await supabaseClient.rpc('decrement_post_likes', { post_id: postId });
+            } else {
+              await supabaseClient.from('likes').insert([{ user_id: AppState.currentUser.id, post_id: postId }]);
+              await supabaseClient.rpc('increment_post_likes', { post_id: postId });
+            }
+          } catch (err) {
+            // Revert on error
+            if (isLiked) AppState.likedPosts.add(postId);
+            else AppState.likedPosts.delete(postId);
+            showToast('Failed to update like', 'error');
+          }
+        });
       });
-      
+
+      // Delete post handler
+      document.querySelectorAll('.delete-post-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const postId = btn.dataset.post;
+          if (!confirm('Are you sure you want to delete this post?')) return;
+
+          try {
+            await supabaseClient.from('posts').delete().eq('id', postId);
+            showToast('Post deleted', 'success');
+            renderMainView();
+          } catch (err) {
+            showToast('Failed to delete post', 'error');
+          }
+        });
+      });
+
+      // Share handler
+      document.querySelectorAll('.share-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const postId = btn.dataset.post;
+          const shareData = {
+            title: 'AYF Gwarimpa Conference',
+            text: 'Check out this post on AYF Gwarimpa Conference 2026',
+            url: `${window.location.origin}/post/${postId}`
+          };
+
+          if (navigator.share) {
+            try {
+              await navigator.share(shareData);
+            } catch (err) {
+              // User cancelled
+            }
+          } else {
+            await navigator.clipboard.writeText(shareData.url);
+            showToast('Link copied to clipboard!', 'success');
+          }
+        });
+      });
+
       // Comment toggle handler
       document.querySelectorAll('.comment-toggle').forEach(btn => {
-        btn.onclick = async () => {
+        btn.addEventListener('click', async () => {
           const postId = btn.dataset.comment;
           const div = document.getElementById(`comments-${postId}`);
+
           if (div.classList.contains('hidden')) {
             div.classList.remove('hidden');
             gsap.fromTo(div, { opacity: 0, height: 0 }, { opacity: 1, height: 'auto', duration: 0.3 });
-            const { data: comments } = await supabaseClient
-              .from('comments')
-              .select('*, profiles(full_name, avatar_url)')
-              .eq('post_id', postId)
-              .order('created_at', { ascending: true });
-            const commentList = document.getElementById(`commentList-${postId}`);
-            if (commentList) {
-              commentList.innerHTML = comments?.map(c => `
-                <div class="flex gap-2 animate-fadeInUp"><img src="${c.profiles?.avatar_url}" class="w-6 h-6 rounded-full"><div><b class="text-sm">${c.profiles?.full_name}</b><p class="text-sm">${c.content}</p></div></div>
-              `).join('') || '<p class="text-sm text-gray-500">No comments yet</p>';
+
+            // Load comments from cache or fetch
+            if (AppState.commentsCache[postId]) {
+              renderComments(postId, AppState.commentsCache[postId]);
+            } else {
+              await loadComments(postId);
             }
           } else {
             gsap.to(div, { opacity: 0, height: 0, duration: 0.3, onComplete: () => div.classList.add('hidden') });
           }
-        };
+        });
       });
-      
+
       // Submit comment handler
       document.querySelectorAll('.submit-comment').forEach(btn => {
-        btn.onclick = async () => {
+        btn.addEventListener('click', async () => {
           const postId = btn.dataset.commentPost;
           const input = document.getElementById(`commentInput-${postId}`);
-          if (input.value.trim()) {
-            gsap.to(btn, { scale: 0.95, duration: 0.1, yoyo: true, repeat: 1 });
-            await supabaseClient.from('comments').insert([{ post_id: postId, user_id: AppState.currentUser.id, content: input.value }]);
+          const content = input.value.trim();
+
+          if (!content) return;
+
+          gsap.to(btn, { scale: 0.95, duration: 0.1, yoyo: true, repeat: 1 });
+
+          const commentData = { post_id: postId, user_id: AppState.currentUser.id, content: content };
+
+          try {
+            if (!AppState.isOnline) {
+              queueOfflineAction({ type: 'comment', data: commentData });
+              showToast('Comment queued for sync', 'warning');
+              input.value = '';
+              return;
+            }
+
+            await supabaseClient.from('comments').insert([commentData]);
             await supabaseClient.rpc('increment_post_comments', { post_id: postId });
+
             input.value = '';
             const countSpan = document.querySelector(`.comment-toggle[data-comment="${postId}"] span`);
-            const currentCount = parseInt(countSpan.textContent);
-            countSpan.textContent = currentCount + 1;
-            document.getElementById(`comments-${postId}`).classList.add('hidden');
-            showAlert('Comment posted!', 'success');
+            if (countSpan) countSpan.textContent = parseInt(countSpan.textContent || 0) + 1;
+
+            // Refresh comments
+            await loadComments(postId);
+            showToast('Comment posted!', 'success');
+          } catch (err) {
+            showToast('Failed to post comment', 'error');
           }
-        };
+        });
+      });
+
+      // Load more handler
+      document.getElementById('loadMoreBtn')?.addEventListener('click', () => {
+        AppState.currentPage++;
+        renderHomeFeed(document.getElementById('appContainer'), false);
       });
     }
-    
+
+    async function loadComments(postId) {
+      try {
+        const { data: comments } = await supabaseClient
+          .from('comments')
+          .select('*, profiles(full_name, avatar_url)')
+          .eq('post_id', postId)
+          .order('created_at', { ascending: true });
+
+        AppState.commentsCache[postId] = comments || [];
+        renderComments(postId, comments || []);
+      } catch (err) {
+        console.error('Error loading comments:', err);
+      }
+    }
+
+    function renderComments(postId, comments) {
+      const commentList = document.getElementById(`commentList-${postId}`);
+      if (!commentList) return;
+
+      if (comments.length === 0) {
+        commentList.innerHTML = '<p class="text-sm text-gray-500 text-center py-2">No comments yet. Be the first!</p>';
+        return;
+      }
+
+      commentList.innerHTML = comments.map(c => `
+        <div class="flex gap-2 animate-fadeInUp p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+          <img src="${escapeHtml(c.profiles?.avatar_url || '')}" class="w-8 h-8 rounded-full object-cover flex-shrink-0" onerror="this.src='https://ui-avatars.com/api/?name=User&background=0A2E73&color=fff'">
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2">
+              <b class="text-sm">${escapeHtml(c.profiles?.full_name || 'Unknown')}</b>
+              <span class="text-xs text-gray-400">${timeAgo(c.created_at)}</span>
+            </div>
+            <p class="text-sm text-gray-700 dark:text-gray-300">${parseMentions(c.content)}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // =====================================================
+    // DOCUMENT CENTER WITH SEARCH
+    // =====================================================
     async function renderDocumentCenter(container) {
-      const { data: docs } = await supabaseClient.from('documents').select('*').order('created_at', { ascending: false });
       container.innerHTML = `
         <div class="glass-card p-5 mb-5 animate-fadeInUp">
           <div class="flex items-center gap-3 mb-3">
             <img src="/logo.png" alt="Logo" class="w-10 h-10" onerror="this.style.display='none'">
             <h2 class="text-2xl font-bold"><i class="fas fa-folder-open text-gold"></i> Resource Center</h2>
           </div>
-          <input type="text" id="searchDocs" placeholder="Search documents..." class="w-full p-3 rounded-xl border dark:bg-gray-800 transition-all focus:ring-2 focus:ring-gold">
+          <div class="relative">
+            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input type="text" id="searchDocs" placeholder="Search documents..." class="w-full p-3 pl-10 rounded-xl border dark:bg-gray-800 transition-all focus:ring-2 focus:ring-gold">
+          </div>
+          <div class="flex gap-2 mt-3 flex-wrap" id="docCategories">
+            <button class="doc-filter active bg-gold text-white px-3 py-1 rounded-full text-sm transition-all" data-filter="all">All</button>
+            <button class="doc-filter bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded-full text-sm transition-all hover:bg-gold/20" data-filter="pdf">PDF</button>
+            <button class="doc-filter bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded-full text-sm transition-all hover:bg-gold/20" data-filter="docx">Word</button>
+            <button class="doc-filter bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded-full text-sm transition-all hover:bg-gold/20" data-filter="image">Images</button>
+            <button class="doc-filter bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded-full text-sm transition-all hover:bg-gold/20" data-filter="video">Videos</button>
+          </div>
         </div>
         <div class="grid gap-3 md:grid-cols-2" id="documentsList">
-          ${docs?.map((doc, index) => `
-            <div class="glass-card p-4 document-item animate-fadeInUp" style="animation-delay: ${index * 0.05}s" data-title="${doc.title.toLowerCase()}">
-              <div class="flex items-start gap-3"><div class="text-3xl"><i class="fas ${doc.file_type === 'pdf' ? 'fa-file-pdf text-red-500' : 'fa-file-alt text-blue-500'}"></i></div>
-              <div class="flex-1"><h3 class="font-bold">${doc.title}</h3><p class="text-xs text-gray-500">${doc.description || ''}</p>
-              <div class="flex gap-3 mt-2 text-xs"><span><i class="far fa-eye"></i> ${doc.views || 0}</span><span><i class="fas fa-download"></i> ${doc.downloads || 0}</span></div></div>
-              <button data-doc="${doc.id}" class="downloadDoc bg-gold/20 p-2 rounded-xl transition-all hover:scale-110"><i class="fas fa-download"></i></button></div>
-            </div>
-          `).join('') || '<div class="glass-card p-8 text-center">No documents yet</div>'}
+          ${renderSkeletonDocs(4)}
         </div>`;
-      
+
+      try {
+        const { data: docs } = await supabaseClient
+          .from('documents')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        AppState.docsCache = docs || [];
+        renderDocsList(docs || []);
+
+        // Search handler
+        const searchInput = document.getElementById('searchDocs');
+        searchInput?.addEventListener('input', debounce((e) => {
+          const query = e.target.value.toLowerCase();
+          const filtered = AppState.docsCache.filter(d => 
+            d.title.toLowerCase().includes(query) || 
+            (d.description && d.description.toLowerCase().includes(query))
+          );
+          renderDocsList(filtered);
+        }, 300));
+
+        // Category filter
+        document.querySelectorAll('.doc-filter').forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.querySelectorAll('.doc-filter').forEach(b => {
+              b.classList.remove('active', 'bg-gold', 'text-white');
+              b.classList.add('bg-gray-200', 'dark:bg-gray-700');
+            });
+            btn.classList.add('active', 'bg-gold', 'text-white');
+            btn.classList.remove('bg-gray-200', 'dark:bg-gray-700');
+
+            const filter = btn.dataset.filter;
+            const filtered = filter === 'all' 
+              ? AppState.docsCache 
+              : AppState.docsCache.filter(d => d.file_type === filter);
+            renderDocsList(filtered);
+          });
+        });
+
+      } catch (err) {
+        console.error('Error loading documents:', err);
+        document.getElementById('documentsList').innerHTML = `
+          <div class="glass-card p-8 text-center text-red-500 col-span-2">
+            <i class="fas fa-exclamation-circle text-3xl mb-2"></i>
+            <p>Failed to load documents</p>
+          </div>`;
+      }
+    }
+
+    function renderSkeletonDocs(count = 4) {
+      return Array(count).fill(0).map(() => `
+        <div class="glass-card p-4">
+          <div class="flex items-start gap-3">
+            <div class="skeleton w-10 h-10 rounded-lg flex-shrink-0"></div>
+            <div class="flex-1 space-y-2">
+              <div class="skeleton h-4 w-3/4"></div>
+              <div class="skeleton h-3 w-1/2"></div>
+              <div class="flex gap-3 mt-2">
+                <div class="skeleton h-3 w-12"></div>
+                <div class="skeleton h-3 w-12"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderDocsList(docs) {
+      const container = document.getElementById('documentsList');
+      if (!container) return;
+
+      if (docs.length === 0) {
+        container.innerHTML = `
+          <div class="glass-card p-8 text-center col-span-2">
+            <i class="fas fa-folder-open text-4xl text-gray-400 mb-2"></i>
+            <p class="text-gray-500">No documents found</p>
+          </div>`;
+        return;
+      }
+
+      const typeIcons = {
+        pdf: 'fa-file-pdf text-red-500',
+        docx: 'fa-file-word text-blue-500',
+        image: 'fa-file-image text-green-500',
+        video: 'fa-file-video text-purple-500'
+      };
+
+      container.innerHTML = docs.map((doc, index) => `
+        <div class="glass-card p-4 document-item animate-fadeInUp" style="animation-delay: ${index * 0.05}s" data-title="${escapeHtml(doc.title.toLowerCase())}" data-type="${doc.file_type}">
+          <div class="flex items-start gap-3">
+            <div class="text-3xl flex-shrink-0">
+              <i class="fas ${typeIcons[doc.file_type] || 'fa-file-alt text-gray-500'}"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h3 class="font-bold truncate">${escapeHtml(doc.title)}</h3>
+              <p class="text-xs text-gray-500 line-clamp-2">${escapeHtml(doc.description || '')}</p>
+              <div class="flex gap-3 mt-2 text-xs text-gray-400">
+                <span><i class="far fa-eye"></i> ${doc.views || 0}</span>
+                <span><i class="fas fa-download"></i> ${doc.downloads || 0}</span>
+                <span><i class="fas fa-heart"></i> ${doc.likes || 0}</span>
+                <span class="text-gold">${doc.file_type?.toUpperCase()}</span>
+              </div>
+            </div>
+            <div class="flex flex-col gap-2 flex-shrink-0">
+              <button data-doc="${doc.id}" data-url="${escapeHtml(doc.file_url)}" class="downloadDoc bg-gold/20 text-gold p-2 rounded-xl transition-all hover:scale-110 hover:bg-gold/30" title="Download">
+                <i class="fas fa-download"></i>
+              </button>
+              <button data-doc="${doc.id}" class="viewDoc bg-royal/20 text-royal p-2 rounded-xl transition-all hover:scale-110 hover:bg-royal/30" title="View">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
       document.querySelectorAll('.downloadDoc').forEach(btn => {
-        btn.onclick = async () => {
+        btn.addEventListener('click', async () => {
           gsap.to(btn, { scale: 0.9, duration: 0.1, yoyo: true, repeat: 1 });
-          await supabaseClient.rpc('increment_document_downloads', { doc_id: btn.dataset.doc });
-          showAlert('Download started', 'success');
-        };
+          try {
+            await supabaseClient.rpc('increment_document_downloads', { doc_id: btn.dataset.doc });
+            window.open(btn.dataset.url, '_blank');
+            showToast('Download started', 'success');
+          } catch (err) {
+            showToast('Failed to track download', 'warning');
+            window.open(btn.dataset.url, '_blank');
+          }
+        });
+      });
+
+      document.querySelectorAll('.viewDoc').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          try {
+            await supabaseClient.rpc('increment_document_views', { doc_id: btn.dataset.doc });
+          } catch (err) {
+            console.log('View tracking failed');
+          }
+        });
       });
     }
-    
+
+    // =====================================================
+    // COMMUNITY MODULE
+    // =====================================================
     async function renderCommunityModule(container) {
-      const { data: discussions } = await supabaseClient.from('posts').select('*, profiles(full_name, avatar_url)').order('created_at', { ascending: false });
       container.innerHTML = `
         <div class="glass-card p-5 mb-5 animate-fadeInUp">
           <div class="flex items-center gap-3">
             <img src="/logo.png" alt="Logo" class="w-10 h-10" onerror="this.style.display='none'">
-            <div><h2 class="text-2xl font-bold"><i class="fas fa-users text-gold"></i> AYF Community</h2><p class="text-gray-600 dark:text-gray-400">Connect, share, and grow together in faith</p></div>
+            <div>
+              <h2 class="text-2xl font-bold"><i class="fas fa-users text-gold"></i> AYF Community</h2>
+              <p class="text-gray-600 dark:text-gray-400">Connect, share, and grow together in faith</p>
+            </div>
           </div>
         </div>
-        <div class="glass-card p-4 mb-5 animate-fadeInUp"><textarea id="discussionInput" rows="3" placeholder="Share a testimony or start a discussion..." class="w-full p-3 rounded-xl border dark:bg-gray-800 transition-all focus:ring-2 focus:ring-gold"></textarea>
-        <button id="postDiscussion" class="mt-3 btn-royal text-white px-6 py-2 rounded-xl w-full font-semibold transition-all hover:scale-105">Post to Community</button></div>
-        <div id="discussionsFeed" class="space-y-4">${discussions?.map((d, index) => `
-          <div class="glass-card p-4 animate-fadeInUp" style="animation-delay: ${index * 0.05}s"><div class="flex gap-3 mb-3"><img src="${d.profiles.avatar_url}" class="w-10 h-10 rounded-full"><div><b>${d.profiles.full_name}</b><p class="text-xs text-gray-500">${new Date(d.created_at).toLocaleString()}</p></div></div><p>${d.content}</p></div>
-        `).join('') || '<div class="glass-card p-8 text-center">No discussions yet</div>'}</div>`;
-      
+
+        <div class="grid md:grid-cols-3 gap-4 mb-5">
+          <div class="glass-card p-4 text-center animate-fadeInUp" style="animation-delay: 0.1s">
+            <i class="fas fa-praying-hands text-gold text-2xl mb-2"></i>
+            <h3 class="font-bold">Prayer Requests</h3>
+            <p class="text-sm text-gray-500">Share and pray for one another</p>
+          </div>
+          <div class="glass-card p-4 text-center animate-fadeInUp" style="animation-delay: 0.15s">
+            <i class="fas fa-bible text-gold text-2xl mb-2"></i>
+            <h3 class="font-bold">Bible Study</h3>
+            <p class="text-sm text-gray-500">Daily scriptures and discussions</p>
+          </div>
+          <div class="glass-card p-4 text-center animate-fadeInUp" style="animation-delay: 0.2s">
+            <i class="fas fa-hand-holding-heart text-gold text-2xl mb-2"></i>
+            <h3 class="font-bold">Testimonies</h3>
+            <p class="text-sm text-gray-500">Share what God has done</p>
+          </div>
+        </div>
+
+        <div class="glass-card p-4 mb-5 animate-fadeInUp">
+          <textarea id="discussionInput" rows="3" placeholder="Share a testimony, prayer request, or start a discussion..." class="w-full p-3 rounded-xl border dark:bg-gray-800 transition-all focus:ring-2 focus:ring-gold resize-none"></textarea>
+          <div class="flex justify-between items-center mt-3">
+            <select id="discussionCategory" class="p-2 rounded-xl border dark:bg-gray-800 text-sm">
+              <option value="general">General</option>
+              <option value="testimony">Testimony</option>
+              <option value="prayer">Prayer Request</option>
+              <option value="bible-study">Bible Study</option>
+            </select>
+            <button id="postDiscussion" class="btn-royal text-white px-6 py-2 rounded-xl font-semibold transition-all hover:scale-105 flex items-center gap-2">
+              <span>Post</span>
+              <i class="fas fa-spinner fa-spin hidden" id="discussionSpinner"></i>
+            </button>
+          </div>
+        </div>
+
+        <div id="discussionsFeed" class="space-y-4">
+          ${renderSkeletonPosts(2)}
+        </div>`;
+
+      try {
+        const { data: discussions } = await supabaseClient
+          .from('posts')
+          .select('*, profiles(full_name, avatar_url)')
+          .order('created_at', { ascending: false })
+          .limit(20);
+
+        const feedEl = document.getElementById('discussionsFeed');
+        if (feedEl) {
+          if (!discussions || discussions.length === 0) {
+            feedEl.innerHTML = `
+              <div class="glass-card p-8 text-center animate-fadeInUp">
+                <i class="fas fa-comments text-4xl text-gray-400 mb-2"></i>
+                <p class="text-gray-500">No discussions yet. Start the conversation!</p>
+              </div>`;
+          } else {
+            feedEl.innerHTML = discussions.map((d, i) => `
+              <div class="glass-card p-4 animate-fadeInUp" style="animation-delay: ${i * 0.05}s">
+                <div class="flex gap-3 mb-3">
+                  <img src="${escapeHtml(d.profiles?.avatar_url || '')}" class="w-10 h-10 rounded-full object-cover" onerror="this.src='https://ui-avatars.com/api/?name=User&background=0A2E73&color=fff'">
+                  <div>
+                    <b>${escapeHtml(d.profiles?.full_name || 'Unknown')}</b>
+                    <p class="text-xs text-gray-500">${timeAgo(d.created_at)}</p>
+                  </div>
+                </div>
+                <p class="text-gray-700 dark:text-gray-300">${parseMentions(d.content)}</p>
+                ${d.image_url ? `<img src="${escapeHtml(d.image_url)}" class="rounded-xl max-h-48 w-auto mt-3 cursor-pointer hover:opacity-90 transition-opacity" onclick="openLightbox('${escapeHtml(d.image_url)}')">` : ''}
+              </div>
+            `).join('');
+          }
+        }
+      } catch (err) {
+        console.error('Error loading discussions:', err);
+      }
+
       document.getElementById('postDiscussion')?.addEventListener('click', async () => {
-        const content = document.getElementById('discussionInput').value;
-        if (content) {
-          await supabaseClient.from('posts').insert([{ user_id: AppState.currentUser.id, content }]);
+        const content = document.getElementById('discussionInput').value.trim();
+        const category = document.getElementById('discussionCategory').value;
+        const btn = document.getElementById('postDiscussion');
+        const spinner = document.getElementById('discussionSpinner');
+
+        if (!content) {
+          showToast('Please write something first', 'warning');
+          return;
+        }
+
+        btn.disabled = true;
+        spinner.classList.remove('hidden');
+
+        try {
+          await supabaseClient.from('posts').insert([{
+            user_id: AppState.currentUser.id,
+            content: content,
+            category: category
+          }]);
           document.getElementById('discussionInput').value = '';
-          showAlert('Posted to community!', 'success');
+          showToast('Posted to community!', 'success');
           renderMainView();
+        } catch (err) {
+          showToast('Failed to post: ' + err.message, 'error');
+        } finally {
+          btn.disabled = false;
+          spinner.classList.add('hidden');
         }
       });
     }
-    
+
+    // =====================================================
+    // PROFILE PAGE
+    // =====================================================
     async function renderProfilePage(container) {
-      const { data: reg } = await supabaseClient.from('registrations').select('*').eq('user_id', AppState.currentUser.id).single();
+      let reg = null;
+      try {
+        const { data } = await supabaseClient
+          .from('registrations')
+          .select('*')
+          .eq('user_id', AppState.currentUser.id)
+          .single();
+        reg = data;
+      } catch (err) {
+        console.log('No registration found');
+      }
+
       container.innerHTML = `
         <div class="glass-card p-6 text-center mb-5 animate-fadeInUp">
           <img src="/logo.png" alt="Logo" class="w-20 h-20 mx-auto mb-3 logo-container" onerror="this.style.display='none'">
-          <img src="${AppState.currentProfile.avatar_url}" class="w-28 h-28 rounded-full mx-auto border-4 border-gold mb-3 animate-pulse-slow">
-          <h2 class="text-2xl font-bold">${AppState.currentProfile.full_name}</h2>
-          <p class="text-gold">${reg?.conference_id || 'Pending'}</p>
-          <p class="text-gray-600 dark:text-gray-400">${AppState.currentProfile.parish || 'Parish not set'} | ${AppState.currentProfile.ayf_position || 'Member'}</p>
-        </div>`;
+          <div class="relative inline-block">
+            <img src="${escapeHtml(AppState.currentProfile.avatar_url)}" class="w-28 h-28 rounded-full mx-auto border-4 border-gold mb-3 object-cover animate-pulse-slow">
+            <button id="changeAvatarBtn" class="absolute bottom-3 right-0 bg-gold text-white w-8 h-8 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg">
+              <i class="fas fa-camera text-sm"></i>
+            </button>
+          </div>
+          <h2 class="text-2xl font-bold">${escapeHtml(AppState.currentProfile.full_name)}</h2>
+          <p class="text-gold font-mono">${reg?.conference_id || 'Pending Registration'}</p>
+          <p class="text-gray-600 dark:text-gray-400">${escapeHtml(AppState.currentProfile.parish || 'Parish not set')} | ${escapeHtml(AppState.currentProfile.ayf_position || 'Member')}</p>
+          <span class="inline-block mt-2 px-3 py-1 rounded-full text-xs font-semibold ${AppState.currentProfile.role === 'member' ? 'bg-gray-200 text-gray-700' : 'bg-gold/20 text-gold'}">
+            ${escapeHtml(AppState.currentProfile.role.replace('_', ' ').toUpperCase())}
+          </span>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4 mb-5">
+          <div class="glass-card p-4 animate-fadeInUp" style="animation-delay: 0.1s">
+            <h3 class="font-bold mb-3"><i class="fas fa-user-edit text-gold"></i> Edit Profile</h3>
+            <form id="profileEditForm" class="space-y-3">
+              <div>
+                <label class="text-sm font-medium">Full Name</label>
+                <input type="text" id="editFullName" value="${escapeHtml(AppState.currentProfile.full_name)}" class="w-full p-2 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold">
+              </div>
+              <div>
+                <label class="text-sm font-medium">Phone</label>
+                <input type="tel" id="editPhone" value="${escapeHtml(AppState.currentProfile.phone || '')}" class="w-full p-2 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold">
+              </div>
+              <div>
+                <label class="text-sm font-medium">AYF Position</label>
+                <input type="text" id="editPosition" value="${escapeHtml(AppState.currentProfile.ayf_position || '')}" class="w-full p-2 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold">
+              </div>
+              <button type="submit" class="w-full btn-royal text-white py-2 rounded-xl font-semibold transition-all hover:scale-105">
+                Save Changes
+              </button>
+            </form>
+          </div>
+
+          <div class="glass-card p-4 animate-fadeInUp" style="animation-delay: 0.15s">
+            <h3 class="font-bold mb-3"><i class="fas fa-info-circle text-gold"></i> Your Details</h3>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+                <span class="text-gray-500">Gender</span>
+                <span class="font-medium">${escapeHtml(AppState.currentProfile.gender || 'Not set')}</span>
+              </div>
+              <div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+                <span class="text-gray-500">Age Range</span>
+                <span class="font-medium">${escapeHtml(AppState.currentProfile.age_range || 'Not set')}</span>
+              </div>
+              <div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+                <span class="text-gray-500">Parish</span>
+                <span class="font-medium">${escapeHtml(AppState.currentProfile.parish || 'Not set')}</span>
+              </div>
+              <div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+                <span class="text-gray-500">Email</span>
+                <span class="font-medium">${escapeHtml(AppState.currentUser.email)}</span>
+              </div>
+              <div class="flex justify-between py-2">
+                <span class="text-gray-500">Member Since</span>
+                <span class="font-medium">${new Date(AppState.currentProfile.created_at).toLocaleDateString()}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        ${reg ? `
+          <div class="glass-card p-4 animate-fadeInUp" style="animation-delay: 0.2s">
+            <h3 class="font-bold mb-3"><i class="fas fa-chart-bar text-gold"></i> Registration Status</h3>
+            <div class="flex items-center gap-4">
+              <div class="flex-1">
+                <div class="flex justify-between text-sm mb-1">
+                  <span>Status</span>
+                  <span class="font-semibold ${reg.status === 'approved' ? 'text-green-500' : 'text-yellow-500'}">${reg.status.toUpperCase()}</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                  <div class="bg-gold h-2 rounded-full transition-all duration-500" style="width: ${reg.status === 'approved' ? '100%' : '50%'}"></div>
+                </div>
+              </div>
+              <div class="text-center">
+                <div class="text-2xl font-bold text-gold">${reg.check_in_count || 0}</div>
+                <div class="text-xs text-gray-500">Check-ins</div>
+              </div>
+            </div>
+          </div>
+        ` : ''}`;
+
+      document.getElementById('profileEditForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const updates = {
+          full_name: document.getElementById('editFullName').value.trim(),
+          phone: document.getElementById('editPhone').value.trim(),
+          ayf_position: document.getElementById('editPosition').value.trim(),
+          updated_at: new Date().toISOString()
+        };
+
+        try {
+          const { error } = await supabaseClient
+            .from('profiles')
+            .update(updates)
+            .eq('id', AppState.currentUser.id);
+
+          if (error) throw error;
+
+          AppState.currentProfile = { ...AppState.currentProfile, ...updates };
+          showToast('Profile updated!', 'success');
+          renderMainView();
+        } catch (err) {
+          showToast('Failed to update profile: ' + err.message, 'error');
+        }
+      });
     }
-    
+
+    // =====================================================
+    // ADMIN DASHBOARD (SPA Route instead of redirect)
+    // =====================================================
+    async function renderAdminDashboard(container) {
+      const isSuperAdmin = await checkUserPermissions('super_admin');
+      const isArchAdmin = await checkUserPermissions('archdeaconry_admin');
+
+      container.innerHTML = `
+        <div class="space-y-5 animate-fadeInUp">
+          <div class="glass-card p-5 bg-gradient-to-r from-royal/20 to-gold/20">
+            <h2 class="text-2xl font-bold"><i class="fas fa-shield-alt text-gold"></i> Admin Dashboard</h2>
+            <p class="text-gray-600 dark:text-gray-400">Manage conference operations</p>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="glass-card p-4 text-center animate-fadeInScale" style="animation-delay: 0.05s">
+              <div class="text-3xl font-bold text-gold" id="adminTotalUsers">-</div>
+              <div class="text-xs text-gray-500">Total Users</div>
+            </div>
+            <div class="glass-card p-4 text-center animate-fadeInScale" style="animation-delay: 0.1s">
+              <div class="text-3xl font-bold text-green-500" id="adminApproved">-</div>
+              <div class="text-xs text-gray-500">Approved</div>
+            </div>
+            <div class="glass-card p-4 text-center animate-fadeInScale" style="animation-delay: 0.15s">
+              <div class="text-3xl font-bold text-yellow-500" id="adminPending">-</div>
+              <div class="text-xs text-gray-500">Pending</div>
+            </div>
+            <div class="glass-card p-4 text-center animate-fadeInScale" style="animation-delay: 0.2s">
+              <div class="text-3xl font-bold text-royal" id="adminCheckedIn">-</div>
+              <div class="text-xs text-gray-500">Checked In</div>
+            </div>
+          </div>
+
+          <div class="glass-card p-5">
+            <div class="flex gap-2 mb-4 overflow-x-auto pb-2">
+              <button class="admin-tab active bg-gold text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all" data-tab="registrations">Registrations</button>
+              <button class="admin-tab bg-gray-200 dark:bg-gray-700 px-4 py-2 rounded-xl text-sm font-semibold transition-all hover:bg-gold/20" data-tab="attendance">Attendance</button>
+              <button class="admin-tab bg-gray-200 dark:bg-gray-700 px-4 py-2 rounded-xl text-sm font-semibold transition-all hover:bg-gold/20" data-tab="qr-scan">QR Scanner</button>
+              ${isSuperAdmin ? '<button class="admin-tab bg-gray-200 dark:bg-gray-700 px-4 py-2 rounded-xl text-sm font-semibold transition-all hover:bg-gold/20" data-tab="users">Users</button>' : ''}
+            </div>
+            <div id="adminContent"></div>
+          </div>
+        </div>`;
+
+      await loadAdminStats();
+      await loadAdminTab('registrations');
+
+      document.querySelectorAll('.admin-tab').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          document.querySelectorAll('.admin-tab').forEach(b => {
+            b.classList.remove('active', 'bg-gold', 'text-white');
+            b.classList.add('bg-gray-200', 'dark:bg-gray-700');
+          });
+          btn.classList.add('active', 'bg-gold', 'text-white');
+          btn.classList.remove('bg-gray-200', 'dark:bg-gray-700');
+          await loadAdminTab(btn.dataset.tab);
+        });
+      });
+    }
+
+    async function loadAdminStats() {
+      try {
+        const { count: totalUsers } = await supabaseClient.from('profiles').select('*', { count: 'exact', head: true });
+        const { count: approved } = await supabaseClient.from('registrations').select('*', { count: 'exact', head: true }).eq('status', 'approved');
+        const { count: pending } = await supabaseClient.from('registrations').select('*', { count: 'exact', head: true }).eq('status', 'pending');
+        const { count: checkedIn } = await supabaseClient.from('attendance_logs').select('*', { count: 'exact', head: true });
+
+        document.getElementById('adminTotalUsers').textContent = totalUsers || 0;
+        document.getElementById('adminApproved').textContent = approved || 0;
+        document.getElementById('adminPending').textContent = pending || 0;
+        document.getElementById('adminCheckedIn').textContent = checkedIn || 0;
+      } catch (err) {
+        console.error('Error loading admin stats:', err);
+      }
+    }
+
+    async function loadAdminTab(tab) {
+      const content = document.getElementById('adminContent');
+      if (!content) return;
+
+      content.innerHTML = '<div class="flex justify-center py-8"><div class="loader"></div></div>';
+
+      try {
+        if (tab === 'registrations') {
+          const { data: regs } = await supabaseClient
+            .from('registrations')
+            .select('*, profiles(full_name, parish, phone)')
+            .order('created_at', { ascending: false })
+            .limit(50);
+
+          content.innerHTML = `
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="border-b border-gold/20">
+                    <th class="text-left py-2 px-3">Name</th>
+                    <th class="text-left py-2 px-3">Parish</th>
+                    <th class="text-left py-2 px-3">Conference ID</th>
+                    <th class="text-left py-2 px-3">Status</th>
+                    <th class="text-left py-2 px-3">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${regs?.map(r => `
+                    <tr class="border-b border-gray-100 dark:border-gray-700 hover:bg-gold/5 transition-colors">
+                      <td class="py-2 px-3">${escapeHtml(r.profiles?.full_name || 'Unknown')}</td>
+                      <td class="py-2 px-3">${escapeHtml(r.profiles?.parish || '-')}</td>
+                      <td class="py-2 px-3 font-mono">${r.conference_id || '-'}</td>
+                      <td class="py-2 px-3">
+                        <span class="px-2 py-0.5 rounded-full text-xs font-semibold ${r.status === 'approved' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">
+                          ${r.status}
+                        </span>
+                      </td>
+                      <td class="py-2 px-3">
+                        ${r.status === 'pending' ? `
+                          <button data-user="${r.user_id}" class="approve-btn text-green-500 hover:text-green-700 mr-2" title="Approve">
+                            <i class="fas fa-check"></i>
+                          </button>
+                        ` : ''}
+                        <button data-user="${r.user_id}" class="reject-btn text-red-500 hover:text-red-700" title="Reject">
+                          <i class="fas fa-times"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  `).join('') || '<tr><td colspan="5" class="text-center py-4 text-gray-500">No registrations found</td></tr>'}
+                </tbody>
+              </table>
+            </div>`;
+
+          document.querySelectorAll('.approve-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+              try {
+                await supabaseClient.from('registrations').update({ status: 'approved' }).eq('user_id', btn.dataset.user);
+                showToast('Registration approved!', 'success');
+                loadAdminTab('registrations');
+                loadAdminStats();
+              } catch (err) {
+                showToast('Failed to approve', 'error');
+              }
+            });
+          });
+
+          document.querySelectorAll('.reject-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+              if (!confirm('Are you sure you want to reject this registration?')) return;
+              try {
+                await supabaseClient.from('registrations').update({ status: 'rejected' }).eq('user_id', btn.dataset.user);
+                showToast('Registration rejected', 'success');
+                loadAdminTab('registrations');
+                loadAdminStats();
+              } catch (err) {
+                showToast('Failed to reject', 'error');
+              }
+            });
+          });
+
+        } else if (tab === 'attendance') {
+          const { data: logs } = await supabaseClient
+            .from('attendance_logs')
+            .select('*, profiles(full_name), registrations(conference_id)')
+            .order('check_in_time', { ascending: false })
+            .limit(50);
+
+          content.innerHTML = `
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="border-b border-gold/20">
+                    <th class="text-left py-2 px-3">Name</th>
+                    <th class="text-left py-2 px-3">Conference ID</th>
+                    <th class="text-left py-2 px-3">Check-in Time</th>
+                    <th class="text-left py-2 px-3">Session Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${logs?.map(l => `
+                    <tr class="border-b border-gray-100 dark:border-gray-700 hover:bg-gold/5 transition-colors">
+                      <td class="py-2 px-3">${escapeHtml(l.profiles?.full_name || 'Unknown')}</td>
+                      <td class="py-2 px-3 font-mono">${l.conference_id || '-'}</td>
+                      <td class="py-2 px-3">${new Date(l.check_in_time).toLocaleString()}</td>
+                      <td class="py-2 px-3">${l.session_date}</td>
+                    </tr>
+                  `).join('') || '<tr><td colspan="4" class="text-center py-4 text-gray-500">No attendance records</td></tr>'}
+                </tbody>
+              </table>
+            </div>`;
+
+        } else if (tab === 'qr-scan') {
+          content.innerHTML = `
+            <div class="text-center">
+              <div id="qr-reader" class="mx-auto max-w-md rounded-xl overflow-hidden mb-4"></div>
+              <p class="text-sm text-gray-500 mb-2">Scan attendee QR codes to check them in</p>
+              <button id="startScanBtn" class="btn-royal text-white px-6 py-2 rounded-xl transition-all hover:scale-105">
+                <i class="fas fa-camera mr-2"></i> Start Scanner
+              </button>
+              <button id="stopScanBtn" class="hidden bg-red-500 text-white px-6 py-2 rounded-xl transition-all hover:scale-105">
+                <i class="fas fa-stop mr-2"></i> Stop Scanner
+              </button>
+              <div id="scanResult" class="mt-4 p-4 rounded-xl hidden"></div>
+            </div>`;
+
+          let html5QrCode = null;
+
+          document.getElementById('startScanBtn')?.addEventListener('click', async () => {
+            try {
+              html5QrCode = new Html5Qrcode('qr-reader');
+              await html5QrCode.start(
+                { facingMode: 'environment' },
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                async (decodedText) => {
+                  await handleQRScan(decodedText);
+                },
+                (error) => {}
+              );
+              document.getElementById('startScanBtn').classList.add('hidden');
+              document.getElementById('stopScanBtn').classList.remove('hidden');
+            } catch (err) {
+              showToast('Failed to start camera: ' + err.message, 'error');
+            }
+          });
+
+          document.getElementById('stopScanBtn')?.addEventListener('click', async () => {
+            if (html5QrCode) {
+              await html5QrCode.stop();
+              html5QrCode = null;
+            }
+            document.getElementById('startScanBtn').classList.remove('hidden');
+            document.getElementById('stopScanBtn').classList.add('hidden');
+          });
+
+        } else if (tab === 'users') {
+          const { data: users } = await supabaseClient
+            .from('profiles')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .limit(50);
+
+          content.innerHTML = `
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="border-b border-gold/20">
+                    <th class="text-left py-2 px-3">Name</th>
+                    <th class="text-left py-2 px-3">Parish</th>
+                    <th class="text-left py-2 px-3">Role</th>
+                    <th class="text-left py-2 px-3">Joined</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${users?.map(u => `
+                    <tr class="border-b border-gray-100 dark:border-gray-700 hover:bg-gold/5 transition-colors">
+                      <td class="py-2 px-3 flex items-center gap-2">
+                        <img src="${escapeHtml(u.avatar_url)}" class="w-6 h-6 rounded-full object-cover" onerror="this.style.display='none'">
+                        ${escapeHtml(u.full_name)}
+                      </td>
+                      <td class="py-2 px-3">${escapeHtml(u.parish || '-')}</td>
+                      <td class="py-2 px-3">
+                        <span class="px-2 py-0.5 rounded-full text-xs ${u.role === 'member' ? 'bg-gray-100 text-gray-600' : 'bg-gold/20 text-gold'}">${u.role}</span>
+                      </td>
+                      <td class="py-2 px-3">${new Date(u.created_at).toLocaleDateString()}</td>
+                    </tr>
+                  `).join('') || '<tr><td colspan="4" class="text-center py-4 text-gray-500">No users found</td></tr>'}
+                </tbody>
+              </table>
+            </div>`;
+        }
+      } catch (err) {
+        content.innerHTML = `<div class="text-center text-red-500 py-4">Error loading data: ${escapeHtml(err.message)}</div>`;
+      }
+    }
+
+    async function handleQRScan(conferenceId) {
+      const resultDiv = document.getElementById('scanResult');
+      resultDiv.classList.remove('hidden');
+
+      try {
+        const { data: reg } = await supabaseClient
+          .from('registrations')
+          .select('*, profiles(full_name)')
+          .eq('conference_id', conferenceId)
+          .single();
+
+        if (!reg) {
+          resultDiv.className = 'mt-4 p-4 rounded-xl bg-red-100 text-red-700';
+          resultDiv.innerHTML = '<i class="fas fa-times-circle mr-2"></i> Invalid QR code - No registration found';
+          return;
+        }
+
+        if (reg.status !== 'approved') {
+          resultDiv.className = 'mt-4 p-4 rounded-xl bg-yellow-100 text-yellow-700';
+          resultDiv.innerHTML = `<i class="fas fa-exclamation-triangle mr-2"></i> ${escapeHtml(reg.profiles?.full_name || 'User')} - Registration not approved yet`;
+          return;
+        }
+
+        // Check if already checked in today
+        const today = new Date().toISOString().split('T')[0];
+        const { data: existingCheckin } = await supabaseClient
+          .from('attendance_logs')
+          .select('*')
+          .eq('user_id', reg.user_id)
+          .eq('session_date', today)
+          .maybeSingle();
+
+        if (existingCheckin) {
+          resultDiv.className = 'mt-4 p-4 rounded-xl bg-blue-100 text-blue-700';
+          resultDiv.innerHTML = `<i class="fas fa-info-circle mr-2"></i> ${escapeHtml(reg.profiles?.full_name || 'User')} - Already checked in today!`;
+          return;
+        }
+
+        // Record attendance
+        await supabaseClient.from('attendance_logs').insert([{
+          user_id: reg.user_id,
+          conference_id: conferenceId,
+          checked_by: AppState.currentUser.id,
+          session_date: today
+        }]);
+
+        await supabaseClient.rpc('increment_checkins', { conf_id: conferenceId });
+
+        resultDiv.className = 'mt-4 p-4 rounded-xl bg-green-100 text-green-700';
+        resultDiv.innerHTML = `
+          <i class="fas fa-check-circle mr-2"></i> 
+          <b>${escapeHtml(reg.profiles?.full_name || 'User')}</b> checked in successfully!
+          <div class="text-sm mt-1">Conference ID: ${conferenceId}</div>
+        `;
+
+        showToast('Check-in successful!', 'success');
+        loadAdminStats();
+
+      } catch (err) {
+        resultDiv.className = 'mt-4 p-4 rounded-xl bg-red-100 text-red-700';
+        resultDiv.innerHTML = `<i class="fas fa-times-circle mr-2"></i> Error: ${escapeHtml(err.message)}`;
+      }
+    }
+
+    // =====================================================
+    // NAVIGATION & EVENT LISTENERS
+    // =====================================================
     function attachNavigationListeners() {
+      // Bottom nav
       document.querySelectorAll('.nav-btn').forEach(btn => {
-        btn.onclick = () => {
+        btn.addEventListener('click', () => {
           document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
           AppState.currentView = btn.dataset.nav;
           renderMainView();
-        };
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
       });
-      
+
+      // User dropdown
       const userMenuBtn = document.getElementById('userMenuBtn');
       const userDropdown = document.getElementById('userDropdown');
       if (userMenuBtn) {
-        userMenuBtn.onclick = (e) => {
+        userMenuBtn.addEventListener('click', (e) => {
           e.stopPropagation();
           userDropdown.classList.toggle('hidden');
           if (!userDropdown.classList.contains('hidden')) {
             gsap.fromTo(userDropdown, { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.2 });
           }
-        };
-        document.addEventListener('click', (e) => { if (!userMenuBtn.contains(e.target) && !userDropdown.contains(e.target)) userDropdown.classList.add('hidden'); });
+        });
+        document.addEventListener('click', (e) => { 
+          if (!userMenuBtn.contains(e.target) && !userDropdown.contains(e.target)) {
+            userDropdown.classList.add('hidden');
+          }
+        });
       }
-      
-      document.getElementById('profileDropdownLink')?.addEventListener('click', (e) => { e.preventDefault(); userDropdown.classList.add('hidden'); AppState.currentView = 'profile'; renderMainView(); });
-      document.getElementById('termsDropdownLink')?.addEventListener('click', (e) => { e.preventDefault(); window.open('/terms.html', '_blank'); });
-      document.getElementById('privacyDropdownLink')?.addEventListener('click', (e) => { e.preventDefault(); window.open('/privacy.html', '_blank'); });
-      document.getElementById('logoutDropdownBtn')?.addEventListener('click', async () => { await supabaseClient.auth.signOut(); window.location.reload(); });
-      
+
+      document.getElementById('profileDropdownLink')?.addEventListener('click', (e) => { 
+        e.preventDefault(); 
+        userDropdown.classList.add('hidden'); 
+        AppState.currentView = 'profile'; 
+        renderMainView(); 
+      });
+
+      document.getElementById('termsDropdownLink')?.addEventListener('click', (e) => { 
+        e.preventDefault(); 
+        window.open('/terms.html', '_blank'); 
+      });
+
+      document.getElementById('privacyDropdownLink')?.addEventListener('click', (e) => { 
+        e.preventDefault(); 
+        window.open('/privacy.html', '_blank'); 
+      });
+
+      document.getElementById('logoutDropdownBtn')?.addEventListener('click', async () => { 
+        await supabaseClient.auth.signOut(); 
+        AppState.currentUser = null;
+        AppState.currentProfile = null;
+        AppState.realtimeSubscriptions.forEach(sub => supabaseClient.removeChannel(sub));
+        window.location.reload(); 
+      });
+
+      // Dark mode toggle
       const darkModeToggle = document.getElementById('darkModeToggle');
-      if (darkModeToggle) darkModeToggle.onclick = () => { 
-        AppState.darkMode = !AppState.darkMode; 
-        applyDarkMode();
-        gsap.to(darkModeToggle, { rotation: 360, duration: 0.5 });
-      };
-      
+      if (darkModeToggle) {
+        darkModeToggle.addEventListener('click', () => { 
+          AppState.darkMode = !AppState.darkMode; 
+          applyDarkMode();
+          gsap.to(darkModeToggle, { rotation: 360, duration: 0.5 });
+          const icon = darkModeToggle.querySelector('i');
+          icon.className = AppState.darkMode ? 'fas fa-sun' : 'fas fa-moon';
+        });
+      }
+
+      // Notifications
       const notificationsBtn = document.getElementById('notificationsBtn');
       if (notificationsBtn) {
-        notificationsBtn.onclick = () => { showNotificationPanel(); };
+        notificationsBtn.addEventListener('click', () => showNotificationPanel());
       }
-      
+
       const closePanel = document.getElementById('closeNotificationPanel');
       const overlay = document.getElementById('notificationOverlay');
-      if (closePanel) closePanel.onclick = () => {
-        document.getElementById('notificationPanel').classList.remove('open');
-        overlay.classList.remove('show');
-      };
-      if (overlay) overlay.onclick = () => {
-        document.getElementById('notificationPanel').classList.remove('open');
-        overlay.classList.remove('show');
-      };
+      if (closePanel) closePanel.addEventListener('click', closeNotificationPanel);
+      if (overlay) overlay.addEventListener('click', closeNotificationPanel);
+
+      // Keyboard shortcuts
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeNotificationPanel();
+          const modals = document.querySelectorAll('.modal-backdrop.open');
+          modals.forEach(m => closeModal(m));
+          closeLightbox();
+        }
+      });
+
+      // Pull to refresh (touch)
+      let touchStartY = 0;
+      let isPulling = false;
+      const ptrIndicator = document.getElementById('ptrIndicator');
+
+      document.addEventListener('touchstart', (e) => {
+        if (window.scrollY === 0) {
+          touchStartY = e.touches[0].clientY;
+          isPulling = true;
+        }
+      }, { passive: true });
+
+      document.addEventListener('touchmove', (e) => {
+        if (!isPulling) return;
+        const diff = e.touches[0].clientY - touchStartY;
+        if (diff > 80 && window.scrollY === 0) {
+          ptrIndicator.classList.add('visible');
+          ptrIndicator.innerHTML = '<i class="fas fa-sync-alt fa-spin mr-2"></i> Release to refresh...';
+        }
+      }, { passive: true });
+
+      document.addEventListener('touchend', async () => {
+        if (!isPulling) return;
+        isPulling = false;
+        if (ptrIndicator.classList.contains('visible')) {
+          ptrIndicator.innerHTML = '<i class="fas fa-sync-alt fa-spin mr-2"></i> Refreshing...';
+          await renderMainView();
+          ptrIndicator.classList.remove('visible');
+          showToast('Feed refreshed', 'success');
+        }
+      });
     }
-    
+
+    // =====================================================
+    // GLOBAL ERROR HANDLER
+    // =====================================================
+    window.addEventListener('error', (e) => {
+      console.error('Global error:', e.error);
+      showToast('Something went wrong. Please refresh the page.', 'error');
+    });
+
+    window.addEventListener('unhandledrejection', (e) => {
+      console.error('Unhandled promise rejection:', e.reason);
+      showToast('An unexpected error occurred.', 'error');
+    });
+
+    // =====================================================
+    // INIT
+    // =====================================================
+    // Load offline queue from storage
+    try {
+      const savedQueue = localStorage.getItem('offlineQueue');
+      if (savedQueue) AppState.offlineQueue = JSON.parse(savedQueue);
+    } catch (e) {}
+
+    // Set initial dark mode icon
+    const darkIcon = document.querySelector('#darkModeToggle i');
+    if (darkIcon) darkIcon.className = AppState.darkMode ? 'fas fa-sun' : 'fas fa-moon';
+
     checkUser();
   </script>
 </body>
