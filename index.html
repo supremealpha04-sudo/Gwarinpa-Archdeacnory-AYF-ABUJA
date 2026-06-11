@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0A2E73">
   <meta name="description" content="If God Be For Us - AYF Gwarimpa Archdeaconry Conference 2026">
   <link rel="manifest" href="/manifest.json">
-  <link rel="apple-touch-icon" href="logo.jpg">
+  <link rel="apple-touch-icon" href="/logo.png">
   <title>AYF Conference 2026 | Gwarimpa Archdeaconry</title>
   
   <!-- Tailwind CSS -->
@@ -56,36 +56,18 @@
     }
     
     @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     
     @keyframes fadeInScale {
-      from {
-        opacity: 0;
-        transform: scale(0.9);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
     }
     
     @keyframes slideInRight {
-      from {
-        opacity: 0;
-        transform: translateX(50px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
+      from { opacity: 0; transform: translateX(50px); }
+      to { opacity: 1; transform: translateX(0); }
     }
     
     @keyframes pulse {
@@ -93,26 +75,10 @@
       50% { transform: scale(1.05); }
     }
     
-    @keyframes shimmer {
-      0% { background-position: -1000px 0; }
-      100% { background-position: 1000px 0; }
-    }
-    
-    .animate-fadeInUp {
-      animation: fadeInUp 0.6s ease-out forwards;
-    }
-    
-    .animate-fadeInScale {
-      animation: fadeInScale 0.5s ease-out forwards;
-    }
-    
-    .animate-slideInRight {
-      animation: slideInRight 0.5s ease-out forwards;
-    }
-    
-    .animate-pulse-slow {
-      animation: pulse 2s ease-in-out infinite;
-    }
+    .animate-fadeInUp { animation: fadeInUp 0.6s ease-out forwards; }
+    .animate-fadeInScale { animation: fadeInScale 0.5s ease-out forwards; }
+    .animate-slideInRight { animation: slideInRight 0.5s ease-out forwards; }
+    .animate-pulse-slow { animation: pulse 2s ease-in-out infinite; }
     
     .notification-card {
       background: white;
@@ -121,9 +87,7 @@
       cursor: pointer;
     }
     
-    .dark .notification-card {
-      background: #2d2d2d;
-    }
+    .dark .notification-card { background: #2d2d2d; }
     
     .notification-card:hover {
       transform: translateX(5px);
@@ -185,13 +149,8 @@
       z-index: -1;
     }
     
-    .countdown-number:hover::before {
-      opacity: 1;
-    }
-    
-    .countdown-number:hover {
-      transform: translateY(-3px);
-    }
+    .countdown-number:hover::before { opacity: 1; }
+    .countdown-number:hover { transform: translateY(-3px); }
     
     .post-card {
       transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -207,9 +166,7 @@
       background: #fafaf8;
     }
     
-    .dark input, .dark select, .dark textarea {
-      background: #2d2d2d;
-    }
+    .dark input, .dark select, .dark textarea { background: #2d2d2d; }
     
     input:focus, select:focus, textarea:focus {
       outline: none;
@@ -238,27 +195,16 @@
       box-shadow: 0 10px 20px rgba(10, 46, 115, 0.3);
     }
     
-    .logo-container {
-      transition: all 0.3s ease;
-    }
-    
-    .logo-container:hover {
-      transform: rotate(5deg) scale(1.05);
-    }
+    .logo-container { transition: all 0.3s ease; }
+    .logo-container:hover { transform: rotate(5deg) scale(1.05); }
     
     .nav-btn {
       transition: all 0.3s ease;
       position: relative;
     }
     
-    .nav-btn:hover {
-      transform: translateY(-3px);
-      color: #D4AF37;
-    }
-    
-    .nav-btn.active {
-      color: #D4AF37;
-    }
+    .nav-btn:hover { transform: translateY(-3px); color: #D4AF37; }
+    .nav-btn.active { color: #D4AF37; }
     
     .nav-btn.active::after {
       content: '';
@@ -288,22 +234,10 @@
       animation: slideInRight 0.3s ease-out;
     }
     
-    /* Custom scrollbar */
-    .custom-scrollbar::-webkit-scrollbar {
-      width: 8px;
-    }
+    .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #e0e0e0; border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 10px; }
     
-    .custom-scrollbar::-webkit-scrollbar-track {
-      background: #e0e0e0;
-      border-radius: 10px;
-    }
-    
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #D4AF37;
-      border-radius: 10px;
-    }
-    
-    /* Notification panel */
     .notification-panel {
       position: fixed;
       top: 0;
@@ -317,13 +251,8 @@
       overflow-y: auto;
     }
     
-    .dark .notification-panel {
-      background: #1a1a1a;
-    }
-    
-    .notification-panel.open {
-      right: 0;
-    }
+    .dark .notification-panel { background: #1a1a1a; }
+    .notification-panel.open { right: 0; }
     
     .notification-overlay {
       position: fixed;
@@ -336,9 +265,7 @@
       display: none;
     }
     
-    .notification-overlay.show {
-      display: block;
-    }
+    .notification-overlay.show { display: block; }
   </style>
   
   <script>
@@ -346,10 +273,7 @@
       darkMode: 'class',
       theme: {
         extend: {
-          colors: { 
-            royal: '#0A2E73', 
-            gold: '#D4AF37' 
-          }
+          colors: { royal: '#0A2E73', gold: '#D4AF37' }
         }
       }
     }
@@ -397,6 +321,8 @@
             <button id="userMenuBtn" class="text-royal dark:text-gold text-xl transition-transform hover:scale-110"><i class="fas fa-user-circle"></i></button>
             <div id="userDropdown" class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gold/20 z-50 animate-fadeInScale">
               <a href="#" id="profileDropdownLink" class="block px-4 py-2 hover:bg-gold/10 transition-colors"><i class="fas fa-user mr-2"></i> Profile</a>
+              <a href="#" id="termsDropdownLink" class="block px-4 py-2 hover:bg-gold/10 transition-colors"><i class="fas fa-file-contract mr-2"></i> Terms & Conditions</a>
+              <a href="#" id="privacyDropdownLink" class="block px-4 py-2 hover:bg-gold/10 transition-colors"><i class="fas fa-shield-alt mr-2"></i> Privacy Policy</a>
               <hr class="my-1 border-gold/20">
               <button id="logoutDropdownBtn" class="w-full text-left px-4 py-2 hover:bg-red-50 dark:hover:bg-red-900/30 text-red-600 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i> Logout</button>
             </div>
@@ -444,7 +370,8 @@
       adminTab: 'dashboard',
       realtimeSubscriptions: [],
       analyticsChart: null,
-      qrScanner: null
+      qrScanner: null,
+      likedPosts: new Set()
     };
 
     // =====================================================
@@ -460,6 +387,27 @@
       });
     }
 
+    // PWA Install Prompt
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const installBtn = document.createElement('button');
+      installBtn.id = 'installPwaBtn';
+      installBtn.className = 'fixed bottom-24 right-4 btn-gold text-white px-4 py-2 rounded-full shadow-lg z-50 flex items-center gap-2 animate-pulse-slow';
+      installBtn.innerHTML = '<i class="fas fa-download"></i> Install App';
+      installBtn.onclick = async () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          const { outcome } = await deferredPrompt.userChoice;
+          if (outcome === 'accepted') console.log('App installed');
+          deferredPrompt = null;
+          installBtn.remove();
+        }
+      };
+      document.body.appendChild(installBtn);
+    });
+
     window.addEventListener('online', () => {
       document.getElementById('offlineBadge').style.display = 'none';
       showAlert('Back online!', 'success');
@@ -471,7 +419,6 @@
     });
 
     function showAlert(message, type = 'info') {
-      // Card-style notification that appears and disappears
       const container = document.getElementById('alertContainer') || (() => {
         const div = document.createElement('div');
         div.id = 'alertContainer';
@@ -498,9 +445,7 @@
       alert.className = `notification-card rounded-xl p-4 shadow-lg border-l-4 ${colors[type]} animate-slideInRight mb-3 flex items-start gap-3`;
       alert.innerHTML = `
         <i class="fas ${icons[type]} text-xl"></i>
-        <div class="flex-1">
-          <p class="text-sm font-medium">${message}</p>
-        </div>
+        <div class="flex-1"><p class="text-sm font-medium">${message}</p></div>
         <button class="close-alert text-gray-400 hover:text-gray-600">&times;</button>
       `;
       container.appendChild(alert);
@@ -578,7 +523,6 @@
           </div>
         `).join('');
         
-        // Mark as read when viewed
         setTimeout(async () => {
           await supabaseClient.from('notifications').update({ read: true }).eq('user_id', AppState.currentUser.id);
           const badge = document.getElementById('notificationCount');
@@ -622,7 +566,6 @@
               <div class="countdown-number"><div class="text-2xl md:text-3xl font-bold">${countdown.seconds}</div><div class="text-xs">Seconds</div></div>
             </div>
           `;
-          // Animate each number
           gsap.fromTo('.countdown-number', 
             { scale: 0.8, opacity: 0 },
             { scale: 1, opacity: 1, duration: 0.5, stagger: 0.1 }
@@ -956,7 +899,6 @@
       
       container.innerHTML = `
         <div class="space-y-5 animate-fadeInUp">
-          <!-- Hero Section -->
           <div class="glass-card p-6 text-center bg-gradient-to-r from-royal/20 to-gold/20">
             <img src="/logo.png" alt="Logo" class="w-16 h-16 mx-auto mb-3 logo-container" onerror="this.style.display='none'">
             <h2 class="text-3xl md:text-4xl font-bold text-royal dark:text-gold">If God Be For Us</h2>
@@ -968,13 +910,11 @@
             </div>
           </div>
           
-          <!-- Countdown Timer -->
           <div class="glass-card p-5 text-center">
             <h3 class="font-bold text-xl mb-3"><i class="fas fa-hourglass-half text-gold"></i> Conference Countdown</h3>
             <div id="countdownDisplay"></div>
           </div>
           
-          <!-- Editable Speakers Section -->
           <div class="glass-card p-5" id="speakersSection">
             <div class="flex justify-between items-center mb-3">
               <h3 class="font-bold text-xl"><i class="fas fa-microphone-alt text-gold"></i> Conference Speakers</h3>
@@ -983,7 +923,6 @@
             <div id="speakersContent" class="grid md:grid-cols-2 gap-4"></div>
           </div>
           
-          <!-- Registration Status -->
           <div class="glass-card p-5 text-center">
             <h3 class="font-bold text-xl mb-3"><i class="fas fa-ticket-alt text-gold"></i> Your Conference Pass</h3>
             <div id="qrContainer" class="flex justify-center mb-3"></div>
@@ -1068,7 +1007,7 @@
     }
 
     // =====================================================
-    // 9. MAIN RENDER DISPATCHER & OTHER MODULES
+    // 9. MAIN RENDER DISPATCHER
     // =====================================================
     async function renderMainView() {
       if (!AppState.currentProfile) return;
@@ -1076,7 +1015,7 @@
       const isAdmin = await checkUserPermissions('moderator');
       
       if (AppState.currentView === 'admin' && isAdmin) {
-        await renderAdminPanel(container);
+        window.location.href = '/admin.html';
       } else if (AppState.currentView === 'home') {
         await renderHomeFeed(container);
       } else if (AppState.currentView === 'conference') {
@@ -1091,7 +1030,6 @@
       
       attachNavigationListeners();
       
-      // Animate new content
       gsap.fromTo('#appContainer > div', 
         { opacity: 0, y: 20 },
         { opacity: 1, y: 0, duration: 0.5, stagger: 0.1 }
@@ -1103,6 +1041,10 @@
         .from('posts')
         .select(`*, profiles(full_name, avatar_url, role)`)
         .order('created_at', { ascending: false });
+      
+      // Get user's liked posts
+      const { data: userLikes } = await supabaseClient.from('likes').select('post_id').eq('user_id', AppState.currentUser.id);
+      AppState.likedPosts = new Set(userLikes?.map(l => l.post_id) || []);
       
       container.innerHTML = `
         <div class="glass-card p-5 mb-6 bg-gradient-to-r from-royal/20 to-gold/20 animate-fadeInUp">
@@ -1138,8 +1080,12 @@
               </div>
               <p class="text-gray-700 dark:text-gray-300 mb-3 whitespace-pre-wrap">${post.content}</p>
               <div class="flex gap-6 pt-3 border-t border-gray-200 dark:border-gray-700">
-                <button data-like="${post.id}" class="like-btn flex items-center gap-2 hover:text-gold transition-all hover:scale-105"><i class="far fa-heart"></i> <span>${post.likes_count || 0}</span></button>
-                <button data-comment="${post.id}" class="comment-toggle flex items-center gap-2 hover:text-gold transition-all hover:scale-105"><i class="far fa-comment"></i> <span>${post.comments_count || 0}</span></button>
+                <button data-like="${post.id}" class="like-btn flex items-center gap-2 hover:text-gold transition-all hover:scale-105 ${AppState.likedPosts.has(post.id) ? 'text-red-500' : ''}">
+                  <i class="fas fa-heart ${AppState.likedPosts.has(post.id) ? 'text-red-500' : ''}"></i> <span>${post.likes_count || 0}</span>
+                </button>
+                <button data-comment="${post.id}" class="comment-toggle flex items-center gap-2 hover:text-gold transition-all hover:scale-105">
+                  <i class="far fa-comment"></i> <span>${post.comments_count || 0}</span>
+                </button>
               </div>
               <div id="comments-${post.id}" class="hidden mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
                 <div id="commentList-${post.id}" class="mb-3 max-h-64 overflow-y-auto space-y-2"></div>
@@ -1150,26 +1096,112 @@
               </div>
             </div>
           `).join('') || '<div class="glass-card p-8 text-center animate-fadeInUp"><i class="fas fa-newspaper text-4xl text-gray-400 mb-2"></i><p>No posts yet. Be the first to share!</p></div>'}
-        </div>`;
+        </div>
+        
+        <!-- Create Post Modal -->
+        <div id="postModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden p-4">
+          <div class="glass-card w-full max-w-lg p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="text-xl font-bold">Create Post</h2>
+              <button id="closeModal">&times;</button>
+            </div>
+            <textarea id="postContent" rows="4" placeholder="What's on your mind?" class="w-full p-3 rounded-xl border dark:bg-gray-800 mb-3"></textarea>
+            <div id="imagePreview" class="hidden mb-3 relative">
+              <img id="previewImg" class="rounded-xl max-h-48 w-auto">
+              <button id="removeImage" class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6">&times;</button>
+            </div>
+            <div class="flex gap-3">
+              <button id="uploadImageBtn" class="flex-1 border rounded-xl py-2 hover:bg-gold/10 transition"><i class="fas fa-image"></i> Add Image</button>
+              <input type="file" id="imageInput" accept="image/*" class="hidden">
+              <button id="submitPost" class="flex-1 btn-gold text-white rounded-xl py-2 font-bold">Post</button>
+            </div>
+          </div>
+        </div>
+      `;
       
-      document.getElementById('createPostBtn')?.addEventListener('click', async () => {
-        const content = prompt("Share your thoughts, prayer requests, or updates about the conference:");
-        if (content) {
-          await supabaseClient.from('posts').insert([{ user_id: AppState.currentUser.id, content }]);
-          showAlert('Post shared successfully!', 'success');
-          renderMainView();
+      // Post creation handlers
+      let selectedImage = null;
+      const postModal = document.getElementById('postModal');
+      const postContent = document.getElementById('postContent');
+      const imageInput = document.getElementById('imageInput');
+      const imagePreview = document.getElementById('imagePreview');
+      const previewImg = document.getElementById('previewImg');
+      
+      document.getElementById('createPostBtn')?.addEventListener('click', () => {
+        postModal.classList.remove('hidden');
+      });
+      
+      document.getElementById('closeModal')?.addEventListener('click', () => {
+        postModal.classList.add('hidden');
+        postContent.value = '';
+        imagePreview.classList.add('hidden');
+        selectedImage = null;
+      });
+      
+      document.getElementById('uploadImageBtn')?.addEventListener('click', () => imageInput.click());
+      
+      imageInput?.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            selectedImage = ev.target.result;
+            previewImg.src = selectedImage;
+            imagePreview.classList.remove('hidden');
+          };
+          reader.readAsDataURL(file);
         }
       });
       
+      document.getElementById('removeImage')?.addEventListener('click', () => {
+        selectedImage = null;
+        imagePreview.classList.add('hidden');
+        imageInput.value = '';
+      });
+      
+      document.getElementById('submitPost')?.addEventListener('click', async () => {
+        const content = postContent.value;
+        if (!content.trim() && !selectedImage) return;
+        
+        const postData = { user_id: AppState.currentUser.id, content: content };
+        if (selectedImage) postData.image_url = selectedImage;
+        
+        await supabaseClient.from('posts').insert([postData]);
+        postModal.classList.add('hidden');
+        postContent.value = '';
+        imagePreview.classList.add('hidden');
+        selectedImage = null;
+        showAlert('Post shared!', 'success');
+        renderMainView();
+      });
+      
+      // Like handler
       document.querySelectorAll('.like-btn').forEach(btn => {
         btn.onclick = async () => {
-          gsap.to(btn, { scale: 1.2, duration: 0.2, yoyo: true, repeat: 1 });
-          await supabaseClient.from('likes').insert([{ user_id: AppState.currentUser.id, post_id: btn.dataset.like }]);
-          await supabaseClient.rpc('increment_post_likes', { post_id: btn.dataset.like });
-          renderMainView();
+          const postId = btn.dataset.like;
+          const isLiked = AppState.likedPosts.has(postId);
+          
+          if (isLiked) {
+            await supabaseClient.from('likes').delete().eq('user_id', AppState.currentUser.id).eq('post_id', postId);
+            AppState.likedPosts.delete(postId);
+            await supabaseClient.rpc('decrement_post_likes', { post_id: postId });
+          } else {
+            await supabaseClient.from('likes').insert([{ user_id: AppState.currentUser.id, post_id: postId }]);
+            AppState.likedPosts.add(postId);
+            await supabaseClient.rpc('increment_post_likes', { post_id: postId });
+          }
+          
+          const newCount = await supabaseClient.from('posts').select('likes_count').eq('id', postId).single();
+          btn.querySelector('span').textContent = newCount.data?.likes_count || 0;
+          const icon = btn.querySelector('i');
+          if (icon) {
+            if (!isLiked) icon.classList.add('text-red-500');
+            else icon.classList.remove('text-red-500');
+          }
         };
       });
       
+      // Comment toggle handler
       document.querySelectorAll('.comment-toggle').forEach(btn => {
         btn.onclick = async () => {
           const postId = btn.dataset.comment;
@@ -1185,7 +1217,7 @@
             const commentList = document.getElementById(`commentList-${postId}`);
             if (commentList) {
               commentList.innerHTML = comments?.map(c => `
-                <div class="flex gap-2 animate-fadeInUp"><img src="${c.profiles.avatar_url}" class="w-6 h-6 rounded-full"><div><b class="text-sm">${c.profiles.full_name}</b><p class="text-sm">${c.content}</p></div></div>
+                <div class="flex gap-2 animate-fadeInUp"><img src="${c.profiles?.avatar_url}" class="w-6 h-6 rounded-full"><div><b class="text-sm">${c.profiles?.full_name}</b><p class="text-sm">${c.content}</p></div></div>
               `).join('') || '<p class="text-sm text-gray-500">No comments yet</p>';
             }
           } else {
@@ -1194,16 +1226,21 @@
         };
       });
       
+      // Submit comment handler
       document.querySelectorAll('.submit-comment').forEach(btn => {
         btn.onclick = async () => {
           const postId = btn.dataset.commentPost;
           const input = document.getElementById(`commentInput-${postId}`);
-          if (input.value) {
+          if (input.value.trim()) {
             gsap.to(btn, { scale: 0.95, duration: 0.1, yoyo: true, repeat: 1 });
             await supabaseClient.from('comments').insert([{ post_id: postId, user_id: AppState.currentUser.id, content: input.value }]);
             await supabaseClient.rpc('increment_post_comments', { post_id: postId });
             input.value = '';
-            renderMainView();
+            const countSpan = document.querySelector(`.comment-toggle[data-comment="${postId}"] span`);
+            const currentCount = parseInt(countSpan.textContent);
+            countSpan.textContent = currentCount + 1;
+            document.getElementById(`comments-${postId}`).classList.add('hidden');
+            showAlert('Comment posted!', 'success');
           }
         };
       });
@@ -1277,10 +1314,6 @@
         </div>`;
     }
     
-    async function renderAdminPanel(container) {
-      container.innerHTML = `<div class="glass-card p-5 animate-fadeInUp"><h2 class="text-2xl font-bold mb-4">Admin Dashboard</h2><p>Admin panel ready. Full management features available with database setup.</p></div>`;
-    }
-    
     function attachNavigationListeners() {
       document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.onclick = () => {
@@ -1305,6 +1338,8 @@
       }
       
       document.getElementById('profileDropdownLink')?.addEventListener('click', (e) => { e.preventDefault(); userDropdown.classList.add('hidden'); AppState.currentView = 'profile'; renderMainView(); });
+      document.getElementById('termsDropdownLink')?.addEventListener('click', (e) => { e.preventDefault(); window.open('/terms.html', '_blank'); });
+      document.getElementById('privacyDropdownLink')?.addEventListener('click', (e) => { e.preventDefault(); window.open('/privacy.html', '_blank'); });
       document.getElementById('logoutDropdownBtn')?.addEventListener('click', async () => { await supabaseClient.auth.signOut(); window.location.reload(); });
       
       const darkModeToggle = document.getElementById('darkModeToggle');
@@ -1316,9 +1351,7 @@
       
       const notificationsBtn = document.getElementById('notificationsBtn');
       if (notificationsBtn) {
-        notificationsBtn.onclick = () => {
-          showNotificationPanel();
-        };
+        notificationsBtn.onclick = () => { showNotificationPanel(); };
       }
       
       const closePanel = document.getElementById('closeNotificationPanel');
