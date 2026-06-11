@@ -202,6 +202,30 @@
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 10px; }
 
+    /* Desktop Header */
+    .desktop-header {
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(16px);
+      border-bottom: 2px solid rgba(212, 175, 55, 0.4);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    .dark .desktop-header {
+      background: rgba(26, 26, 26, 0.98);
+      border-bottom-color: rgba(212, 175, 55, 0.5);
+    }
+
+    /* Mobile Header */
+    .mobile-header {
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(16px);
+      border-bottom: 2px solid rgba(212, 175, 55, 0.4);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    .dark .mobile-header {
+      background: rgba(26, 26, 26, 0.98);
+      border-bottom-color: rgba(212, 175, 55, 0.5);
+    }
+
     /* Mobile sidebar */
     @media (max-width: 1024px) {
       .sidebar-desktop { display: none; }
@@ -236,12 +260,15 @@
   <div id="toastContainer"></div>
 
   <!-- Mobile Header -->
-  <header class="lg:hidden glass-card m-2 p-3 flex items-center justify-between sticky top-0 z-50">
-    <div class="flex items-center gap-2">
-      <img src="/logo.png" alt="Logo" class="w-8 h-8" onerror="this.style.display='none'">
-      <span class="font-bold text-sm">AYF Admin</span>
+  <header class="lg:hidden mobile-header p-3 flex items-center justify-between fixed top-0 left-0 right-0 z-50">
+    <div class="flex items-center gap-3">
+      <img src="/logo.png" alt="Logo" class="w-10 h-10" onerror="this.style.display='none'">
+      <div>
+        <span class="font-bold text-base">AYF Admin</span>
+        <p class="text-xs text-gold font-semibold">Conference 2026</p>
+      </div>
     </div>
-    <button id="mobileMenuBtn" class="text-gold text-xl p-2">
+    <button id="mobileMenuBtn" class="text-gold text-xl p-2 hover:bg-gold/10 rounded-lg transition-colors">
       <i class="fas fa-bars"></i>
     </button>
   </header>
@@ -249,9 +276,9 @@
   <!-- Mobile Sidebar Overlay -->
   <div id="mobileSidebarOverlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden"></div>
 
-  <div class="flex h-screen overflow-hidden">
+  <div class="flex h-screen overflow-hidden pt-14 lg:pt-0">
     <!-- Sidebar Desktop -->
-    <aside class="sidebar-desktop w-72 glass-card m-4 flex flex-col fixed h-[calc(100%-2rem)] overflow-y-auto custom-scrollbar z-30">
+    <aside class="sidebar-desktop w-72 glass-card m-0 rounded-none border-y-0 border-l-0 flex flex-col fixed h-screen overflow-y-auto custom-scrollbar z-30">
       <div class="p-6 border-b border-gold/20">
         <div class="flex items-center gap-3">
           <img src="/logo.png" alt="Logo" class="w-10 h-10" onerror="this.style.display='none'">
@@ -306,6 +333,21 @@
       </div>
     </aside>
 
+    <!-- Desktop Header -->
+    <header class="hidden lg:flex fixed top-0 right-0 left-72 h-16 desktop-header items-center justify-between px-6 z-20">
+      <div class="flex items-center gap-3">
+        <h1 class="font-bold text-xl" id="pageTitle">Dashboard</h1>
+        <span class="text-xs bg-gold/20 text-gold px-2 py-0.5 rounded-full font-semibold">Admin</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="text-right">
+          <p class="text-sm font-semibold" id="headerUserName">Admin</p>
+          <p class="text-xs text-gray-500" id="headerUserRole">Super Admin</p>
+        </div>
+        <img src="/logo.png" class="w-10 h-10 rounded-full border-2 border-gold/30" onerror="this.src='https://ui-avatars.com/api/?name=Admin&background=0A2E73&color=fff'">
+      </div>
+    </header>
+
     <!-- Mobile Bottom Navigation -->
     <nav class="mobile-nav fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border-t border-gold/30 z-40 pb-safe">
       <div class="flex justify-around py-2">
@@ -328,7 +370,7 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="flex-1 ml-80 main-content-mobile p-6 overflow-y-auto h-screen custom-scrollbar pb-24 lg:pb-6">
+    <main class="flex-1 lg:ml-72 lg:mt-16 main-content-mobile p-4 lg:p-6 overflow-y-auto h-[calc(100vh-3.5rem)] lg:h-[calc(100vh-4rem)] custom-scrollbar pb-24 lg:pb-6">
       <div id="adminContent" class="animate-fadeInUp">
         <div class="flex justify-center items-center h-64">
           <div class="loader"></div>
@@ -343,8 +385,8 @@
     // CONFIGURATION
     // =====================================================
     const CONFIG = {
-      SUPABASE_URL: 'https://pwdkxynbbsdkekzmmclp.supabase.co',
-      SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB3ZGt4eW5iYnNka2Vrem1tY2xwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExODA2MDYsImV4cCI6MjA5Njc1NjYwNn0.IcxHv1sMcSK4pw9ZVJXi6KQz7_0vLy01wRA5Ljw6Tuo',
+      SUPABASE_URL: 'https://haxebhwcudkclyxsjaqx.supabase.co',
+      SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhheGViaHdjdWRrY2x5eHNqYXF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMDcyMjksImV4cCI6MjA5NjY4MzIyOX0.Iwu6NPRvnJtnfL4D_N2slvKOUidQ1UdLbUPG-4QCuM4',
       ITEMS_PER_PAGE: 25
     };
 
@@ -1055,15 +1097,27 @@
       await stopScanner();
 
       const content = document.getElementById('adminContent');
+
+      // Check if Html5Qrcode library is available
+      const hasCamera = typeof Html5Qrcode !== 'undefined';
+
       content.innerHTML = `
         <div class="glass-card p-6 animate-fadeInUp">
           <h2 class="text-2xl font-bold mb-4"><i class="fas fa-qrcode text-gold mr-2"></i> QR Check-in Scanner</h2>
           <div class="grid md:grid-cols-2 gap-6">
             <div>
-              <div id="qr-reader" style="width:100%;max-width:500px;min-height:300px;" class="rounded-xl overflow-hidden bg-black/5"></div>
+              ${hasCamera ? `
+                <div id="qr-reader" style="width:100%;max-width:500px;min-height:300px;" class="rounded-xl overflow-hidden bg-black/5"></div>
+              ` : `
+                <div class="rounded-xl overflow-hidden bg-black/5 p-8 text-center">
+                  <i class="fas fa-camera-slash text-4xl text-gray-400 mb-3"></i>
+                  <p class="text-gray-500">Camera access not available</p>
+                  <p class="text-xs text-gray-400 mt-1">Use manual check-in below</p>
+                </div>
+              `}
               <div id="scan-result" class="mt-4 p-4 rounded-xl text-center hidden"></div>
               <div class="flex gap-3 mt-4">
-                <button id="startScanBtn" class="btn-royal text-white px-6 py-2 rounded-xl flex-1 hover:scale-105 transition-transform">
+                <button id="startScanBtn" class="btn-royal text-white px-6 py-2 rounded-xl flex-1 hover:scale-105 transition-transform ${!hasCamera ? 'opacity-50 cursor-not-allowed' : ''}" ${!hasCamera ? 'disabled' : ''}>
                   <i class="fas fa-camera mr-2"></i> Start Scanner
                 </button>
                 <button id="stopScanBtn" class="hidden btn-danger text-white px-6 py-2 rounded-xl flex-1 hover:scale-105 transition-transform">
@@ -1090,6 +1144,10 @@
       await loadRecentCheckins();
 
       document.getElementById('startScanBtn')?.addEventListener('click', async () => {
+        if (typeof Html5Qrcode === 'undefined') {
+          showToast('Camera library not loaded. Please refresh the page.', 'error');
+          return;
+        }
         try {
           if (!html5QrCode) {
             html5QrCode = new Html5Qrcode('qr-reader');
@@ -1137,12 +1195,12 @@
         try {
           await html5QrCode.stop();
         } catch (e) {
-          console.log('Scanner already stopped');
+          console.log('Scanner stop error:', e.message);
         }
         try {
           await html5QrCode.clear();
         } catch (e) {
-          console.log('Clear failed');
+          console.log('Scanner clear error:', e.message);
         }
         html5QrCode = null;
         isScannerRunning = false;
@@ -1150,7 +1208,10 @@
 
       const startBtn = document.getElementById('startScanBtn');
       const stopBtn = document.getElementById('stopScanBtn');
-      if (startBtn) startBtn.classList.remove('hidden');
+      if (startBtn) {
+        startBtn.classList.remove('hidden');
+        startBtn.disabled = false;
+      }
       if (stopBtn) stopBtn.classList.add('hidden');
     }
 
@@ -1855,6 +1916,24 @@
       }
 
       currentTab = tab;
+
+      // Update page title in header
+      const pageTitle = document.getElementById('pageTitle');
+      if (pageTitle) {
+        const titles = {
+          dashboard: 'Dashboard',
+          registrations: 'Manage Registrations',
+          posts: 'Manage Posts',
+          users: 'Manage Users',
+          checkin: 'QR Check-in',
+          documents: 'Documents',
+          speakers: 'Speakers',
+          notifications: 'Send Notification',
+          analytics: 'Analytics',
+          settings: 'Settings'
+        };
+        pageTitle.textContent = titles[tab] || 'Admin Panel';
+      }
 
       // Update desktop sidebar
       document.querySelectorAll('.sidebar-item').forEach(i => {
