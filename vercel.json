@@ -1,6 +1,6 @@
 {
   "name": "ayf-gwarimpa archdeaconry",
-  "version": 1,
+  "version": 2,
   "builds": [
     {
       "src": "*.html",
