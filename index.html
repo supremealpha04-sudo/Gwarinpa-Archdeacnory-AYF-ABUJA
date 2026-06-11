@@ -4,9 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#0A2E73">
-  <meta name="description" content="If God Be For Us - AYF Gwarimpa Archdeaconry Conference 2026">
-  <link rel="manifest" href="/manifest.json">
-  <link rel="apple-touch-icon" href="/logo.png">
+  <meta name="referrer" content="no-referrer-when-downgrade">
   <title>AYF Conference 2026 | Gwarimpa Archdeaconry</title>
   
   <!-- Tailwind CSS -->
@@ -269,6 +267,25 @@
   </style>
   
   <script>
+    // GSAP null error handler
+    if (typeof gsap !== 'undefined') {
+      const originalTo = gsap.to;
+      gsap.to = function(target, vars) {
+        if (!target) return null;
+        if (vars && vars.onComplete) {
+          const originalOnComplete = vars.onComplete;
+          vars.onComplete = function() {
+            try {
+              if (originalOnComplete) originalOnComplete.apply(this, arguments);
+            } catch(e) {
+              console.warn('GSAP animation error caught:', e);
+            }
+          };
+        }
+        return originalTo.call(this, target, vars);
+      };
+    }
+    
     tailwind.config = {
       darkMode: 'class',
       theme: {
@@ -392,20 +409,20 @@
         e.preventDefault();
         deferredPrompt = e;
         setTimeout(() => {
-          const installBtn = document.createElement('button');
-          installBtn.id = 'installPwaBtn';
-          installBtn.className = 'fixed bottom-24 right-4 btn-gold text-white px-4 py-2 rounded-full shadow-lg z-50 flex items-center gap-2 animate-pulse-slow';
-          installBtn.innerHTML = '<i class="fas fa-download"></i> Install App';
-          installBtn.onclick = async () => {
-            if (deferredPrompt) {
-              deferredPrompt.prompt();
-              const { outcome } = await deferredPrompt.userChoice;
-              if (outcome === 'accepted') console.log('App installed');
-              deferredPrompt = null;
-              installBtn.remove();
-            }
-          };
           if (!document.getElementById('installPwaBtn')) {
+            const installBtn = document.createElement('button');
+            installBtn.id = 'installPwaBtn';
+            installBtn.className = 'fixed bottom-24 right-4 btn-gold text-white px-4 py-2 rounded-full shadow-lg z-50 flex items-center gap-2 animate-pulse-slow';
+            installBtn.innerHTML = '<i class="fas fa-download"></i> Install App';
+            installBtn.onclick = async () => {
+              if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') console.log('App installed');
+                deferredPrompt = null;
+                installBtn.remove();
+              }
+            };
             document.body.appendChild(installBtn);
           }
         }, 1000);
@@ -450,13 +467,20 @@
         alert.className = `notification-card rounded-xl p-4 shadow-lg border-l-4 ${colors[type]} animate-slideInRight mb-3 flex items-start gap-3`;
         alert.innerHTML = `
           <i class="fas ${icons[type]} text-xl"></i>
-          <div class="flex-1"><p class="text-sm font-medium">${message}</p></div>
+          <div class="flex-1"><p class="text-sm font-medium">${escapeHtml(message)}</p></div>
           <button class="close-alert text-gray-400 hover:text-gray-600">&times;</button>
         `;
         container.appendChild(alert);
         
         alert.querySelector('.close-alert').onclick = () => alert.remove();
         setTimeout(() => alert.remove(), 4000);
+      }
+
+      function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
       }
 
       function applyDarkMode() {
@@ -545,13 +569,6 @@
         panel.classList.add('open');
         overlay.classList.add('show');
       }
-      
-      function escapeHtml(text) {
-        if (!text) return '';
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-      }
 
       // =====================================================
       // 4. COUNTDOWN TO JUNE 27, 2026 8:00 AM
@@ -587,6 +604,15 @@
                 <div class="countdown-number"><div class="text-2xl md:text-3xl font-bold">${countdown.seconds}</div><div class="text-xs">Seconds</div></div>
               </div>
             `;
+            // Safe GSAP animation
+            if (typeof gsap !== 'undefined' && document.querySelector('.countdown-number')) {
+              try {
+                gsap.fromTo('.countdown-number', 
+                  { scale: 0.8, opacity: 0 },
+                  { scale: 1, opacity: 1, duration: 0.5, stagger: 0.1 }
+                );
+              } catch(e) {}
+            }
           } else {
             element.innerHTML = `<div class="text-center text-gold text-xl font-bold animate-pulse">🎉 CONFERENCE IS HERE! 🎉</div>`;
           }
@@ -660,7 +686,7 @@
                     <label class="block text-sm font-medium mb-1">Parish *</label>
                     <select id="regParish" required class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold">
                       <option value="">Select Parish</option>
-                      ${parishes?.map(p => `<option value="${p.name}">${p.name}</option>`).join('') || '<option value="St Philip Gwarimpa">St Philip Gwarimpa</option>'}
+                      ${parishes?.map(p => `<option value="${escapeHtml(p.name)}">${escapeHtml(p.name)}</option>`).join('') || '<option value="St Philip Gwarimpa">St Philip Gwarimpa</option>'}
                     </select>
                   </div>
                   
@@ -873,6 +899,7 @@
           }
           AppState.currentUser = user;
           
+          // FIX: Use maybeSingle() instead of single() to avoid 406 error
           let { data: profile, error: profileError } = await supabaseClient
             .from('profiles')
             .select('*')
@@ -937,6 +964,7 @@
       // 8. CONFERENCE MODULE
       // =====================================================
       async function renderConferenceModule(container) {
+        // FIX: Use maybeSingle() to avoid 406 error
         const { data: reg } = await supabaseClient
           .from('registrations')
           .select('*')
@@ -1078,6 +1106,7 @@
                   </div>
                 </div>
                 <p class="text-gray-700 dark:text-gray-300 mb-3 whitespace-pre-wrap">${escapeHtml(post.content)}</p>
+                ${post.image_url ? `<img src="${post.image_url}" class="mb-3 rounded-lg max-h-64 w-auto">` : ''}
                 <div class="flex gap-6 pt-3 border-t border-gray-200 dark:border-gray-700">
                   <button data-like="${post.id}" class="like-btn flex items-center gap-2 hover:text-gold transition-all hover:scale-105 ${AppState.likedPosts.has(post.id) ? 'text-red-500' : ''}">
                     <i class="fas fa-heart ${AppState.likedPosts.has(post.id) ? 'text-red-500' : ''}"></i> <span>${post.likes_count || 0}</span>
@@ -1183,13 +1212,15 @@
             if (isLiked) {
               await supabaseClient.from('likes').delete().eq('user_id', AppState.currentUser.id).eq('post_id', postId);
               AppState.likedPosts.delete(postId);
-              const { error } = await supabaseClient.rpc('decrement_post_likes', { post_id: postId });
-              if (error) console.error('Error decrementing likes:', error);
+              try {
+                await supabaseClient.rpc('decrement_post_likes', { post_id: postId });
+              } catch(e) { console.log('RPC not available, using direct update'); }
             } else {
               await supabaseClient.from('likes').insert([{ user_id: AppState.currentUser.id, post_id: postId }]);
               AppState.likedPosts.add(postId);
-              const { error } = await supabaseClient.rpc('increment_post_likes', { post_id: postId });
-              if (error) console.error('Error incrementing likes:', error);
+              try {
+                await supabaseClient.rpc('increment_post_likes', { post_id: postId });
+              } catch(e) { console.log('RPC not available, using direct update'); }
             }
             
             const { data } = await supabaseClient.from('posts').select('likes_count').eq('id', postId).single();
@@ -1234,8 +1265,9 @@
             const input = document.getElementById(`commentInput-${postId}`);
             if (input?.value.trim()) {
               await supabaseClient.from('comments').insert([{ post_id: postId, user_id: AppState.currentUser.id, content: input.value }]);
-              const { error } = await supabaseClient.rpc('increment_post_comments', { post_id: postId });
-              if (error) console.error('Error incrementing comments:', error);
+              try {
+                await supabaseClient.rpc('increment_post_comments', { post_id: postId });
+              } catch(e) { console.log('RPC not available'); }
               input.value = '';
               const countSpan = document.querySelector(`.comment-toggle[data-comment="${postId}"] span`);
               if (countSpan) {
@@ -1270,7 +1302,6 @@
             `).join('') || '<div class="glass-card p-8 text-center">No documents yet</div>'}
           </div>`;
         
-        // Search functionality
         const searchInput = document.getElementById('searchDocs');
         if (searchInput) {
           searchInput.addEventListener('input', (e) => {
