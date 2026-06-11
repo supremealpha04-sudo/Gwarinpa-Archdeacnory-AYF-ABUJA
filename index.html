@@ -488,8 +488,8 @@
     // CONFIGURATION - Load from external config in production
     // =====================================================
     const CONFIG = {
-      SUPABASE_URL: 'https://pwdkxynbbsdkekzmmclp.supabase.co',
-      SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB3ZGt4eW5iYnNka2Vrem1tY2xwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExODA2MDYsImV4cCI6MjA5Njc1NjYwNn0.IcxHv1sMcSK4pw9ZVJXi6KQz7_0vLy01wRA5Ljw6Tuo',
+      SUPABASE_URL: 'https://haxebhwcudkclyxsjaqx.supabase.co',
+      SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhheGViaHdjdWRrY2x5eHNqYXF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMDcyMjksImV4cCI6MjA5NjY4MzIyOX0.Iwu6NPRvnJtnfL4D_N2slvKOUidQ1UdLbUPG-4QCuM4',
       CONFERENCE_DATE: new Date(2026, 5, 27, 8, 0, 0),
       ITEMS_PER_PAGE: 10,
       MAX_IMAGE_SIZE_MB: 2,
@@ -538,6 +538,24 @@
       div.textContent = text;
       return div.innerHTML;
     }
+
+    // Get image from post (supports both image_url and media_urls)
+    function getPostImage(post) {
+      if (post.image_url) return post.image_url;
+      if (post.media_urls && post.media_urls.length > 0) return post.media_urls[0];
+      return null;
+    }
+
+    // Get all images from post
+    function getPostImages(post) {
+      const images = [];
+      if (post.image_url) images.push(post.image_url);
+      if (post.media_urls && Array.isArray(post.media_urls)) {
+        post.media_urls.forEach(url => { if (url && !images.includes(url)) images.push(url); });
+      }
+      return images;
+    }
+
 
     // Parse mentions (@username)
     function parseMentions(text) {
@@ -1272,8 +1290,10 @@
     }
 
     async function checkUser() {
+      console.log('[DEBUG] checkUser() starting...');
       try {
         const { data: { user } } = await supabaseClient.auth.getUser();
+        console.log('[DEBUG] Auth user:', user ? user.id : 'null');
         if (!user) {
           renderAuth();
           return;
@@ -1683,6 +1703,7 @@
     // HOME FEED WITH PAGINATION
     // =====================================================
     async function renderHomeFeed(container, reset = true) {
+      console.log('[DEBUG] renderHomeFeed called, reset:', reset);
       if (reset) {
         AppState.currentPage = 1;
         AppState.hasMorePosts = true;
@@ -1764,11 +1785,25 @@
         const from = (AppState.currentPage - 1) * CONFIG.ITEMS_PER_PAGE;
         const to = from + CONFIG.ITEMS_PER_PAGE - 1;
 
-        const { data: posts, error, count } = await supabaseClient
-          .from('posts')
-          .select(`*, profiles(full_name, avatar_url, role)`, { count: 'exact' })
-          .order('created_at', { ascending: false })
-          .range(from, to);
+        let posts, error, count;
+        try {
+          console.log('[DEBUG] Fetching posts from', from, 'to', to);
+          const result = await supabaseClient
+            .from('posts')
+            .select(`*, profiles(full_name, avatar_url, role)`, { count: 'exact' })
+            .order('created_at', { ascending: false })
+            .range(from, to);
+          posts = result.data;
+          error = result.error;
+          count = result.count;
+          console.log('[DEBUG] Posts fetched:', posts ? posts.length : 0, 'Error:', error ? error.message : 'none');
+          if (posts && posts.length > 0) {
+            console.log('[DEBUG] First post:', { id: posts[0].id, content: posts[0].content?.substring(0, 50), profiles: posts[0].profiles });
+          }
+        } catch (queryErr) {
+          console.error('[DEBUG] Query error:', queryErr);
+          throw new Error('Database query failed: ' + (queryErr.message || 'Unknown error'));
+        }
 
         if (error) throw error;
 
@@ -1811,15 +1846,18 @@
 
       } catch (err) {
         console.error('Error loading posts:', err);
+        AppState.isLoading = false;
         const feedEl = document.getElementById('postsFeed');
         if (feedEl && reset) {
           feedEl.innerHTML = `
             <div class="glass-card p-8 text-center text-red-500">
               <i class="fas fa-exclamation-circle text-3xl mb-2"></i>
-              <p>Failed to load posts. Please try again.</p>
-              <button onclick="renderMainView()" class="mt-3 text-gold underline">Retry</button>
+              <p class="font-semibold">Failed to load posts</p>
+              <p class="text-sm mt-2 text-gray-500">${escapeHtml(err.message || 'Unknown error')}</p>
+              <button onclick="renderMainView()" class="mt-3 btn-gold text-white px-4 py-2 rounded-xl">Retry</button>
             </div>`;
         }
+        showToast('Error loading posts: ' + (err.message || 'Unknown'), 'error');
       } finally {
         AppState.isLoading = false;
       }
@@ -1830,29 +1868,50 @@
       const isAnnouncement = post.is_announcement;
       const isPinned = post.is_pinned;
 
+      // Safely get profile data
+      const profile = post.profiles || {};
+      const fullName = profile.full_name || 'Unknown User';
+      const avatarUrl = profile.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=0A2E73&color=fff`;
+      const userRole = profile.role || 'member';
+      const userParish = profile.parish || '';
+
+      // Get images from post (supports both media_urls array and image_url)
+      let postImages = [];
+      if (post.image_url) postImages.push(post.image_url);
+      if (post.media_urls && Array.isArray(post.media_urls)) {
+        post.media_urls.forEach(url => { if (url && !postImages.includes(url)) postImages.push(url); });
+      }
+
+      // Build image HTML
+      let imagesHtml = '';
+      if (postImages.length === 1) {
+        imagesHtml = `<img src="${escapeHtml(postImages[0])}" class="rounded-xl max-h-64 w-auto mb-3 cursor-pointer hover:opacity-90 transition-opacity" onclick="openLightbox('${escapeHtml(postImages[0])}')" loading="lazy" onerror="this.style.display='none'">`;
+      } else if (postImages.length > 1) {
+        imagesHtml = `<div class="grid grid-cols-2 gap-2 mb-3">${postImages.map(url => `<img src="${escapeHtml(url)}" class="rounded-xl h-32 w-full object-cover cursor-pointer hover:opacity-90 transition-opacity" onclick="openLightbox('${escapeHtml(url)}')" loading="lazy" onerror="this.style.display='none'">`).join('')}</div>`;
+      }
+
       return `
         <div class="glass-card p-5 post-card animate-fadeInUp ${isAnnouncement ? 'border-l-4 border-l-gold' : ''} ${isPinned ? 'ring-2 ring-gold/30' : ''}" style="animation-delay: ${index * 0.05}s" data-post-id="${post.id}">
           ${isPinned ? '<div class="text-xs text-gold font-semibold mb-2"><i class="fas fa-thumbtack"></i> Pinned</div>' : ''}
           ${isAnnouncement ? '<div class="text-xs bg-gold/20 text-gold px-2 py-0.5 rounded-full inline-block mb-2 font-semibold">Announcement</div>' : ''}
           <div class="flex gap-3 mb-3">
-            <img src="${escapeHtml(post.profiles?.avatar_url || '')}" class="w-12 h-12 rounded-full object-cover border-2 border-gold/30" onerror="this.src='https://ui-avatars.com/api/?name=User&background=0A2E73&color=fff'">
+            <img src="${escapeHtml(avatarUrl)}" class="w-12 h-12 rounded-full object-cover border-2 border-gold/30" onerror="this.src='https://ui-avatars.com/api/?name=User&background=0A2E73&color=fff'">
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 flex-wrap">
-                <b class="text-lg">${escapeHtml(post.profiles?.full_name || 'Unknown')}</b>
-                ${post.profiles?.role !== 'member' ? `<span class="text-xs bg-gold/20 px-2 py-0.5 rounded-full text-gold font-semibold">${escapeHtml(post.profiles.role)}</span>` : ''}
+                <b class="text-lg">${escapeHtml(fullName)}</b>
+                ${userRole !== 'member' ? `<span class="text-xs bg-gold/20 px-2 py-0.5 rounded-full text-gold font-semibold">${escapeHtml(userRole)}</span>` : ''}
                 <span class="text-xs text-gray-400">${timeAgo(post.created_at)}</span>
               </div>
-              <p class="text-xs text-gray-500">${escapeHtml(post.profiles?.parish || '')}</p>
+              <p class="text-xs text-gray-500">${escapeHtml(userParish)}</p>
             </div>
-            ${post.user_id === AppState.currentUser.id ? `
+            ${post.user_id === AppState.currentUser?.id ? `
               <button class="delete-post-btn text-gray-400 hover:text-red-500 transition-colors" data-post="${post.id}" aria-label="Delete post">
                 <i class="fas fa-trash-alt"></i>
               </button>
             ` : ''}
           </div>
-          <p class="text-gray-700 dark:text-gray-300 mb-3 whitespace-pre-wrap">${parseMentions(post.content)}</p>
-          ${post.image_url ? `<img src="${escapeHtml(post.image_url)}" class="rounded-xl max-h-64 w-auto mb-3 cursor-pointer hover:opacity-90 transition-opacity" onclick="openLightbox('${escapeHtml(post.image_url)}')" loading="lazy">` : ''}
-          ${post.media_urls?.length ? `<div class="grid grid-cols-2 gap-2 mb-3">${post.media_urls.map(url => `<img src="${escapeHtml(url)}" class="rounded-xl h-32 w-full object-cover cursor-pointer hover:opacity-90 transition-opacity" onclick="openLightbox('${escapeHtml(url)}')" loading="lazy">`).join('')}</div>` : ''}
+          <p class="text-gray-700 dark:text-gray-300 mb-3 whitespace-pre-wrap">${escapeHtml(post.content || '')}</p>
+          ${imagesHtml}
           <div class="flex gap-4 pt-3 border-t border-gray-200 dark:border-gray-700">
             <button data-like="${post.id}" class="like-btn flex items-center gap-2 hover:text-gold transition-all hover:scale-105 ${isLiked ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'}">
               <i class="fas fa-heart ${isLiked ? 'text-red-500' : ''} transition-transform ${isLiked ? 'scale-110' : ''}"></i> 
@@ -1879,7 +1938,6 @@
         </div>
       `;
     }
-
     function attachPostHandlers() {
       // Create post modal
       const postModal = document.getElementById('postModal');
@@ -1972,7 +2030,7 @@
             category: category,
             is_announcement: category === 'announcement'
           };
-          if (imageUrl) postData.image_url = imageUrl;
+          if (imageUrl) { postData.image_url = imageUrl; postData.media_urls = [imageUrl]; }
 
           if (!AppState.isOnline) {
             queueOfflineAction({ type: 'post', data: postData });
@@ -2364,24 +2422,6 @@
           </div>
         </div>
 
-        <div class="grid md:grid-cols-3 gap-4 mb-5">
-          <div class="glass-card p-4 text-center animate-fadeInUp" style="animation-delay: 0.1s">
-            <i class="fas fa-praying-hands text-gold text-2xl mb-2"></i>
-            <h3 class="font-bold">Prayer Requests</h3>
-            <p class="text-sm text-gray-500">Share and pray for one another</p>
-          </div>
-          <div class="glass-card p-4 text-center animate-fadeInUp" style="animation-delay: 0.15s">
-            <i class="fas fa-bible text-gold text-2xl mb-2"></i>
-            <h3 class="font-bold">Bible Study</h3>
-            <p class="text-sm text-gray-500">Daily scriptures and discussions</p>
-          </div>
-          <div class="glass-card p-4 text-center animate-fadeInUp" style="animation-delay: 0.2s">
-            <i class="fas fa-hand-holding-heart text-gold text-2xl mb-2"></i>
-            <h3 class="font-bold">Testimonies</h3>
-            <p class="text-sm text-gray-500">Share what God has done</p>
-          </div>
-        </div>
-
         <div class="glass-card p-4 mb-5 animate-fadeInUp">
           <textarea id="discussionInput" rows="3" placeholder="Share a testimony, prayer request, or start a discussion..." class="w-full p-3 rounded-xl border dark:bg-gray-800 transition-all focus:ring-2 focus:ring-gold resize-none"></textarea>
           <div class="flex justify-between items-center mt-3">
@@ -2403,38 +2443,71 @@
         </div>`;
 
       try {
-        const { data: discussions } = await supabaseClient
+        console.log('[DEBUG] Fetching community posts...');
+        const { data: discussions, error } = await supabaseClient
           .from('posts')
-          .select('*, profiles(full_name, avatar_url)')
+          .select('*, profiles(full_name, avatar_url, role, parish)')
           .order('created_at', { ascending: false })
           .limit(20);
 
+        console.log('[DEBUG] Community posts:', discussions ? discussions.length : 0, 'Error:', error ? error.message : 'none');
+
+        const feedEl = document.getElementById('discussionsFeed');
+        if (!feedEl) return;
+
+        if (error) {
+          feedEl.innerHTML = `<div class="glass-card p-8 text-center text-red-500"><i class="fas fa-exclamation-circle text-3xl mb-2"></i><p>Error: ${escapeHtml(error.message)}</p></div>`;
+          return;
+        }
+
+        if (!discussions || discussions.length === 0) {
+          feedEl.innerHTML = `
+            <div class="glass-card p-8 text-center animate-fadeInUp">
+              <i class="fas fa-comments text-4xl text-gray-400 mb-2"></i>
+              <p class="text-gray-500">No discussions yet. Start the conversation!</p>
+            </div>`;
+          return;
+        }
+
+        feedEl.innerHTML = discussions.map((d, i) => {
+          const profile = d.profiles || {};
+          const fullName = profile.full_name || 'Unknown User';
+          const avatarUrl = profile.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=0A2E73&color=fff`;
+
+          // Get images
+          let imagesHtml = '';
+          let postImages = [];
+          if (d.image_url) postImages.push(d.image_url);
+          if (d.media_urls && Array.isArray(d.media_urls)) {
+            d.media_urls.forEach(url => { if (url && !postImages.includes(url)) postImages.push(url); });
+          }
+          if (postImages.length === 1) {
+            imagesHtml = `<img src="${escapeHtml(postImages[0])}" class="rounded-xl max-h-48 w-auto mt-3 cursor-pointer hover:opacity-90 transition-opacity" onclick="openLightbox('${escapeHtml(postImages[0])}')" loading="lazy" onerror="this.style.display='none'">`;
+          } else if (postImages.length > 1) {
+            imagesHtml = `<div class="grid grid-cols-2 gap-2 mt-3">${postImages.map(url => `<img src="${escapeHtml(url)}" class="rounded-xl h-32 w-full object-cover cursor-pointer hover:opacity-90 transition-opacity" onclick="openLightbox('${escapeHtml(url)}')" loading="lazy" onerror="this.style.display='none'">`).join('')}</div>`;
+          }
+
+          return `
+            <div class="glass-card p-4 animate-fadeInUp" style="animation-delay: ${i * 0.05}s">
+              <div class="flex gap-3 mb-3">
+                <img src="${escapeHtml(avatarUrl)}" class="w-10 h-10 rounded-full object-cover" onerror="this.src='https://ui-avatars.com/api/?name=User&background=0A2E73&color=fff'">
+                <div>
+                  <b>${escapeHtml(fullName)}</b>
+                  <p class="text-xs text-gray-500">${timeAgo(d.created_at)}</p>
+                </div>
+              </div>
+              <p class="text-gray-700 dark:text-gray-300">${escapeHtml(d.content || '')}</p>
+              ${imagesHtml}
+            </div>
+          `;
+        }).join('');
+
+      } catch (err) {
+        console.error('[DEBUG] Community error:', err);
         const feedEl = document.getElementById('discussionsFeed');
         if (feedEl) {
-          if (!discussions || discussions.length === 0) {
-            feedEl.innerHTML = `
-              <div class="glass-card p-8 text-center animate-fadeInUp">
-                <i class="fas fa-comments text-4xl text-gray-400 mb-2"></i>
-                <p class="text-gray-500">No discussions yet. Start the conversation!</p>
-              </div>`;
-          } else {
-            feedEl.innerHTML = discussions.map((d, i) => `
-              <div class="glass-card p-4 animate-fadeInUp" style="animation-delay: ${i * 0.05}s">
-                <div class="flex gap-3 mb-3">
-                  <img src="${escapeHtml(d.profiles?.avatar_url || '')}" class="w-10 h-10 rounded-full object-cover" onerror="this.src='https://ui-avatars.com/api/?name=User&background=0A2E73&color=fff'">
-                  <div>
-                    <b>${escapeHtml(d.profiles?.full_name || 'Unknown')}</b>
-                    <p class="text-xs text-gray-500">${timeAgo(d.created_at)}</p>
-                  </div>
-                </div>
-                <p class="text-gray-700 dark:text-gray-300">${parseMentions(d.content)}</p>
-                ${d.image_url ? `<img src="${escapeHtml(d.image_url)}" class="rounded-xl max-h-48 w-auto mt-3 cursor-pointer hover:opacity-90 transition-opacity" onclick="openLightbox('${escapeHtml(d.image_url)}')">` : ''}
-              </div>
-            `).join('');
-          }
+          feedEl.innerHTML = `<div class="glass-card p-8 text-center text-red-500"><i class="fas fa-exclamation-circle text-3xl mb-2"></i><p>Error loading discussions</p><p class="text-sm text-gray-500">${escapeHtml(err.message)}</p></div>`;
         }
-      } catch (err) {
-        console.error('Error loading discussions:', err);
       }
 
       document.getElementById('postDiscussion')?.addEventListener('click', async () => {
@@ -2459,7 +2532,7 @@
           }]);
           document.getElementById('discussionInput').value = '';
           showToast('Posted to community!', 'success');
-          renderMainView();
+          renderCommunityModule(container);
         } catch (err) {
           showToast('Failed to post: ' + err.message, 'error');
         } finally {
@@ -2468,10 +2541,6 @@
         }
       });
     }
-
-    // =====================================================
-    // PROFILE PAGE
-    // =====================================================
     async function renderProfilePage(container) {
       let reg = null;
       try {
