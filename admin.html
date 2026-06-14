@@ -7,397 +7,163 @@
   <meta name="referrer" content="no-referrer-when-downgrade">
   <title>Admin Dashboard | AYF Conference 2026</title>
 
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0-beta3/css/all.css">
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- QR Scanner -->
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-  <!-- GSAP -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 
   <style>
     * { font-family: 'Inter', system-ui, sans-serif; }
     body { background: #f5f5f0; }
     .dark body { background: #1a1a1a; }
-
     .glass-card {
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(255,255,255,0.95);
       backdrop-filter: blur(12px);
-      border: 1px solid rgba(212, 175, 55, 0.3);
+      border: 1px solid rgba(212,175,55,0.3);
       border-radius: 1.5rem;
       transition: all 0.3s ease;
     }
-    .dark .glass-card { background: rgba(30, 30, 30, 0.95); }
-
-    .stat-card {
-      transition: all 0.3s ease;
-      cursor: pointer;
-    }
-    .stat-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    }
-
-    .sidebar-item {
-      transition: all 0.3s ease;
-      cursor: pointer;
-      border-left: 3px solid transparent;
-      position: relative;
-    }
-    .sidebar-item:hover, .sidebar-item.active {
-      background: rgba(212, 175, 55, 0.15);
-      border-left-color: #D4AF37;
-    }
-    .sidebar-item.active::after {
-      content: '';
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 6px;
-      height: 6px;
-      background: #D4AF37;
-      border-radius: 50%;
-    }
-
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    .dark .glass-card { background: rgba(30,30,30,0.95); }
+    .stat-card { transition: all 0.3s ease; cursor: pointer; }
+    .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+    .sidebar-item { transition: all 0.3s ease; cursor: pointer; border-left: 3px solid transparent; position: relative; }
+    .sidebar-item:hover, .sidebar-item.active { background: rgba(212,175,55,0.15); border-left-color: #D4AF37; }
+    .sidebar-item.active::after { content: ''; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 6px; height: 6px; background: #D4AF37; border-radius: 50%; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     .animate-fadeInUp { animation: fadeInUp 0.5s ease-out; }
-
-    @keyframes slideInRight {
-      from { opacity: 0; transform: translateX(30px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
+    @keyframes slideInRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
     .animate-slideInRight { animation: slideInRight 0.4s ease-out; }
-
-    .btn-gold {
-      background: linear-gradient(135deg, #D4AF37, #C5A028);
-      transition: all 0.3s ease;
-    }
-    .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(212, 175, 55, 0.3); }
+    .btn-gold { background: linear-gradient(135deg, #D4AF37, #C5A028); transition: all 0.3s ease; }
+    .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(212,175,55,0.3); }
     .btn-gold:disabled { opacity: 0.5; transform: none !important; cursor: not-allowed; }
-
-    .btn-royal {
-      background: linear-gradient(135deg, #0A2E73, #0d3a8a);
-      transition: all 0.3s ease;
-    }
-    .btn-royal:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(10, 46, 115, 0.3); }
+    .btn-royal { background: linear-gradient(135deg, #0A2E73, #0d3a8a); transition: all 0.3s ease; }
+    .btn-royal:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(10,46,115,0.3); }
     .btn-royal:disabled { opacity: 0.5; transform: none !important; cursor: not-allowed; }
-
-    .btn-danger {
-      background: linear-gradient(135deg, #dc2626, #b91c1c);
-      transition: all 0.3s ease;
-    }
-    .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(220, 38, 38, 0.3); }
-
+    .btn-danger { background: linear-gradient(135deg, #dc2626, #b91c1c); transition: all 0.3s ease; }
+    .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(220,38,38,0.3); }
     table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(212, 175, 55, 0.2); }
-    th { background: rgba(212, 175, 55, 0.1); font-weight: 600; }
-    tr:hover { background: rgba(212, 175, 55, 0.05); }
-
-    /* Toast system */
-    #toastContainer {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      pointer-events: none;
-    }
-    .toast {
-      pointer-events: auto;
-      animation: slideInRight 0.3s ease-out;
-      min-width: 280px;
-    }
-
-    .loader {
-      border: 3px solid #e0e0e0;
-      border-top: 3px solid #D4AF37;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* Modal */
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.6);
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      pointer-events: none;
-    }
-    .modal-backdrop.open {
-      opacity: 1;
-      pointer-events: auto;
-    }
-    .modal-content {
-      transform: scale(0.95);
-      transition: transform 0.3s ease;
-    }
-    .modal-backdrop.open .modal-content {
-      transform: scale(1);
-    }
-
-    /* Lightbox */
-    .lightbox {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.92);
-      z-index: 2000;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      cursor: zoom-out;
-    }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(212,175,55,0.2); }
+    th { background: rgba(212,175,55,0.1); font-weight: 600; }
+    tr:hover { background: rgba(212,175,55,0.05); }
+    #toastContainer { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+    .toast { pointer-events: auto; animation: slideInRight 0.3s ease-out; min-width: 280px; }
+    .loader { border: 3px solid #e0e0e0; border-top: 3px solid #D4AF37; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 16px; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
+    .modal-backdrop.open { opacity: 1; pointer-events: auto; }
+    .modal-content { transform: scale(0.95); transition: transform 0.3s ease; }
+    .modal-backdrop.open .modal-content { transform: scale(1); }
+    .lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 2000; display: none; align-items: center; justify-content: center; cursor: zoom-out; }
     .lightbox.open { display: flex; }
     .lightbox img { max-width: 90%; max-height: 90%; object-fit: contain; border-radius: 8px; }
-    .lightbox-close {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      color: white;
-      font-size: 2rem;
-      cursor: pointer;
-      z-index: 2001;
-    }
-
-    /* Skeleton */
-    .skeleton {
-      background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
-      background-size: 200% 100%;
-      animation: skeletonPulse 1.5s ease-in-out infinite;
-      border-radius: 0.5rem;
-    }
-    .dark .skeleton {
-      background: linear-gradient(90deg, #333 25%, #444 50%, #333 75%);
-      background-size: 200% 100%;
-    }
-    @keyframes skeletonPulse {
-      0%, 100% { opacity: 0.4; }
-      50% { opacity: 0.8; }
-    }
-
-    /* Scrollbar */
+    .lightbox-close { position: absolute; top: 20px; right: 20px; color: white; font-size: 2rem; cursor: pointer; z-index: 2001; }
     .custom-scrollbar::-webkit-scrollbar { width: 6px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 10px; }
-
-    /* Desktop Header */
-    .desktop-header {
-      background: rgba(255, 255, 255, 0.98);
-      backdrop-filter: blur(16px);
-      border-bottom: 2px solid rgba(212, 175, 55, 0.4);
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    }
-    .dark .desktop-header {
-      background: rgba(26, 26, 26, 0.98);
-      border-bottom-color: rgba(212, 175, 55, 0.5);
-    }
-
-    /* Mobile Header */
-    .mobile-header {
-      background: rgba(255, 255, 255, 0.98);
-      backdrop-filter: blur(16px);
-      border-bottom: 2px solid rgba(212, 175, 55, 0.4);
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    }
-    .dark .mobile-header {
-      background: rgba(26, 26, 26, 0.98);
-      border-bottom-color: rgba(212, 175, 55, 0.5);
-    }
-
-    /* Mobile sidebar */
-    @media (max-width: 1024px) {
-      .sidebar-desktop { display: none; }
-      .main-content-mobile { margin-left: 0 !important; }
-      .mobile-nav { display: flex !important; }
-    }
-    @media (min-width: 1025px) {
-      .mobile-nav { display: none !important; }
-    }
+    .desktop-header { background: rgba(255,255,255,0.98); backdrop-filter: blur(16px); border-bottom: 2px solid rgba(212,175,55,0.4); box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .dark .desktop-header { background: rgba(26,26,26,0.98); border-bottom-color: rgba(212,175,55,0.5); }
+    .mobile-header { background: rgba(255,255,255,0.98); backdrop-filter: blur(16px); border-bottom: 2px solid rgba(212,175,55,0.4); box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .dark .mobile-header { background: rgba(26,26,26,0.98); border-bottom-color: rgba(212,175,55,0.5); }
+    @media (max-width: 1024px) { .sidebar-desktop { display: none; } .main-content-mobile { margin-left: 0 !important; } .mobile-nav { display: flex !important; } }
+    @media (min-width: 1025px) { .mobile-nav { display: none !important; } }
+    /* QR Scanner specific styles */
+    #qr-reader { border: none !important; }
+    #qr-reader video { border-radius: 12px; }
+    #qr-reader__dashboard_section_csr span { color: #D4AF37 !important; }
+    #qr-reader__dashboard_section_csr button { background: #0A2E73 !important; color: white !important; border-radius: 8px !important; border: none !important; padding: 8px 16px !important; }
+    .scan-region-highlight { border: 2px solid #D4AF37 !important; border-radius: 12px !important; }
+    .scan-region-highlight svg { stroke: #D4AF37 !important; }
+    .code-scanning-highlight { background: rgba(212,175,55,0.3) !important; }
   </style>
-
   <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: { royal: '#0A2E73', gold: '#D4AF37' }
-        }
-      }
-    }
+    tailwind.config = { darkMode: 'class', theme: { extend: { colors: { royal: '#0A2E73', gold: '#D4AF37' } } } }
   </script>
 </head>
 <body class="text-gray-800 dark:text-white">
-
-  <!-- Lightbox -->
-  <div id="lightbox" class="lightbox" onclick="closeLightbox()">
-    <span class="lightbox-close">&times;</span>
-    <img id="lightboxImg" src="" alt="Full size">
-  </div>
-
-  <!-- Toast Container -->
+  <div id="lightbox" class="lightbox" onclick="closeLightbox()"><span class="lightbox-close">&times;</span><img id="lightboxImg" src="" alt="Full size"></div>
   <div id="toastContainer"></div>
 
-  <!-- Mobile Header -->
   <header class="lg:hidden mobile-header p-3 flex items-center justify-between fixed top-0 left-0 right-0 z-50">
     <div class="flex items-center gap-3">
       <img src="/logo.png" alt="Logo" class="w-10 h-10" onerror="this.style.display='none'">
-      <div>
-        <span class="font-bold text-base">AYF Admin</span>
-        <p class="text-xs text-gold font-semibold">Conference 2026</p>
-      </div>
+      <div><span class="font-bold text-base">AYF Admin</span><p class="text-xs text-gold font-semibold">Conference 2026</p></div>
     </div>
-    <button id="mobileMenuBtn" class="text-gold text-xl p-2 hover:bg-gold/10 rounded-lg transition-colors">
-      <i class="fas fa-bars"></i>
-    </button>
+    <button id="mobileMenuBtn" class="text-gold text-xl p-2 hover:bg-gold/10 rounded-lg transition-colors"><i class="fas fa-bars"></i></button>
   </header>
 
-  <!-- Mobile Sidebar Overlay -->
   <div id="mobileSidebarOverlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden"></div>
 
   <div class="flex h-screen overflow-hidden pt-14 lg:pt-0">
-    <!-- Sidebar Desktop -->
-    <aside class="sidebar-desktop w-72 glass-card m-0 rounded-none border-y-0 border-l-0 flex flex-col fixed h-screen overflow-y-auto custom-scrollbar z-30">
+    <aside class="sidebar-desktop w-72 glass-card m-0 rounded-none border-y-0 border-l-0 flex flex-col fixed h-screen overflow-y-auto custom-scrollbar z-30 -translate-x-full lg:translate-x-0 transition-transform duration-300">
       <div class="p-6 border-b border-gold/20">
         <div class="flex items-center gap-3">
           <img src="/logo.png" alt="Logo" class="w-10 h-10" onerror="this.style.display='none'">
-          <div>
-            <h2 class="font-bold text-lg">Admin Panel</h2>
-            <p class="text-xs text-gray-500">AYF Conference 2026</p>
-          </div>
+          <div><h2 class="font-bold text-lg">Admin Panel</h2><p class="text-xs text-gray-500">AYF Conference 2026</p></div>
         </div>
       </div>
-
       <nav class="flex-1 p-4 space-y-1">
-        <div class="sidebar-item p-3 rounded-r-xl flex items-center gap-3 active" data-tab="dashboard">
-          <i class="fas fa-chart-line w-5 text-gold"></i> <span>Dashboard</span>
-        </div>
-        <div class="sidebar-item p-3 rounded-r-xl flex items-center gap-3" data-tab="registrations">
-          <i class="fas fa-users w-5 text-gold"></i> <span>Registrations</span>
-          <span id="pendingBadge" class="ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full hidden">0</span>
-        </div>
-        <div class="sidebar-item p-3 rounded-r-xl flex items-center gap-3" data-tab="posts">
-          <i class="fas fa-newspaper w-5 text-gold"></i> <span>Manage Posts</span>
-        </div>
-        <div class="sidebar-item p-3 rounded-r-xl flex items-center gap-3" data-tab="users">
-          <i class="fas fa-user-cog w-5 text-gold"></i> <span>Manage Users</span>
-        </div>
-        <div class="sidebar-item p-3 rounded-r-xl flex items-center gap-3" data-tab="checkin">
-          <i class="fas fa-qrcode w-5 text-gold"></i> <span>QR Check-in</span>
-        </div>
-        <div class="sidebar-item p-3 rounded-r-xl flex items-center gap-3" data-tab="documents">
-          <i class="fas fa-folder-open w-5 text-gold"></i> <span>Documents</span>
-        </div>
-        <div class="sidebar-item p-3 rounded-r-xl flex items-center gap-3" data-tab="speakers">
-          <i class="fas fa-microphone-alt w-5 text-gold"></i> <span>Speakers</span>
-        </div>
-        <div class="sidebar-item p-3 rounded-r-xl flex items-center gap-3" data-tab="notifications">
-          <i class="fas fa-bell w-5 text-gold"></i> <span>Send Notification</span>
-        </div>
-        <div class="sidebar-item p-3 rounded-r-xl flex items-center gap-3" data-tab="analytics">
-          <i class="fas fa-chart-pie w-5 text-gold"></i> <span>Analytics</span>
-        </div>
-        <div class="sidebar-item p-3 rounded-r-xl flex items-center gap-3" data-tab="settings">
-          <i class="fas fa-cog w-5 text-gold"></i> <span>Settings</span>
-        </div>
+        <div class="sidebar-item p-3 rounded-r-xl flex items-center gap-3 active" data-tab="dashboard"><i class="fas fa-chart-line w-5 text-gold"></i><span>Dashboard</span></div>
+        <div class="sidebar-item p-3 rounded-r-xl flex items-center gap-3" data-tab="registrations"><i class="fas fa-users w-5 text-gold"></i><span>Registrations</span><span id="pendingBadge" class="ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full hidden">0</span></div>
+        <div class="sidebar-item p-3 rounded-r-xl flex items-center gap-3" data-tab="posts"><i class="fas fa-newspaper w-5 text-gold"></i><span>Manage Posts</span></div>
+        <div class="sidebar-item p-3 rounded-r-xl flex items-center gap-3" data-tab="users"><i class="fas fa-user-cog w-5 text-gold"></i><span>Manage Users</span></div>
+        <div class="sidebar-item p-3 rounded-r-xl flex items-center gap-3" data-tab="checkin"><i class="fas fa-qrcode w-5 text-gold"></i><span>QR Check-in</span></div>
+        <div class="sidebar-item p-3 rounded-r-xl flex items-center gap-3" data-tab="documents"><i class="fas fa-folder-open w-5 text-gold"></i><span>Documents</span></div>
+        <div class="sidebar-item p-3 rounded-r-xl flex items-center gap-3" data-tab="speakers"><i class="fas fa-microphone-alt w-5 text-gold"></i><span>Speakers</span></div>
+        <div class="sidebar-item p-3 rounded-r-xl flex items-center gap-3" data-tab="notifications"><i class="fas fa-bell w-5 text-gold"></i><span>Send Notification</span></div>
+        <div class="sidebar-item p-3 rounded-r-xl flex items-center gap-3" data-tab="analytics"><i class="fas fa-chart-pie w-5 text-gold"></i><span>Analytics</span></div>
+        <div class="sidebar-item p-3 rounded-r-xl flex items-center gap-3" data-tab="settings"><i class="fas fa-cog w-5 text-gold"></i><span>Settings</span></div>
       </nav>
-
       <div class="p-4 border-t border-gold/20 space-y-2">
-        <button id="darkModeToggle" class="btn-royal text-white px-3 py-2 rounded-lg text-sm w-full flex items-center justify-center gap-2">
-          <i class="fas fa-moon" id="darkModeIcon"></i> <span id="darkModeText">Dark Mode</span>
-        </button>
-        <a href="/" class="flex items-center gap-3 p-3 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 transition w-full">
-          <i class="fas fa-sign-out-alt"></i> <span>Back to Portal</span>
-        </a>
+        <button id="darkModeToggle" class="btn-royal text-white px-3 py-2 rounded-lg text-sm w-full flex items-center justify-center gap-2"><i class="fas fa-moon" id="darkModeIcon"></i><span id="darkModeText">Dark Mode</span></button>
+        <a href="/" class="flex items-center gap-3 p-3 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 transition w-full"><i class="fas fa-sign-out-alt"></i><span>Back to Portal</span></a>
       </div>
     </aside>
 
-    <!-- Desktop Header -->
     <header class="hidden lg:flex fixed top-0 right-0 left-72 h-16 desktop-header items-center justify-between px-6 z-20">
-      <div class="flex items-center gap-3">
-        <h1 class="font-bold text-xl" id="pageTitle">Dashboard</h1>
-        <span class="text-xs bg-gold/20 text-gold px-2 py-0.5 rounded-full font-semibold">Admin</span>
-      </div>
+      <div class="flex items-center gap-3"><h1 class="font-bold text-xl" id="pageTitle">Dashboard</h1><span class="text-xs bg-gold/20 text-gold px-2 py-0.5 rounded-full font-semibold">Admin</span></div>
       <div class="flex items-center gap-4">
-        <div class="text-right">
-          <p class="text-sm font-semibold" id="headerUserName">Admin</p>
-          <p class="text-xs text-gray-500" id="headerUserRole">Super Admin</p>
-        </div>
+        <div class="text-right"><p class="text-sm font-semibold" id="headerUserName">Admin</p><p class="text-xs text-gray-500" id="headerUserRole">Super Admin</p></div>
         <img src="/logo.png" class="w-10 h-10 rounded-full border-2 border-gold/30" onerror="this.src='https://ui-avatars.com/api/?name=Admin&background=0A2E73&color=fff'">
       </div>
     </header>
 
-    <!-- Mobile Bottom Navigation -->
     <nav class="mobile-nav fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border-t border-gold/30 z-40 pb-safe">
       <div class="flex justify-around py-2">
-        <button data-tab="dashboard" class="mobile-nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs p-2 active">
-          <i class="fas fa-chart-line text-lg mb-0.5"></i><span>Dash</span>
-        </button>
-        <button data-tab="registrations" class="mobile-nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs p-2">
-          <i class="fas fa-users text-lg mb-0.5"></i><span>Regs</span>
-        </button>
-        <button data-tab="checkin" class="mobile-nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs p-2">
-          <i class="fas fa-qrcode text-lg mb-0.5"></i><span>Scan</span>
-        </button>
-        <button data-tab="posts" class="mobile-nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs p-2">
-          <i class="fas fa-newspaper text-lg mb-0.5"></i><span>Posts</span>
-        </button>
-        <button data-tab="more" class="mobile-nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs p-2">
-          <i class="fas fa-ellipsis-h text-lg mb-0.5"></i><span>More</span>
-        </button>
+        <button data-tab="dashboard" class="mobile-nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs p-2 active"><i class="fas fa-chart-line text-lg mb-0.5"></i><span>Dash</span></button>
+        <button data-tab="registrations" class="mobile-nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs p-2"><i class="fas fa-users text-lg mb-0.5"></i><span>Regs</span></button>
+        <button data-tab="checkin" class="mobile-nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs p-2"><i class="fas fa-qrcode text-lg mb-0.5"></i><span>Scan</span></button>
+        <button data-tab="posts" class="mobile-nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs p-2"><i class="fas fa-newspaper text-lg mb-0.5"></i><span>Posts</span></button>
+        <button data-tab="more" class="mobile-nav-btn flex flex-col items-center text-gray-500 dark:text-gray-400 text-xs p-2"><i class="fas fa-ellipsis-h text-lg mb-0.5"></i><span>More</span></button>
       </div>
     </nav>
 
-    <!-- Main Content -->
     <main class="flex-1 lg:ml-72 lg:mt-16 main-content-mobile p-4 lg:p-6 overflow-y-auto h-[calc(100vh-3.5rem)] lg:h-[calc(100vh-4rem)] custom-scrollbar pb-24 lg:pb-6">
-      <div id="adminContent" class="animate-fadeInUp">
-        <div class="flex justify-center items-center h-64">
-          <div class="loader"></div>
-        </div>
-      </div>
+      <div id="adminContent" class="animate-fadeInUp"><div class="flex justify-center items-center h-64"><div class="loader"></div></div></div>
     </main>
   </div>
 
   <script>
-
-    // =====================================================
-    // CONFIGURATION
-    // =====================================================
     const CONFIG = {
       SUPABASE_URL: 'https://haxebhwcudkclyxsjaqx.supabase.co',
       SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhheGViaHdjdWRrY2x5eHNqYXF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMDcyMjksImV4cCI6MjA5NjY4MzIyOX0.Iwu6NPRvnJtnfL4D_N2slvKOUidQ1UdLbUPG-4QCuM4',
       ITEMS_PER_PAGE: 25
     };
 
-    // =====================================================
-    // SUPABASE INITIALIZATION
-    // =====================================================
-    const supabase= supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+    // FIXED: Use window.supabase.createClient since CDN exposes supabase as namespace object
+    let supabaseClient = null;
+    try {
+      if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+        supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+        console.log('Supabase initialized successfully');
+      } else {
+        console.error('Supabase library not loaded. Check CDN script tag.');
+      }
+    } catch (e) {
+      console.error('Failed to initialize Supabase:', e);
+    }
 
-    // =====================================================
-    // GLOBAL STATE
-    // =====================================================
     let currentUser = null;
     let currentProfile = null;
     let analyticsChart = null;
@@ -405,13 +171,8 @@
     let currentTab = 'dashboard';
     let html5QrCode = null;
     let isScannerRunning = false;
-    let scannerCleanupTimer = null;
-    let toastQueue = [];
-    let toastProcessing = false;
+    let scannerCameraId = null;
 
-    // =====================================================
-    // UTILITY FUNCTIONS
-    // =====================================================
     function escapeHtml(text) {
       if (!text) return '';
       const div = document.createElement('div');
@@ -434,418 +195,237 @@
       return (...args) => { clearTimeout(timeout); timeout = setTimeout(() => fn(...args), ms); };
     }
 
-    // =====================================================
-    // TOAST SYSTEM (Fixed: proper queue, no duplicates)
-    // =====================================================
-    function showToast(message, type = 'success', duration = 4000) {
-      const toastId = `${type}-${message}`;
-
-      // Prevent duplicate toasts
-      const existing = document.querySelector(`[data-toast-id="${CSS.escape(toastId)}"]`);
+    function showToast(message, type, duration) {
+      type = type || 'success';
+      duration = duration || 4000;
+      const toastId = type + '-' + message;
+      const existing = document.querySelector('[data-toast-id="' + CSS.escape(toastId) + '"]');
       if (existing) {
-        // Reset timer on existing toast
         clearTimeout(existing.dataset.timer);
-        existing.dataset.timer = setTimeout(() => removeToast(existing), duration);
+        existing.dataset.timer = setTimeout(function() { removeToast(existing); }, duration);
         return;
       }
-
-      const colors = {
-        success: 'bg-green-500',
-        error: 'bg-red-500',
-        info: 'bg-blue-500',
-        warning: 'bg-yellow-500'
-      };
-      const icons = {
-        success: 'fa-check-circle',
-        error: 'fa-exclamation-circle',
-        info: 'fa-info-circle',
-        warning: 'fa-exclamation-triangle'
-      };
-
+      const colors = { success: 'bg-green-500', error: 'bg-red-500', info: 'bg-blue-500', warning: 'bg-yellow-500' };
+      const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', info: 'fa-info-circle', warning: 'fa-exclamation-triangle' };
       const toast = document.createElement('div');
-      toast.className = `toast ${colors[type]} text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 z-50`;
+      toast.className = 'toast ' + colors[type] + ' text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 z-50';
       toast.dataset.toastId = toastId;
-      toast.innerHTML = `
-        <i class="fas ${icons[type]}"></i>
-        <span class="flex-1">${escapeHtml(message)}</span>
-        <button class="opacity-70 hover:opacity-100" onclick="removeToast(this.parentElement)">
-          <i class="fas fa-times"></i>
-        </button>
-      `;
-
+      toast.innerHTML = '<i class="fas ' + icons[type] + '"></i><span class="flex-1">' + escapeHtml(message) + '</span><button class="opacity-70 hover:opacity-100" onclick="removeToast(this.parentElement)"><i class="fas fa-times"></i></button>';
       document.getElementById('toastContainer').appendChild(toast);
-
-      toast.dataset.timer = setTimeout(() => removeToast(toast), duration);
+      toast.dataset.timer = setTimeout(function() { removeToast(toast); }, duration);
     }
 
     function removeToast(toast) {
       if (!toast || !toast.parentElement) return;
-      gsap.to(toast, { 
-        opacity: 0, 
-        x: 50, 
-        duration: 0.3, 
-        onComplete: () => toast.remove() 
-      });
+      if (typeof gsap !== 'undefined') {
+        gsap.to(toast, { opacity: 0, x: 50, duration: 0.3, onComplete: function() { toast.remove(); } });
+      } else {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(50px)';
+        setTimeout(function() { toast.remove(); }, 300);
+      }
     }
 
-    // =====================================================
-    // LIGHTBOX
-    // =====================================================
     function openLightbox(src) {
-      const lightbox = document.getElementById('lightbox');
       document.getElementById('lightboxImg').src = src;
-      lightbox.classList.add('open');
+      document.getElementById('lightbox').classList.add('open');
       document.body.style.overflow = 'hidden';
     }
-
     function closeLightbox() {
       document.getElementById('lightbox').classList.remove('open');
       document.body.style.overflow = '';
     }
 
-    // =====================================================
-    // AUTH CHECK
-    // =====================================================
+    function showDbError(content, msg) {
+      content.innerHTML = '<div class="text-center p-6"><i class="fas fa-plug text-4xl text-red-500 mb-3"></i><h2 class="text-xl font-bold text-red-600 mb-2">Database Error</h2><p class="text-gray-500 mb-4">' + escapeHtml(msg) + '</p><button onclick="location.reload()" class="btn-royal text-white px-4 py-2 rounded-xl">Reload Page</button></div>';
+    }
+
     async function checkAuth() {
+      if (!supabaseClient) {
+        showDbError(document.getElementById('adminContent'), 'Database connection failed. Check console for details.');
+        return;
+      }
       try {
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
         if (userError || !user) { window.location.href = '/'; return; }
         currentUser = user;
-
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-
+        const { data: profile, error: profileError } = await supabaseClient.from('profiles').select('*').eq('id', user.id).single();
         if (profileError || !profile) { window.location.href = '/'; return; }
         currentProfile = profile;
-
         const adminRoles = ['super_admin', 'archdeaconry_admin', 'conference_admin', 'moderator'];
         if (!adminRoles.includes(profile.role)) { window.location.href = '/'; return; }
-
+        var hName = document.getElementById('headerUserName');
+        var hRole = document.getElementById('headerUserRole');
+        if (hName) hName.textContent = profile.full_name || 'Admin';
+        if (hRole) hRole.textContent = (profile.role || 'Admin').replace(/_/g, ' ');
         loadDashboard();
       } catch (error) {
         console.error('Auth error:', error);
-        window.location.href = '/';
+        showToast('Auth error: ' + error.message, 'error');
+        document.getElementById('adminContent').innerHTML = '<div class="text-center p-6"><h2 class="text-xl font-bold text-red-600 mb-2">Authentication Error</h2><p class="text-gray-500">' + escapeHtml(error.message) + '</p><button onclick="location.reload()" class="btn-royal text-white px-4 py-2 rounded-xl mt-4">Reload</button></div>';
       }
     }
 
-    // =====================================================
-    // DARK MODE
-    // =====================================================
     let darkMode = localStorage.getItem('darkMode') === 'true';
     function applyDarkMode() {
       if (darkMode) document.documentElement.classList.add('dark');
       else document.documentElement.classList.remove('dark');
       localStorage.setItem('darkMode', darkMode);
-      const icon = document.getElementById('darkModeIcon');
-      const text = document.getElementById('darkModeText');
+      var icon = document.getElementById('darkModeIcon');
+      var text = document.getElementById('darkModeText');
       if (icon) icon.className = darkMode ? 'fas fa-sun' : 'fas fa-moon';
       if (text) text.textContent = darkMode ? 'Light Mode' : 'Dark Mode';
     }
     applyDarkMode();
 
-    // =====================================================
-    // DASHBOARD
-    // =====================================================
     async function loadDashboard() {
-      const content = document.getElementById('adminContent');
+      var content = document.getElementById('adminContent');
       content.innerHTML = '<div class="flex justify-center items-center h-64"><div class="loader"></div></div>';
-
+      if (!supabaseClient) { showDbError(content, 'Database not connected.'); return; }
       try {
-        const [totalUsersRes, totalRegistrationsRes, pendingRegistrationsRes, 
-               totalPostsRes, totalCheckinsRes, totalDocumentsRes] = await Promise.all([
-          supabase.from('profiles').select('*', { count: 'exact', head: true }),
-          supabase.from('registrations').select('*', { count: 'exact', head: true }),
-          supabase.from('registrations').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
-          supabase.from('posts').select('*', { count: 'exact', head: true }),
-          supabase.from('attendance_logs').select('*', { count: 'exact', head: true }),
-          supabase.from('documents').select('*', { count: 'exact', head: true })
+        var [totalUsersRes, totalRegistrationsRes, pendingRegistrationsRes, totalPostsRes, totalCheckinsRes, totalDocumentsRes] = await Promise.all([
+          supabaseClient.from('profiles').select('*', { count: 'exact', head: true }),
+          supabaseClient.from('registrations').select('*', { count: 'exact', head: true }),
+          supabaseClient.from('registrations').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+          supabaseClient.from('posts').select('*', { count: 'exact', head: true }),
+          supabaseClient.from('attendance_logs').select('*', { count: 'exact', head: true }),
+          supabaseClient.from('documents').select('*', { count: 'exact', head: true })
         ]);
-
-        const [{ data: recentRegs }, { data: recentCheckins }, { data: parishData }] = await Promise.all([
-          supabase.from('registrations').select('*, profiles(full_name, parish)').order('created_at', { ascending: false }).limit(10),
-          supabase.from('attendance_logs').select('*, profiles(full_name, parish)').order('check_in_time', { ascending: false }).limit(10),
-          supabase.from('profiles').select('parish')
+        var [{ data: recentRegs }, { data: recentCheckins }, { data: parishData }] = await Promise.all([
+          supabaseClient.from('registrations').select('*, profiles(full_name, parish)').order('created_at', { ascending: false }).limit(10),
+          supabaseClient.from('attendance_logs').select('*, profiles(full_name, parish)').order('check_in_time', { ascending: false }).limit(10),
+          supabaseClient.from('profiles').select('parish')
         ]);
+        var parishCounts = {};
+        if (parishData) parishData.forEach(function(p) { if(p.parish) parishCounts[p.parish] = (parishCounts[p.parish] || 0) + 1; });
 
-        const parishCounts = {};
-        parishData?.forEach(p => { if(p.parish) parishCounts[p.parish] = (parishCounts[p.parish] || 0) + 1; });
+        content.innerHTML = '<div class="space-y-6">' +
+          '<div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">' +
+            '<div class="glass-card p-4 stat-card animate-fadeInUp"><div class="flex justify-between items-start"><div><p class="text-gray-500 text-sm">Total Users</p><p class="text-2xl font-bold">' + (totalUsersRes.count || 0) + '</p></div><i class="fas fa-users text-2xl text-gold opacity-50"></i></div></div>' +
+            '<div class="glass-card p-4 stat-card animate-fadeInUp" style="animation-delay:0.05s"><div class="flex justify-between items-start"><div><p class="text-gray-500 text-sm">Registrations</p><p class="text-2xl font-bold">' + (totalRegistrationsRes.count || 0) + '</p></div><i class="fas fa-id-card text-2xl text-gold opacity-50"></i></div></div>' +
+            '<div class="glass-card p-4 stat-card animate-fadeInUp" style="animation-delay:0.1s"><div class="flex justify-between items-start"><div><p class="text-gray-500 text-sm">Pending</p><p class="text-2xl font-bold text-yellow-500">' + (pendingRegistrationsRes.count || 0) + '</p></div><i class="fas fa-clock text-2xl text-gold opacity-50"></i></div></div>' +
+            '<div class="glass-card p-4 stat-card animate-fadeInUp" style="animation-delay:0.15s"><div class="flex justify-between items-start"><div><p class="text-gray-500 text-sm">Total Posts</p><p class="text-2xl font-bold">' + (totalPostsRes.count || 0) + '</p></div><i class="fas fa-newspaper text-2xl text-gold opacity-50"></i></div></div>' +
+            '<div class="glass-card p-4 stat-card animate-fadeInUp" style="animation-delay:0.2s"><div class="flex justify-between items-start"><div><p class="text-gray-500 text-sm">Check-ins</p><p class="text-2xl font-bold">' + (totalCheckinsRes.count || 0) + '</p></div><i class="fas fa-check-circle text-2xl text-gold opacity-50"></i></div></div>' +
+            '<div class="glass-card p-4 stat-card animate-fadeInUp" style="animation-delay:0.25s"><div class="flex justify-between items-start"><div><p class="text-gray-500 text-sm">Documents</p><p class="text-2xl font-bold">' + (totalDocumentsRes.count || 0) + '</p></div><i class="fas fa-file-alt text-2xl text-gold opacity-50"></i></div></div>' +
+          '</div>' +
+          '<div class="grid md:grid-cols-2 gap-6">' +
+            '<div class="glass-card p-6 animate-fadeInUp" style="animation-delay:0.3s"><h3 class="font-bold mb-4"><i class="fas fa-chart-bar text-gold mr-2"></i> Registrations by Parish</h3><canvas id="parishChart" height="250"></canvas></div>' +
+            '<div class="glass-card p-6 animate-fadeInUp" style="animation-delay:0.35s"><h3 class="font-bold mb-4"><i class="fas fa-chart-line text-gold mr-2"></i> Activity Overview</h3><canvas id="activityChart" height="250"></canvas></div>' +
+          '</div>' +
+          '<div class="grid md:grid-cols-2 gap-6">' +
+            '<div class="glass-card p-6 animate-fadeInUp" style="animation-delay:0.4s"><h3 class="font-bold mb-4"><i class="fas fa-user-plus text-gold mr-2"></i> Recent Registrations</h3><div class="space-y-3 max-h-80 overflow-y-auto custom-scrollbar">' + (recentRegs ? recentRegs.map(function(reg) {
+              return '<div class="flex justify-between items-center p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl hover:bg-gold/5 transition-colors"><div><div class="font-medium">' + escapeHtml(reg.profiles && reg.profiles.full_name || 'Unknown') + '</div><div class="text-xs text-gray-500">' + escapeHtml(reg.profiles && reg.profiles.parish || 'No parish') + '</div></div><span class="text-xs px-2 py-1 rounded-full ' + (reg.status === 'approved' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700') + '">' + reg.status + '</span></div>';
+            }).join('') : '<p class="text-gray-500 text-center py-4">No registrations yet</p>') + '</div></div>' +
+            '<div class="glass-card p-6 animate-fadeInUp" style="animation-delay:0.45s"><h3 class="font-bold mb-4"><i class="fas fa-qrcode text-gold mr-2"></i> Recent Check-ins</h3><div class="space-y-3 max-h-80 overflow-y-auto custom-scrollbar">' + (recentCheckins ? recentCheckins.map(function(check) {
+              return '<div class="flex justify-between items-center p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl hover:bg-gold/5 transition-colors"><div><div class="font-medium">' + escapeHtml(check.profiles && check.profiles.full_name || 'Unknown') + '</div><div class="text-xs text-gray-500">' + escapeHtml(check.profiles && check.profiles.parish || 'No parish') + '</div></div><span class="text-xs text-gold">' + timeAgo(check.check_in_time) + '</span></div>';
+            }).join('') : '<p class="text-gray-500 text-center py-4">No check-ins yet</p>') + '</div></div>' +
+          '</div>' +
+        '</div>';
 
-        content.innerHTML = `
-          <div class="space-y-6">
-            <!-- Stats Grid -->
-            <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
-              <div class="glass-card p-4 stat-card animate-fadeInUp" style="animation-delay:0s">
-                <div class="flex justify-between items-start">
-                  <div><p class="text-gray-500 text-sm">Total Users</p><p class="text-2xl font-bold">${totalUsersRes.count || 0}</p></div>
-                  <i class="fas fa-users text-2xl text-gold opacity-50"></i>
-                </div>
-              </div>
-              <div class="glass-card p-4 stat-card animate-fadeInUp" style="animation-delay:0.05s">
-                <div class="flex justify-between items-start">
-                  <div><p class="text-gray-500 text-sm">Registrations</p><p class="text-2xl font-bold">${totalRegistrationsRes.count || 0}</p></div>
-                  <i class="fas fa-id-card text-2xl text-gold opacity-50"></i>
-                </div>
-              </div>
-              <div class="glass-card p-4 stat-card animate-fadeInUp" style="animation-delay:0.1s">
-                <div class="flex justify-between items-start">
-                  <div><p class="text-gray-500 text-sm">Pending</p><p class="text-2xl font-bold text-yellow-500">${pendingRegistrationsRes.count || 0}</p></div>
-                  <i class="fas fa-clock text-2xl text-gold opacity-50"></i>
-                </div>
-              </div>
-              <div class="glass-card p-4 stat-card animate-fadeInUp" style="animation-delay:0.15s">
-                <div class="flex justify-between items-start">
-                  <div><p class="text-gray-500 text-sm">Total Posts</p><p class="text-2xl font-bold">${totalPostsRes.count || 0}</p></div>
-                  <i class="fas fa-newspaper text-2xl text-gold opacity-50"></i>
-                </div>
-              </div>
-              <div class="glass-card p-4 stat-card animate-fadeInUp" style="animation-delay:0.2s">
-                <div class="flex justify-between items-start">
-                  <div><p class="text-gray-500 text-sm">Check-ins</p><p class="text-2xl font-bold">${totalCheckinsRes.count || 0}</p></div>
-                  <i class="fas fa-check-circle text-2xl text-gold opacity-50"></i>
-                </div>
-              </div>
-              <div class="glass-card p-4 stat-card animate-fadeInUp" style="animation-delay:0.25s">
-                <div class="flex justify-between items-start">
-                  <div><p class="text-gray-500 text-sm">Documents</p><p class="text-2xl font-bold">${totalDocumentsRes.count || 0}</p></div>
-                  <i class="fas fa-file-alt text-2xl text-gold opacity-50"></i>
-                </div>
-              </div>
-            </div>
-
-            <!-- Charts Row -->
-            <div class="grid md:grid-cols-2 gap-6">
-              <div class="glass-card p-6 animate-fadeInUp" style="animation-delay:0.3s">
-                <h3 class="font-bold mb-4"><i class="fas fa-chart-bar text-gold mr-2"></i> Registrations by Parish</h3>
-                <canvas id="parishChart" height="250"></canvas>
-              </div>
-              <div class="glass-card p-6 animate-fadeInUp" style="animation-delay:0.35s">
-                <h3 class="font-bold mb-4"><i class="fas fa-chart-line text-gold mr-2"></i> Activity Overview</h3>
-                <canvas id="activityChart" height="250"></canvas>
-              </div>
-            </div>
-
-            <!-- Recent Activity -->
-            <div class="grid md:grid-cols-2 gap-6">
-              <div class="glass-card p-6 animate-fadeInUp" style="animation-delay:0.4s">
-                <h3 class="font-bold mb-4"><i class="fas fa-user-plus text-gold mr-2"></i> Recent Registrations</h3>
-                <div class="space-y-3 max-h-80 overflow-y-auto custom-scrollbar">
-                  ${recentRegs?.map(reg => `
-                    <div class="flex justify-between items-center p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl hover:bg-gold/5 transition-colors">
-                      <div>
-                        <div class="font-medium">${escapeHtml(reg.profiles?.full_name || 'Unknown')}</div>
-                        <div class="text-xs text-gray-500">${escapeHtml(reg.profiles?.parish || 'No parish')}</div>
-                      </div>
-                      <span class="text-xs px-2 py-1 rounded-full ${reg.status === 'approved' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">${reg.status}</span>
-                    </div>
-                  `).join('') || '<p class="text-gray-500 text-center py-4">No registrations yet</p>'}
-                </div>
-              </div>
-              <div class="glass-card p-6 animate-fadeInUp" style="animation-delay:0.45s">
-                <h3 class="font-bold mb-4"><i class="fas fa-qrcode text-gold mr-2"></i> Recent Check-ins</h3>
-                <div class="space-y-3 max-h-80 overflow-y-auto custom-scrollbar">
-                  ${recentCheckins?.map(check => `
-                    <div class="flex justify-between items-center p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl hover:bg-gold/5 transition-colors">
-                      <div>
-                        <div class="font-medium">${escapeHtml(check.profiles?.full_name || 'Unknown')}</div>
-                        <div class="text-xs text-gray-500">${escapeHtml(check.profiles?.parish || 'No parish')}</div>
-                      </div>
-                      <span class="text-xs text-gold">${timeAgo(check.check_in_time)}</span>
-                    </div>
-                  `).join('') || '<p class="text-gray-500 text-center py-4">No check-ins yet</p>'}
-                </div>
-              </div>
-            </div>
-          </div>
-        `;
-
-        // Parish chart
-        const parishCtx = document.getElementById('parishChart')?.getContext('2d');
+        var parishCtx = document.getElementById('parishChart');
         if (parishCtx && Object.keys(parishCounts).length > 0) {
+          parishCtx = parishCtx.getContext('2d');
           if (parishChart) parishChart.destroy();
           parishChart = new Chart(parishCtx, {
             type: 'bar',
-            data: { 
-              labels: Object.keys(parishCounts), 
-              datasets: [{ 
-                label: 'Members', 
-                data: Object.values(parishCounts), 
-                backgroundColor: '#D4AF37', 
-                borderRadius: 8 
-              }] 
-            },
-            options: { 
-              responsive: true, 
-              maintainAspectRatio: true,
-              plugins: { legend: { display: false } }
-            }
+            data: { labels: Object.keys(parishCounts), datasets: [{ label: 'Members', data: Object.values(parishCounts), backgroundColor: '#D4AF37', borderRadius: 8 }] },
+            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } } }
           });
         }
-
-        // Activity chart
-        const activityCtx = document.getElementById('activityChart')?.getContext('2d');
+        var activityCtx = document.getElementById('activityChart');
         if (activityCtx) {
+          activityCtx = activityCtx.getContext('2d');
           if (analyticsChart) analyticsChart.destroy();
           analyticsChart = new Chart(activityCtx, {
             type: 'line',
-            data: { 
-              labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'], 
-              datasets: [
-                { label: 'Registrations', data: [5, 12, 8, 15], borderColor: '#D4AF37', fill: true, backgroundColor: 'rgba(212,175,55,0.1)' }, 
-                { label: 'Posts', data: [3, 7, 4, 9], borderColor: '#0A2E73', fill: true, backgroundColor: 'rgba(10,46,115,0.1)' }
-              ] 
-            },
+            data: { labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'], datasets: [
+              { label: 'Registrations', data: [5, 12, 8, 15], borderColor: '#D4AF37', fill: true, backgroundColor: 'rgba(212,175,55,0.1)' },
+              { label: 'Posts', data: [3, 7, 4, 9], borderColor: '#0A2E73', fill: true, backgroundColor: 'rgba(10,46,115,0.1)' }
+            ]},
             options: { responsive: true, maintainAspectRatio: true }
           });
         }
-
-        // Update pending badge
-        const pendingBadge = document.getElementById('pendingBadge');
+        var pendingBadge = document.getElementById('pendingBadge');
         if (pendingBadge) {
           pendingBadge.textContent = pendingRegistrationsRes.count || 0;
           pendingBadge.classList.toggle('hidden', !(pendingRegistrationsRes.count > 0));
         }
       } catch (error) {
         console.error('Dashboard error:', error);
-        content.innerHTML = '<div class="text-center text-red-500 p-6">Error loading dashboard. <button onclick="loadDashboard()" class="text-gold underline ml-2">Retry</button></div>';
+        content.innerHTML = '<div class="text-center text-red-500 p-6">Error loading dashboard: ' + escapeHtml(error.message) + '. <button onclick="loadDashboard()" class="text-gold underline ml-2">Retry</button></div>';
       }
     }
 
-    // =====================================================
-    // REGISTRATIONS MANAGEMENT (Enhanced with search/filter/export)
-    // =====================================================
     async function loadRegistrations() {
-      const content = document.getElementById('adminContent');
+      var content = document.getElementById('adminContent');
       content.innerHTML = '<div class="flex justify-center items-center h-64"><div class="loader"></div></div>';
-
+      if (!supabaseClient) { showDbError(content, 'Database not connected.'); return; }
       try {
-        const { data: registrations, error } = await supabase
-          .from('registrations')
-          .select('*, profiles(full_name, email, phone, parish, ayf_position, gender, age_range)')
-          .order('created_at', { ascending: false });
-
+        var { data: registrations, error } = await supabaseClient.from('registrations').select('*, profiles(full_name, email, phone, parish, ayf_position, gender, age_range)').order('created_at', { ascending: false });
         if (error) throw error;
+        var rowsHtml = '';
+        if (registrations && registrations.length > 0) {
+          rowsHtml = registrations.map(function(reg) {
+            var name = (reg.profiles && reg.profiles.full_name || '').toLowerCase();
+            var email = (reg.profiles && reg.profiles.email || '').toLowerCase();
+            var parish = (reg.profiles && reg.profiles.parish || '').toLowerCase();
+            return '<tr data-name="' + name + '" data-email="' + email + '" data-status="' + reg.status + '" data-parish="' + parish + '">' +
+              '<td class="font-medium">' + escapeHtml(reg.profiles && reg.profiles.full_name || 'N/A') + '</td>' +
+              '<td class="text-gray-500">' + escapeHtml(reg.profiles && reg.profiles.email || 'N/A') + '</td>' +
+              '<td>' + escapeHtml(reg.profiles && reg.profiles.phone || 'N/A') + '</td>' +
+              '<td>' + escapeHtml(reg.profiles && reg.profiles.parish || 'N/A') + '</td>' +
+              '<td>' + escapeHtml(reg.profiles && reg.profiles.ayf_position || 'N/A') + '</td>' +
+              '<td><span class="px-2 py-1 rounded-full text-xs font-semibold ' + (reg.status === 'approved' ? 'bg-green-100 text-green-700' : reg.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700') + '">' + reg.status + '</span></td>' +
+              '<td class="font-mono text-xs">' + (reg.conference_id || '-') + '</td>' +
+              '<td>' + (reg.status === 'pending' ? '<button data-id="' + reg.user_id + '" class="approve-btn bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg text-sm transition-colors mr-1"><i class="fas fa-check"></i></button>' : '<span class="text-green-500 px-3"><i class="fas fa-check-circle"></i></span>') +
+              '<button data-id="' + reg.user_id + '" class="delete-reg-btn bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-sm transition-colors"><i class="fas fa-trash"></i></button></td>' +
+              '</tr>';
+          }).join('');
+        } else {
+          rowsHtml = '<tr><td colspan="8" class="text-center p-6 text-gray-500">No registrations found</td></tr>';
+        }
+        content.innerHTML = '<div class="glass-card p-6 animate-fadeInUp"><div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl font-bold"><i class="fas fa-users text-gold mr-2"></i> Manage Registrations</h2><div class="flex gap-3 flex-wrap"><div class="relative"><i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i><input type="text" id="searchReg" placeholder="Search name, email..." class="p-2 pl-10 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all"></div><select id="filterStatus" class="p-2 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all"><option value="all">All Status</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select><button id="exportRegBtn" class="btn-royal text-white px-4 py-2 rounded-xl flex items-center gap-2 hover:scale-105 transition-transform"><i class="fas fa-download"></i> Export CSV</button></div></div><div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Parish</th><th>Position</th><th>Status</th><th>Conference ID</th><th>Actions</th></tr></thead><tbody id="regTableBody">' + rowsHtml + '</tbody></table></div></div>';
 
-        content.innerHTML = `
-          <div class="glass-card p-6 animate-fadeInUp">
-            <div class="flex justify-between items-center mb-6 flex-wrap gap-3">
-              <h2 class="text-2xl font-bold"><i class="fas fa-users text-gold mr-2"></i> Manage Registrations</h2>
-              <div class="flex gap-3 flex-wrap">
-                <div class="relative">
-                  <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                  <input type="text" id="searchReg" placeholder="Search name, email..." class="p-2 pl-10 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all">
-                </div>
-                <select id="filterStatus" class="p-2 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all">
-                  <option value="all">All Status</option>
-                  <option value="pending">Pending</option>
-                  <option value="approved">Approved</option>
-                  <option value="rejected">Rejected</option>
-                </select>
-                <button id="exportRegBtn" class="btn-royal text-white px-4 py-2 rounded-xl flex items-center gap-2 hover:scale-105 transition-transform">
-                  <i class="fas fa-download"></i> Export CSV
-                </button>
-              </div>
-            </div>
-            <div class="overflow-x-auto">
-              <table class="w-full text-sm">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Parish</th>
-                    <th>Position</th>
-                    <th>Status</th>
-                    <th>Conference ID</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="regTableBody">
-                  ${registrations?.map(reg => `
-                    <tr data-name="${(reg.profiles?.full_name || '').toLowerCase()}" 
-                        data-email="${(reg.profiles?.email || '').toLowerCase()}" 
-                        data-status="${reg.status}"
-                        data-parish="${(reg.profiles?.parish || '').toLowerCase()}">
-                      <td class="font-medium">${escapeHtml(reg.profiles?.full_name || 'N/A')}</td>
-                      <td class="text-gray-500">${escapeHtml(reg.profiles?.email || 'N/A')}</td>
-                      <td>${escapeHtml(reg.profiles?.phone || 'N/A')}</td>
-                      <td>${escapeHtml(reg.profiles?.parish || 'N/A')}</td>
-                      <td>${escapeHtml(reg.profiles?.ayf_position || 'N/A')}</td>
-                      <td>
-                        <span class="px-2 py-1 rounded-full text-xs font-semibold ${reg.status === 'approved' ? 'bg-green-100 text-green-700' : reg.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}">
-                          ${reg.status}
-                        </span>
-                      </td>
-                      <td class="font-mono text-xs">${reg.conference_id || '-'}</td>
-                      <td>
-                        ${reg.status === 'pending' ? `
-                          <button data-id="${reg.user_id}" class="approve-btn bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg text-sm transition-colors mr-1">
-                            <i class="fas fa-check"></i>
-                          </button>
-                        ` : '<span class="text-green-500 px-3"><i class="fas fa-check-circle"></i></span>'}
-                        <button data-id="${reg.user_id}" class="delete-reg-btn bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-sm transition-colors">
-                          <i class="fas fa-trash"></i>
-                        </button>
-                      </td>
-                    </tr>
-                  `).join('') || '<tr><td colspan="8" class="text-center p-6 text-gray-500">No registrations found</td></tr>'}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        `;
-
-        // Search handler
-        const filterRows = () => {
-          const term = document.getElementById('searchReg')?.value.toLowerCase() || '';
-          const status = document.getElementById('filterStatus')?.value || 'all';
-          document.querySelectorAll('#regTableBody tr').forEach(row => {
-            const name = row.dataset.name || '';
-            const email = row.dataset.email || '';
-            const parish = row.dataset.parish || '';
-            const rowStatus = row.dataset.status || '';
-            const matchesSearch = name.includes(term) || email.includes(term) || parish.includes(term);
-            const matchesStatus = status === 'all' || rowStatus === status;
+        function filterRows() {
+          var term = (document.getElementById('searchReg') && document.getElementById('searchReg').value || '').toLowerCase();
+          var status = document.getElementById('filterStatus') && document.getElementById('filterStatus').value || 'all';
+          document.querySelectorAll('#regTableBody tr').forEach(function(row) {
+            var rname = row.dataset.name || '';
+            var remail = row.dataset.email || '';
+            var rparish = row.dataset.parish || '';
+            var rstatus = row.dataset.status || '';
+            var matchesSearch = rname.indexOf(term) !== -1 || remail.indexOf(term) !== -1 || rparish.indexOf(term) !== -1;
+            var matchesStatus = status === 'all' || rstatus === status;
             row.style.display = matchesSearch && matchesStatus ? '' : 'none';
           });
-        };
+        }
+        document.getElementById('searchReg') && document.getElementById('searchReg').addEventListener('input', debounce(filterRows, 300));
+        document.getElementById('filterStatus') && document.getElementById('filterStatus').addEventListener('change', filterRows);
 
-        document.getElementById('searchReg')?.addEventListener('input', debounce(filterRows, 300));
-        document.getElementById('filterStatus')?.addEventListener('change', filterRows);
-
-        // Export CSV
-        document.getElementById('exportRegBtn')?.addEventListener('click', () => {
-          let csv = 'Name,Email,Phone,Parish,Position,Gender,Age Range,Status,Conference ID,Registered At\n';
-          document.querySelectorAll('#regTableBody tr').forEach(row => {
+        document.getElementById('exportRegBtn') && document.getElementById('exportRegBtn').addEventListener('click', function() {
+          var csv = 'Name,Email,Phone,Parish,Position,Gender,Age Range,Status,Conference ID,Registered At\n';
+          document.querySelectorAll('#regTableBody tr').forEach(function(row) {
             if (row.style.display === 'none') return;
-            const cells = row.querySelectorAll('td');
+            var cells = row.querySelectorAll('td');
             if (cells.length >= 8) {
-              csv += `"${cells[0].innerText}","${cells[1].innerText}","${cells[2].innerText}","${cells[3].innerText}","${cells[4].innerText}","${cells[5].innerText}","${cells[6].innerText}","${cells[7].innerText}"\n`;
+              csv += '"' + cells[0].innerText + '","' + cells[1].innerText + '","' + cells[2].innerText + '","' + cells[3].innerText + '","' + cells[4].innerText + '","' + cells[5].innerText + '","' + cells[6].innerText + '","' + cells[7].innerText + '"\n';
             }
           });
-          const blob = new Blob([csv], { type: 'text/csv' });
-          const link = document.createElement('a');
+          var blob = new Blob([csv], { type: 'text/csv' });
+          var link = document.createElement('a');
           link.href = URL.createObjectURL(blob);
-          link.download = `registrations_${new Date().toISOString().split('T')[0]}.csv`;
+          link.download = 'registrations_' + new Date().toISOString().split('T')[0] + '.csv';
           link.click();
           showToast('CSV exported!', 'success');
         });
 
-        // Approve handler
-        document.querySelectorAll('.approve-btn').forEach(btn => {
-          btn.addEventListener('click', async () => {
+        document.querySelectorAll('.approve-btn').forEach(function(btn) {
+          btn.addEventListener('click', async function() {
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             try {
-              await supabase.from('registrations').update({ status: 'approved' }).eq('user_id', btn.dataset.id);
-              await supabase.from('notifications').insert([{
-                user_id: btn.dataset.id,
-                title: 'Registration Approved',
-                message: 'Your conference registration has been approved! Your QR pass is now active.',
-                type: 'success'
-              }]);
+              await supabaseClient.from('registrations').update({ status: 'approved' }).eq('user_id', btn.dataset.id);
+              await supabaseClient.from('notifications').insert([{ user_id: btn.dataset.id, title: 'Registration Approved', message: 'Your conference registration has been approved! Your QR pass is now active.', type: 'success' }]);
               showToast('Registration approved!', 'success');
               loadRegistrations();
             } catch (err) {
@@ -853,13 +433,11 @@
             }
           });
         });
-
-        // Delete handler
-        document.querySelectorAll('.delete-reg-btn').forEach(btn => {
-          btn.addEventListener('click', async () => {
+        document.querySelectorAll('.delete-reg-btn').forEach(function(btn) {
+          btn.addEventListener('click', async function() {
             if (!confirm('Are you sure you want to delete this registration?')) return;
             try {
-              await supabase.from('registrations').delete().eq('user_id', btn.dataset.id);
+              await supabaseClient.from('registrations').delete().eq('user_id', btn.dataset.id);
               showToast('Registration deleted', 'success');
               loadRegistrations();
             } catch (err) {
@@ -867,430 +445,406 @@
             }
           });
         });
-
       } catch (error) {
         console.error('Registrations error:', error);
-        content.innerHTML = '<div class="text-center text-red-500 p-6">Error loading registrations. <button onclick="loadRegistrations()" class="text-gold underline ml-2">Retry</button></div>';
+        content.innerHTML = '<div class="text-center text-red-500 p-6">Error loading registrations: ' + escapeHtml(error.message) + '. <button onclick="loadRegistrations()" class="text-gold underline ml-2">Retry</button></div>';
       }
     }
 
-    // =====================================================
-    // POSTS MANAGEMENT
-    // =====================================================
     async function loadPosts() {
-      const content = document.getElementById('adminContent');
+      var content = document.getElementById('adminContent');
       content.innerHTML = '<div class="flex justify-center items-center h-64"><div class="loader"></div></div>';
-
+      if (!supabaseClient) { showDbError(content, 'Database not connected.'); return; }
       try {
-        const { data: posts, error } = await supabase
-          .from('posts')
-          .select('*, profiles(full_name, avatar_url, role)')
-          .order('created_at', { ascending: false });
-
+        var { data: posts, error } = await supabaseClient.from('posts').select('*, profiles(full_name, avatar_url, role)').order('created_at', { ascending: false });
         if (error) throw error;
+        var postsHtml = '';
+        if (posts && posts.length > 0) {
+          postsHtml = posts.map(function(post) {
+            return '<div class="border-b border-gray-200 dark:border-gray-700 pb-4 animate-fadeInUp"><div class="flex justify-between items-start"><div class="flex gap-3"><img src="' + escapeHtml(post.profiles && post.profiles.avatar_url || 'https://ui-avatars.com/api/?name=User&background=0A2E73&color=fff') + '" class="w-10 h-10 rounded-full object-cover"><div><div class="font-bold flex items-center gap-2">' + escapeHtml(post.profiles && post.profiles.full_name || 'Unknown') + (post.is_announcement ? '<span class="text-xs bg-gold/20 text-gold px-2 py-0.5 rounded-full">Announcement</span>' : '') + (post.is_pinned ? '<span class="text-xs bg-royal/20 text-royal px-2 py-0.5 rounded-full"><i class="fas fa-thumbtack"></i></span>' : '') + '</div><div class="text-xs text-gray-500">' + timeAgo(post.created_at) + '</div></div></div><div class="flex gap-2">' + (!post.is_pinned ? '<button data-id="' + post.id + '" class="pin-post-btn bg-gold/20 text-gold px-3 py-1 rounded-lg text-sm hover:bg-gold/30 transition-colors" title="Pin post"><i class="fas fa-thumbtack"></i></button>' : '<button data-id="' + post.id + '" class="unpin-post-btn bg-gray-200 text-gray-600 px-3 py-1 rounded-lg text-sm hover:bg-gray-300 transition-colors" title="Unpin post"><i class="fas fa-thumbtack"></i></button>') + '<button data-id="' + post.id + '" class="delete-post-btn btn-danger text-white px-3 py-1 rounded-lg text-sm hover:scale-105 transition-transform"><i class="fas fa-trash"></i></button></div></div><p class="mt-2 ml-12 text-gray-700 dark:text-gray-300">' + escapeHtml(post.content) + '</p>' + (post.image_url ? '<img src="' + escapeHtml(post.image_url) + '" class="mt-2 ml-12 max-h-48 rounded-lg cursor-pointer hover:opacity-90 transition-opacity" onclick="openLightbox(\'' + escapeHtml(post.image_url) + '\')">' : '') + '<div class="flex gap-4 mt-2 ml-12 text-sm text-gray-500"><span><i class="far fa-heart text-gold"></i> ' + (post.likes_count || 0) + '</span><span><i class="far fa-comment text-gold"></i> ' + (post.comments_count || 0) + '</span></div></div>';
+          }).join('');
+        } else {
+          postsHtml = '<p class="text-gray-500 text-center py-8">No posts yet</p>';
+        }
+        content.innerHTML = '<div class="glass-card p-6 animate-fadeInUp"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold"><i class="fas fa-newspaper text-gold mr-2"></i> Manage Posts</h2><button id="refreshPosts" class="btn-royal text-white px-4 py-2 rounded-xl hover:scale-105 transition-transform"><i class="fas fa-sync-alt"></i> Refresh</button></div><div class="space-y-4 max-h-[70vh] overflow-y-auto custom-scrollbar">' + postsHtml + '</div></div>';
 
-        content.innerHTML = `
-          <div class="glass-card p-6 animate-fadeInUp">
-            <div class="flex justify-between items-center mb-6">
-              <h2 class="text-2xl font-bold"><i class="fas fa-newspaper text-gold mr-2"></i> Manage Posts</h2>
-              <button id="refreshPosts" class="btn-royal text-white px-4 py-2 rounded-xl hover:scale-105 transition-transform">
-                <i class="fas fa-sync-alt"></i> Refresh
-              </button>
-            </div>
-            <div class="space-y-4 max-h-[70vh] overflow-y-auto custom-scrollbar">
-              ${posts?.map(post => `
-                <div class="border-b border-gray-200 dark:border-gray-700 pb-4 animate-fadeInUp">
-                  <div class="flex justify-between items-start">
-                    <div class="flex gap-3">
-                      <img src="${escapeHtml(post.profiles?.avatar_url || 'https://ui-avatars.com/api/?name=User&background=0A2E73&color=fff')}" 
-                           class="w-10 h-10 rounded-full object-cover">
-                      <div>
-                        <div class="font-bold flex items-center gap-2">
-                          ${escapeHtml(post.profiles?.full_name || 'Unknown')}
-                          ${post.is_announcement ? '<span class="text-xs bg-gold/20 text-gold px-2 py-0.5 rounded-full">Announcement</span>' : ''}
-                          ${post.is_pinned ? '<span class="text-xs bg-royal/20 text-royal px-2 py-0.5 rounded-full"><i class="fas fa-thumbtack"></i></span>' : ''}
-                        </div>
-                        <div class="text-xs text-gray-500">${timeAgo(post.created_at)}</div>
-                      </div>
-                    </div>
-                    <div class="flex gap-2">
-                      ${!post.is_pinned ? `<button data-id="${post.id}" class="pin-post-btn bg-gold/20 text-gold px-3 py-1 rounded-lg text-sm hover:bg-gold/30 transition-colors" title="Pin post"><i class="fas fa-thumbtack"></i></button>` : `<button data-id="${post.id}" class="unpin-post-btn bg-gray-200 text-gray-600 px-3 py-1 rounded-lg text-sm hover:bg-gray-300 transition-colors" title="Unpin post"><i class="fas fa-thumbtack"></i></button>`}
-                      <button data-id="${post.id}" class="delete-post-btn btn-danger text-white px-3 py-1 rounded-lg text-sm hover:scale-105 transition-transform"><i class="fas fa-trash"></i></button>
-                    </div>
-                  </div>
-                  <p class="mt-2 ml-12 text-gray-700 dark:text-gray-300">${escapeHtml(post.content)}</p>
-                  ${post.image_url ? `<img src="${escapeHtml(post.image_url)}" class="mt-2 ml-12 max-h-48 rounded-lg cursor-pointer hover:opacity-90 transition-opacity" onclick="openLightbox('${escapeHtml(post.image_url)}')">` : ''}
-                  <div class="flex gap-4 mt-2 ml-12 text-sm text-gray-500">
-                    <span><i class="far fa-heart text-gold"></i> ${post.likes_count || 0}</span>
-                    <span><i class="far fa-comment text-gold"></i> ${post.comments_count || 0}</span>
-                  </div>
-                </div>
-              `).join('') || '<p class="text-gray-500 text-center py-8">No posts yet</p>'}
-            </div>
-          </div>
-        `;
-
-        document.getElementById('refreshPosts')?.addEventListener('click', () => loadPosts());
-
-        document.querySelectorAll('.delete-post-btn').forEach(btn => {
-          btn.addEventListener('click', async () => {
+        document.getElementById('refreshPosts') && document.getElementById('refreshPosts').addEventListener('click', function() { loadPosts(); });
+        document.querySelectorAll('.delete-post-btn').forEach(function(btn) {
+          btn.addEventListener('click', async function() {
             if (!confirm('Delete this post?')) return;
-            try {
-              await supabase.from('posts').delete().eq('id', btn.dataset.id);
-              showToast('Post deleted!', 'success');
-              loadPosts();
-            } catch (err) {
-              showToast('Failed to delete', 'error');
-            }
+            try { await supabaseClient.from('posts').delete().eq('id', btn.dataset.id); showToast('Post deleted!', 'success'); loadPosts(); } catch (err) { showToast('Failed to delete', 'error'); }
           });
         });
-
-        document.querySelectorAll('.pin-post-btn').forEach(btn => {
-          btn.addEventListener('click', async () => {
-            try {
-              await supabase.from('posts').update({ is_pinned: true }).eq('id', btn.dataset.id);
-              showToast('Post pinned!', 'success');
-              loadPosts();
-            } catch (err) {
-              showToast('Failed to pin', 'error');
-            }
+        document.querySelectorAll('.pin-post-btn').forEach(function(btn) {
+          btn.addEventListener('click', async function() {
+            try { await supabaseClient.from('posts').update({ is_pinned: true }).eq('id', btn.dataset.id); showToast('Post pinned!', 'success'); loadPosts(); } catch (err) { showToast('Failed to pin', 'error'); }
           });
         });
-
-        document.querySelectorAll('.unpin-post-btn').forEach(btn => {
-          btn.addEventListener('click', async () => {
-            try {
-              await supabase.from('posts').update({ is_pinned: false }).eq('id', btn.dataset.id);
-              showToast('Post unpinned!', 'success');
-              loadPosts();
-            } catch (err) {
-              showToast('Failed to unpin', 'error');
-            }
+        document.querySelectorAll('.unpin-post-btn').forEach(function(btn) {
+          btn.addEventListener('click', async function() {
+            try { await supabaseClient.from('posts').update({ is_pinned: false }).eq('id', btn.dataset.id); showToast('Post unpinned!', 'success'); loadPosts(); } catch (err) { showToast('Failed to unpin', 'error'); }
           });
         });
-
       } catch (error) {
         console.error('Posts error:', error);
-        content.innerHTML = '<div class="text-center text-red-500 p-6">Error loading posts. <button onclick="loadPosts()" class="text-gold underline ml-2">Retry</button></div>';
+        content.innerHTML = '<div class="text-center text-red-500 p-6">Error loading posts: ' + escapeHtml(error.message) + '. <button onclick="loadPosts()" class="text-gold underline ml-2">Retry</button></div>';
       }
     }
 
-    // =====================================================
-    // USERS MANAGEMENT
-    // =====================================================
     async function loadUsers() {
-      const content = document.getElementById('adminContent');
+      var content = document.getElementById('adminContent');
       content.innerHTML = '<div class="flex justify-center items-center h-64"><div class="loader"></div></div>';
-
+      if (!supabaseClient) { showDbError(content, 'Database not connected.'); return; }
       try {
-        const { data: users, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .order('created_at', { ascending: false });
-
+        var { data: users, error } = await supabaseClient.from('profiles').select('*').order('created_at', { ascending: false });
         if (error) throw error;
+        var rowsHtml = '';
+        if (users && users.length > 0) {
+          rowsHtml = users.map(function(user) {
+            return '<tr data-name="' + (user.full_name || '').toLowerCase() + '" data-email="' + (user.email || '').toLowerCase() + '"><td class="flex items-center gap-2"><img src="' + escapeHtml(user.avatar_url || 'https://ui-avatars.com/api/?name=User&background=0A2E73&color=fff') + '" class="w-8 h-8 rounded-full object-cover"><div><div class="font-medium">' + escapeHtml(user.full_name || 'Unknown') + '</div><div class="text-xs text-gray-500">' + escapeHtml(user.email || 'No email') + '</div></div></td><td>' + escapeHtml(user.parish || '-') + '</td><td>' + escapeHtml(user.ayf_position || '-') + '</td><td>' + escapeHtml(user.gender || '-') + '</td><td>' + escapeHtml(user.age_range || '-') + '</td><td><select data-id="' + user.id + '" class="role-select bg-gray-100 dark:bg-gray-700 rounded px-2 py-1 text-xs border-0 focus:ring-2 focus:ring-gold"><option value="member"' + (user.role === 'member' ? ' selected' : '') + '>Member</option><option value="moderator"' + (user.role === 'moderator' ? ' selected' : '') + '>Moderator</option><option value="conference_admin"' + (user.role === 'conference_admin' ? ' selected' : '') + '>Conference Admin</option><option value="archdeaconry_admin"' + (user.role === 'archdeaconry_admin' ? ' selected' : '') + '>Archdeaconry Admin</option><option value="super_admin"' + (user.role === 'super_admin' ? ' selected' : '') + '>Super Admin</option></select></td><td class="text-xs text-gray-500">' + timeAgo(user.created_at) + '</td><td><button data-id="' + user.id + '" class="delete-user-btn bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-sm transition-colors"><i class="fas fa-trash"></i></button></td></tr>';
+          }).join('');
+        } else {
+          rowsHtml = '<tr><td colspan="8" class="text-center p-6 text-gray-500">No users found</td></tr>';
+        }
+        content.innerHTML = '<div class="glass-card p-6 animate-fadeInUp"><div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl font-bold"><i class="fas fa-user-cog text-gold mr-2"></i> Manage Users</h2><div class="relative"><i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i><input type="text" id="searchUser" placeholder="Search users..." class="p-2 pl-10 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all"></div></div><div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr><th>User</th><th>Parish</th><th>Position</th><th>Gender</th><th>Age</th><th>Role</th><th>Joined</th><th>Actions</th></tr></thead><tbody id="userTableBody">' + rowsHtml + '</tbody></table></div></div>';
 
-        content.innerHTML = `
-          <div class="glass-card p-6 animate-fadeInUp">
-            <div class="flex justify-between items-center mb-6 flex-wrap gap-3">
-              <h2 class="text-2xl font-bold"><i class="fas fa-user-cog text-gold mr-2"></i> Manage Users</h2>
-              <div class="relative">
-                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                <input type="text" id="searchUser" placeholder="Search users..." class="p-2 pl-10 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all">
-              </div>
-            </div>
-            <div class="overflow-x-auto">
-              <table class="w-full text-sm">
-                <thead>
-                  <tr>
-                    <th>User</th>
-                    <th>Parish</th>
-                    <th>Position</th>
-                    <th>Gender</th>
-                    <th>Age</th>
-                    <th>Role</th>
-                    <th>Joined</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="userTableBody">
-                  ${users?.map(user => `
-                    <tr data-name="${(user.full_name || '').toLowerCase()}" data-email="${(user.email || '').toLowerCase()}">
-                      <td class="flex items-center gap-2">
-                        <img src="${escapeHtml(user.avatar_url || 'https://ui-avatars.com/api/?name=User&background=0A2E73&color=fff')}" class="w-8 h-8 rounded-full object-cover">
-                        <div>
-                          <div class="font-medium">${escapeHtml(user.full_name || 'Unknown')}</div>
-                          <div class="text-xs text-gray-500">${escapeHtml(user.email || 'No email')}</div>
-                        </div>
-                      </td>
-                      <td>${escapeHtml(user.parish || '-')}</td>
-                      <td>${escapeHtml(user.ayf_position || '-')}</td>
-                      <td>${escapeHtml(user.gender || '-')}</td>
-                      <td>${escapeHtml(user.age_range || '-')}</td>
-                      <td>
-                        <select data-id="${user.id}" class="role-select bg-gray-100 dark:bg-gray-700 rounded px-2 py-1 text-xs border-0 focus:ring-2 focus:ring-gold">
-                          <option value="member" ${user.role === 'member' ? 'selected' : ''}>Member</option>
-                          <option value="moderator" ${user.role === 'moderator' ? 'selected' : ''}>Moderator</option>
-                          <option value="conference_admin" ${user.role === 'conference_admin' ? 'selected' : ''}>Conference Admin</option>
-                          <option value="archdeaconry_admin" ${user.role === 'archdeaconry_admin' ? 'selected' : ''}>Archdeaconry Admin</option>
-                          <option value="super_admin" ${user.role === 'super_admin' ? 'selected' : ''}>Super Admin</option>
-                        </select>
-                      </td>
-                      <td class="text-xs text-gray-500">${timeAgo(user.created_at)}</td>
-                      <td>
-                        <button data-id="${user.id}" class="delete-user-btn bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-sm transition-colors">
-                          <i class="fas fa-trash"></i>
-                        </button>
-                      </td>
-                    </tr>
-                  `).join('') || '<tr><td colspan="8" class="text-center p-6 text-gray-500">No users found</td></tr>'}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        `;
-
-        document.getElementById('searchUser')?.addEventListener('input', debounce((e) => {
-          const term = e.target.value.toLowerCase();
-          document.querySelectorAll('#userTableBody tr').forEach(row => {
-            const name = row.dataset.name || '';
-            const email = row.dataset.email || '';
-            row.style.display = name.includes(term) || email.includes(term) ? '' : 'none';
+        document.getElementById('searchUser') && document.getElementById('searchUser').addEventListener('input', debounce(function(e) {
+          var term = e.target.value.toLowerCase();
+          document.querySelectorAll('#userTableBody tr').forEach(function(row) {
+            var name = row.dataset.name || '';
+            var email = row.dataset.email || '';
+            row.style.display = name.indexOf(term) !== -1 || email.indexOf(term) !== -1 ? '' : 'none';
           });
         }, 300));
-
-        document.querySelectorAll('.role-select').forEach(select => {
-          select.addEventListener('change', async () => {
-            try {
-              await supabase.from('profiles').update({ role: select.value }).eq('id', select.dataset.id);
-              showToast('Role updated!', 'success');
-            } catch (err) {
-              showToast('Failed to update role', 'error');
-            }
+        document.querySelectorAll('.role-select').forEach(function(select) {
+          select.addEventListener('change', async function() {
+            try { await supabaseClient.from('profiles').update({ role: select.value }).eq('id', select.dataset.id); showToast('Role updated!', 'success'); } catch (err) { showToast('Failed to update role', 'error'); }
           });
         });
-
-        document.querySelectorAll('.delete-user-btn').forEach(btn => {
-          btn.addEventListener('click', async () => {
+        document.querySelectorAll('.delete-user-btn').forEach(function(btn) {
+          btn.addEventListener('click', async function() {
             if (!confirm('Delete this user permanently?')) return;
-            try {
-              await supabase.from('profiles').delete().eq('id', btn.dataset.id);
-              showToast('User deleted', 'success');
-              loadUsers();
-            } catch (err) {
-              showToast('Failed to delete', 'error');
-            }
+            try { await supabaseClient.from('profiles').delete().eq('id', btn.dataset.id); showToast('User deleted', 'success'); loadUsers(); } catch (err) { showToast('Failed to delete', 'error'); }
           });
         });
-
       } catch (error) {
         console.error('Users error:', error);
-        content.innerHTML = '<div class="text-center text-red-500 p-6">Error loading users. <button onclick="loadUsers()" class="text-gold underline ml-2">Retry</button></div>';
+        content.innerHTML = '<div class="text-center text-red-500 p-6">Error loading users: ' + escapeHtml(error.message) + '. <button onclick="loadUsers()" class="text-gold underline ml-2">Retry</button></div>';
       }
     }
 
-    // =====================================================
-    // QR CHECK-IN (Fixed: proper cleanup, no camera leaks)
-    // =====================================================
+    // ============================================
+    // FIXED QR SCANNER - Complete rewrite with null safety
+    // ============================================
+    
     async function loadCheckin() {
-      // Stop any existing scanner first
+      // Always ensure scanner is fully stopped before rendering new UI
       await stopScanner();
-
-      const content = document.getElementById('adminContent');
-
-      // Check if Html5Qrcode library is available
-      const hasCamera = typeof Html5Qrcode !== 'undefined';
-
-      content.innerHTML = `
-        <div class="glass-card p-6 animate-fadeInUp">
-          <h2 class="text-2xl font-bold mb-4"><i class="fas fa-qrcode text-gold mr-2"></i> QR Check-in Scanner</h2>
-          <div class="grid md:grid-cols-2 gap-6">
-            <div>
-              ${hasCamera ? `
-                <div id="qr-reader" style="width:100%;max-width:500px;min-height:300px;" class="rounded-xl overflow-hidden bg-black/5"></div>
-              ` : `
-                <div class="rounded-xl overflow-hidden bg-black/5 p-8 text-center">
-                  <i class="fas fa-camera-slash text-4xl text-gray-400 mb-3"></i>
-                  <p class="text-gray-500">Camera access not available</p>
-                  <p class="text-xs text-gray-400 mt-1">Use manual check-in below</p>
-                </div>
-              `}
-              <div id="scan-result" class="mt-4 p-4 rounded-xl text-center hidden"></div>
-              <div class="flex gap-3 mt-4">
-                <button id="startScanBtn" class="btn-royal text-white px-6 py-2 rounded-xl flex-1 hover:scale-105 transition-transform ${!hasCamera ? 'opacity-50 cursor-not-allowed' : ''}" ${!hasCamera ? 'disabled' : ''}>
-                  <i class="fas fa-camera mr-2"></i> Start Scanner
-                </button>
-                <button id="stopScanBtn" class="hidden btn-danger text-white px-6 py-2 rounded-xl flex-1 hover:scale-105 transition-transform">
-                  <i class="fas fa-stop mr-2"></i> Stop Scanner
-                </button>
-              </div>
-            </div>
-            <div>
-              <h3 class="font-bold mb-3"><i class="fas fa-keyboard text-gold mr-2"></i> Manual Check-in</h3>
-              <input type="text" id="manualConferenceId" placeholder="Enter Conference ID (e.g., GAC2026-0001)" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all mb-3">
-              <button id="manualCheckin" class="btn-gold text-white px-4 py-2 rounded-xl w-full hover:scale-105 transition-transform">
-                <i class="fas fa-check mr-2"></i> Manual Check-in
-              </button>
-
-              <h3 class="font-bold mt-6 mb-3"><i class="fas fa-history text-gold mr-2"></i> Recent Check-ins</h3>
-              <div id="recentCheckinsList" class="max-h-64 overflow-y-auto space-y-2 custom-scrollbar">
-                <div class="text-center text-gray-400 py-4"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
+      
+      var content = document.getElementById('adminContent');
+      
+      // Check capabilities
+      var hasCameraLib = typeof window.Html5Qrcode !== 'undefined';
+      var hasGetUserMedia = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+      var isSecureContext = window.isSecureContext;
+      var hasCamera = hasCameraLib && hasGetUserMedia && isSecureContext;
+      
+      content.innerHTML = 
+        '<div class="glass-card p-6 animate-fadeInUp">' +
+          '<h2 class="text-2xl font-bold mb-4"><i class="fas fa-qrcode text-gold mr-2"></i> QR Check-in Scanner</h2>' +
+          '<div class="grid md:grid-cols-2 gap-6">' +
+            '<div>' +
+              '<div id="qr-reader-container" class="rounded-xl overflow-hidden bg-black/5 relative" style="min-height:300px;">' +
+                '<div id="qr-reader" style="width:100%;"></div>' +
+                '<div id="qr-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-gray-400">' +
+                  '<i class="fas fa-camera text-4xl mb-3"></i>' +
+                  '<p>Camera preview will appear here</p>' +
+                  '<p class="text-xs mt-1">Click "Start Scanner" to begin</p>' +
+                '</div>' +
+              '</div>' +
+              '<div id="scan-result" class="mt-4 p-4 rounded-xl text-center hidden"></div>' +
+              '<div class="flex gap-3 mt-4">' +
+                '<button id="startScanBtn" class="btn-royal text-white px-6 py-2 rounded-xl flex-1 hover:scale-105 transition-transform ' + (!hasCamera ? 'opacity-50 cursor-not-allowed' : '') + '"' + (!hasCamera ? ' disabled' : '') + '>' +
+                  '<i class="fas fa-camera mr-2"></i> Start Scanner' +
+                '</button>' +
+                '<button id="stopScanBtn" class="hidden btn-danger text-white px-6 py-2 rounded-xl flex-1 hover:scale-105 transition-transform">' +
+                  '<i class="fas fa-stop mr-2"></i> Stop Scanner' +
+                '</button>' +
+              '</div>' +
+              (!hasCamera ? 
+                '<div class="mt-3 p-3 bg-red-50 dark:bg-red-900/20 rounded-xl text-sm text-red-600">' +
+                  '<i class="fas fa-exclamation-triangle mr-2"></i>' +
+                  '<strong>Camera unavailable:</strong><br>' +
+                  '<span class="text-xs">HTTPS/localhost: ' + (isSecureContext ? '✓' : '✗') + 
+                  ', getUserMedia API: ' + (hasGetUserMedia ? '✓' : '✗') + 
+                  ', QR Library: ' + (hasCameraLib ? '✓' : '✗') + '</span>' +
+                  '<p class="text-xs mt-1">Ensure you are on HTTPS and have granted camera permissions.</p>' +
+                '</div>' : '') +
+            '</div>' +
+            '<div>' +
+              '<h3 class="font-bold mb-3"><i class="fas fa-keyboard text-gold mr-2"></i> Manual Check-in</h3>' +
+              '<input type="text" id="manualConferenceId" placeholder="Enter Conference ID (e.g., GAC2026-0001)" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all mb-3">' +
+              '<button id="manualCheckin" class="btn-gold text-white px-4 py-2 rounded-xl w-full hover:scale-105 transition-transform">' +
+                '<i class="fas fa-check mr-2"></i> Manual Check-in' +
+              '</button>' +
+              '<h3 class="font-bold mt-6 mb-3"><i class="fas fa-history text-gold mr-2"></i> Recent Check-ins</h3>' +
+              '<div id="recentCheckinsList" class="max-h-64 overflow-y-auto space-y-2 custom-scrollbar">' +
+                '<div class="text-center text-gray-400 py-4"><i class="fas fa-spinner fa-spin"></i> Loading...</div>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
 
       await loadRecentCheckins();
 
-      document.getElementById('startScanBtn')?.addEventListener('click', async () => {
-        if (typeof Html5Qrcode === 'undefined') {
-          showToast('Camera library not loaded. Please refresh the page.', 'error');
-          return;
-        }
-        try {
-          if (!html5QrCode) {
-            html5QrCode = new Html5Qrcode('qr-reader');
+      // Bind start button
+      var startBtn = document.getElementById('startScanBtn');
+      if (startBtn) {
+        startBtn.addEventListener('click', async function() {
+          if (typeof window.Html5Qrcode === 'undefined') { 
+            showToast('QR Scanner library not loaded. Please refresh.', 'error'); 
+            return; 
           }
+          await startScanner();
+        });
+      }
 
-          await html5QrCode.start(
-            { facingMode: 'environment' },
-            { fps: 10, qrbox: { width: 250, height: 250 } },
-            async (decodedText) => {
-              // Pause scanning to prevent multiple reads
-              html5QrCode.pause();
-              await processCheckin(decodedText);
-              // Resume after 2 seconds
-              setTimeout(() => { if (html5QrCode) html5QrCode.resume(); }, 2000);
-            },
-            () => {} // Ignore scan errors
-          );
+      // Bind stop button
+      var stopBtn = document.getElementById('stopScanBtn');
+      if (stopBtn) {
+        stopBtn.addEventListener('click', async function() { 
+          await stopScanner(); 
+        });
+      }
 
-          isScannerRunning = true;
-          document.getElementById('startScanBtn').classList.add('hidden');
-          document.getElementById('stopScanBtn').classList.remove('hidden');
-          showToast('Scanner started', 'info');
-        } catch (err) {
-          showToast('Failed to start camera: ' + err.message, 'error');
+      // Bind manual check-in
+      var manualBtn = document.getElementById('manualCheckin');
+      if (manualBtn) {
+        manualBtn.addEventListener('click', async function() {
+          var conferenceId = document.getElementById('manualConferenceId').value.trim();
+          if (!conferenceId) { 
+            showToast('Enter a Conference ID', 'warning'); 
+            return; 
+          }
+          await processCheckin(conferenceId);
+          document.getElementById('manualConferenceId').value = '';
+        });
+      }
+    }
+
+    async function startScanner() {
+      var startBtn = document.getElementById('startScanBtn');
+      var stopBtn = document.getElementById('stopScanBtn');
+      var placeholder = document.getElementById('qr-placeholder');
+      
+      try {
+        // Hide placeholder
+        if (placeholder) placeholder.style.display = 'none';
+        
+        // If scanner exists but was stopped, clear it first
+        if (html5QrCode) {
+          try { await html5QrCode.clear(); } catch(e) {}
+          html5QrCode = null;
         }
-      });
-
-      document.getElementById('stopScanBtn')?.addEventListener('click', async () => {
-        await stopScanner();
-      });
-
-      document.getElementById('manualCheckin')?.addEventListener('click', async () => {
-        const conferenceId = document.getElementById('manualConferenceId').value.trim();
-        if (!conferenceId) {
-          showToast('Enter a Conference ID', 'warning');
-          return;
+        
+        // Create fresh instance
+        html5QrCode = new window.Html5Qrcode('qr-reader');
+        
+        // Try to get cameras and select back camera
+        var cameras = [];
+        try {
+          cameras = await window.Html5Qrcode.getCameras();
+        } catch(e) {
+          console.log('getCameras failed, trying default:', e.message);
         }
-        await processCheckin(conferenceId);
-        document.getElementById('manualConferenceId').value = '';
-      });
+        
+        var cameraConfig = { facingMode: 'environment' };
+        
+        // If we got cameras, try to find back camera
+        if (cameras && cameras.length > 0) {
+          var backCamera = cameras.find(function(c) { 
+            return c.label && (c.label.toLowerCase().indexOf('back') !== -1 || c.label.toLowerCase().indexOf('rear') !== -1 || c.label.toLowerCase().indexOf('environment') !== -1); 
+          });
+          if (backCamera) {
+            cameraConfig = backCamera.id;
+            scannerCameraId = backCamera.id;
+          } else {
+            cameraConfig = cameras[0].id;
+            scannerCameraId = cameras[0].id;
+          }
+        }
+        
+        var qrConfig = { 
+          fps: 10, 
+          qrbox: { width: 250, height: 250 },
+          aspectRatio: 1.0
+        };
+        
+        await html5QrCode.start(
+          cameraConfig, 
+          qrConfig, 
+          async function(decodedText) {
+            // Pause to prevent multiple scans
+            try { html5QrCode.pause(); } catch(e) {}
+            
+            // Show scanning feedback
+            showToast('QR detected: ' + decodedText.substring(0, 20) + '...', 'info', 2000);
+            
+            // Process the check-in
+            await processCheckin(decodedText);
+            
+            // Resume after delay
+            setTimeout(function() { 
+              if (html5QrCode && isScannerRunning) {
+                try { html5QrCode.resume(); } catch(e) {}
+              }
+            }, 2500);
+          }, 
+          function(errorMessage) {
+            // QR code scan error - this fires constantly when no QR is in view, ignore silently
+            // console.log('QR scan error:', errorMessage);
+          }
+        );
+        
+        isScannerRunning = true;
+        
+        if (startBtn) {
+          startBtn.classList.add('hidden');
+          startBtn.disabled = true;
+        }
+        if (stopBtn) {
+          stopBtn.classList.remove('hidden');
+          stopBtn.disabled = false;
+        }
+        
+        showToast('Scanner started - point camera at QR code', 'success');
+        
+      } catch (err) {
+        console.error('Scanner start error:', err);
+        showToast('Failed to start camera: ' + err.message, 'error');
+        
+        // Reset UI
+        if (startBtn) {
+          startBtn.classList.remove('hidden');
+          startBtn.disabled = false;
+        }
+        if (stopBtn) stopBtn.classList.add('hidden');
+        if (placeholder) placeholder.style.display = 'flex';
+        
+        // Clean up failed instance
+        if (html5QrCode) {
+          try { await html5QrCode.clear(); } catch(e) {}
+          html5QrCode = null;
+        }
+      }
     }
 
     async function stopScanner() {
-      if (html5QrCode && isScannerRunning) {
-        try {
-          await html5QrCode.stop();
-        } catch (e) {
-          console.log('Scanner stop error:', e.message);
+      isScannerRunning = false;
+      
+      var startBtn = document.getElementById('startScanBtn');
+      var stopBtn = document.getElementById('stopScanBtn');
+      var placeholder = document.getElementById('qr-placeholder');
+      
+      if (html5QrCode) {
+        try { 
+          await html5QrCode.stop(); 
+        } catch (e) { 
+          console.log('Scanner stop error (safe to ignore):', e.message); 
         }
-        try {
-          await html5QrCode.clear();
-        } catch (e) {
-          console.log('Scanner clear error:', e.message);
+        try { 
+          await html5QrCode.clear(); 
+        } catch (e) { 
+          console.log('Scanner clear error (safe to ignore):', e.message); 
         }
         html5QrCode = null;
-        isScannerRunning = false;
       }
-
-      const startBtn = document.getElementById('startScanBtn');
-      const stopBtn = document.getElementById('stopScanBtn');
+      
       if (startBtn) {
         startBtn.classList.remove('hidden');
         startBtn.disabled = false;
       }
-      if (stopBtn) stopBtn.classList.add('hidden');
+      if (stopBtn) {
+        stopBtn.classList.add('hidden');
+      }
+      if (placeholder) {
+        placeholder.style.display = 'flex';
+      }
     }
 
     async function processCheckin(conferenceId) {
-      const resultDiv = document.getElementById('scan-result');
-      if (resultDiv) {
-        resultDiv.classList.remove('hidden');
-        resultDiv.innerHTML = '<div class="text-gold"><i class="fas fa-spinner fa-spin mr-2"></i> Processing...</div>';
+      var resultDiv = document.getElementById('scan-result');
+      if (resultDiv) { 
+        resultDiv.classList.remove('hidden'); 
+        resultDiv.className = 'mt-4 p-4 rounded-xl text-center bg-blue-50 text-blue-700'; 
+        resultDiv.innerHTML = '<div class="text-gold"><i class="fas fa-spinner fa-spin mr-2"></i> Processing ' + escapeHtml(conferenceId.substring(0, 30)) + '...</div>'; 
       }
-
+      
       try {
-        const { data: reg, error } = await supabase
-          .from('registrations')
+        var { data: reg, error } = await supabaseClient.from('registrations')
           .select('user_id, status, profiles(full_name, parish)')
           .eq('conference_id', conferenceId)
           .single();
-
+          
         if (error || !reg) {
-          if (resultDiv) {
-            resultDiv.className = 'mt-4 p-4 rounded-xl text-center bg-red-100 text-red-700';
-            resultDiv.innerHTML = '<i class="fas fa-times-circle text-2xl mb-1 block"></i> Invalid QR Code!<br><span class="text-sm">No registration found for ' + escapeHtml(conferenceId) + '</span>';
+          if (resultDiv) { 
+            resultDiv.className = 'mt-4 p-4 rounded-xl text-center bg-red-100 text-red-700'; 
+            resultDiv.innerHTML = '<i class="fas fa-times-circle text-2xl mb-1 block"></i> Invalid QR Code!<br><span class="text-sm">No registration found for ' + escapeHtml(conferenceId) + '</span>'; 
           }
           showToast('Invalid QR Code!', 'error');
           return;
         }
-
+        
         if (reg.status !== 'approved') {
-          if (resultDiv) {
-            resultDiv.className = 'mt-4 p-4 rounded-xl text-center bg-yellow-100 text-yellow-700';
-            resultDiv.innerHTML = '<i class="fas fa-exclamation-triangle text-2xl mb-1 block"></i> Not Approved<br><span class="text-sm">' + escapeHtml(reg.profiles?.full_name || 'User') + ' - Registration pending approval</span>';
+          if (resultDiv) { 
+            resultDiv.className = 'mt-4 p-4 rounded-xl text-center bg-yellow-100 text-yellow-700'; 
+            resultDiv.innerHTML = '<i class="fas fa-exclamation-triangle text-2xl mb-1 block"></i> Not Approved<br><span class="text-sm">' + escapeHtml(reg.profiles && reg.profiles.full_name || 'User') + ' - Registration pending approval</span>'; 
           }
           showToast('Registration not approved yet', 'warning');
           return;
         }
-
-        // Check if already checked in today
-        const today = new Date().toISOString().split('T')[0];
-        const { data: existing } = await supabase
-          .from('attendance_logs')
+        
+        var today = new Date().toISOString().split('T')[0];
+        var { data: existing } = await supabaseClient.from('attendance_logs')
           .select('*')
           .eq('user_id', reg.user_id)
           .gte('check_in_time', today)
           .maybeSingle();
-
+          
         if (existing) {
-          if (resultDiv) {
-            resultDiv.className = 'mt-4 p-4 rounded-xl text-center bg-blue-100 text-blue-700';
-            resultDiv.innerHTML = '<i class="fas fa-info-circle text-2xl mb-1 block"></i> Already Checked In<br><span class="text-sm">' + escapeHtml(reg.profiles?.full_name || 'User') + ' checked in earlier today</span>';
+          if (resultDiv) { 
+            resultDiv.className = 'mt-4 p-4 rounded-xl text-center bg-blue-100 text-blue-700'; 
+            resultDiv.innerHTML = '<i class="fas fa-info-circle text-2xl mb-1 block"></i> Already Checked In<br><span class="text-sm">' + escapeHtml(reg.profiles && reg.profiles.full_name || 'User') + ' checked in earlier today</span>'; 
           }
           showToast('Already checked in today!', 'info');
           return;
         }
-
-        // Record attendance
-        await supabase.from('attendance_logs').insert([{
-          user_id: reg.user_id,
-          conference_id: conferenceId,
-          checked_by: currentUser.id,
-          session_date: today
+        
+        await supabaseClient.from('attendance_logs').insert([{ 
+          user_id: reg.user_id, 
+          conference_id: conferenceId, 
+          checked_by: currentUser ? currentUser.id : null, 
+          session_date: today 
         }]);
-
-        await supabase.rpc('increment_checkins', { conf_id: conferenceId });
-
-        if (resultDiv) {
-          resultDiv.className = 'mt-4 p-4 rounded-xl text-center bg-green-100 text-green-700';
-          resultDiv.innerHTML = `
-            <i class="fas fa-check-circle text-2xl mb-1 block"></i> 
-            <b>${escapeHtml(reg.profiles?.full_name || 'User')}</b> checked in!<br>
-            <span class="text-sm">${escapeHtml(reg.profiles?.parish || '')} | ID: ${conferenceId}</span>
-          `;
+        
+        try { 
+          await supabaseClient.rpc('increment_checkins', { conf_id: conferenceId }); 
+        } catch(e) { 
+          console.log('RPC increment_checkins not available:', e.message); 
         }
-
-        showToast(`${reg.profiles?.full_name || 'User'} checked in!`, 'success');
+        
+        if (resultDiv) { 
+          resultDiv.className = 'mt-4 p-4 rounded-xl text-center bg-green-100 text-green-700'; 
+          resultDiv.innerHTML = '<i class="fas fa-check-circle text-2xl mb-1 block"></i> <b>' + escapeHtml(reg.profiles && reg.profiles.full_name || 'User') + '</b> checked in!<br><span class="text-sm">' + escapeHtml(reg.profiles && reg.profiles.parish || '') + ' | ID: ' + conferenceId + '</span>'; 
+        }
+        showToast((reg.profiles && reg.profiles.full_name || 'User') + ' checked in!', 'success');
         await loadRecentCheckins();
-
+        
       } catch (err) {
-        if (resultDiv) {
-          resultDiv.className = 'mt-4 p-4 rounded-xl text-center bg-red-100 text-red-700';
-          resultDiv.innerHTML = '<i class="fas fa-times-circle text-2xl mb-1 block"></i> Error<br><span class="text-sm">' + escapeHtml(err.message) + '</span>';
+        console.error('Check-in error:', err);
+        if (resultDiv) { 
+          resultDiv.className = 'mt-4 p-4 rounded-xl text-center bg-red-100 text-red-700'; 
+          resultDiv.innerHTML = '<i class="fas fa-times-circle text-2xl mb-1 block"></i> Error<br><span class="text-sm">' + escapeHtml(err.message) + '</span>'; 
         }
         showToast('Check-in error: ' + err.message, 'error');
       }
@@ -1298,631 +852,299 @@
 
     async function loadRecentCheckins() {
       try {
-        const { data: checkins } = await supabase
-          .from('attendance_logs')
+        var { data: checkins } = await supabaseClient.from('attendance_logs')
           .select('*, profiles(full_name, parish)')
           .order('check_in_time', { ascending: false })
           .limit(20);
-
-        const container = document.getElementById('recentCheckinsList');
+        var container = document.getElementById('recentCheckinsList');
         if (container) {
-          container.innerHTML = checkins?.map(c => `
-            <div class="flex justify-between items-center p-3 bg-gold/10 rounded-xl animate-slideInRight">
-              <div>
-                <div class="font-medium">${escapeHtml(c.profiles?.full_name || 'Unknown')}</div>
-                <div class="text-xs text-gray-500">${escapeHtml(c.profiles?.parish || 'No parish')}</div>
-              </div>
-              <div class="text-xs text-gold font-mono">${timeAgo(c.check_in_time)}</div>
-            </div>
-          `).join('') || '<p class="text-gray-500 text-center py-4">No check-ins yet</p>';
+          container.innerHTML = checkins ? checkins.map(function(c) {
+            return '<div class="flex justify-between items-center p-3 bg-gold/10 rounded-xl animate-slideInRight"><div><div class="font-medium">' + escapeHtml(c.profiles && c.profiles.full_name || 'Unknown') + '</div><div class="text-xs text-gray-500">' + escapeHtml(c.profiles && c.profiles.parish || 'No parish') + '</div></div><div class="text-xs text-gold font-mono">' + timeAgo(c.check_in_time) + '</div></div>';
+          }).join('') : '<p class="text-gray-500 text-center py-4">No check-ins yet</p>';
         }
-      } catch (err) {
-        console.error('Recent checkins error:', err);
+      } catch (err) { 
+        console.error('Recent checkins error:', err); 
       }
     }
 
-    // =====================================================
-    // DOCUMENTS MANAGEMENT
-    // =====================================================
-    async function loadDocuments() {
-      const content = document.getElementById('adminContent');
+        async function loadDocuments() {
+      var content = document.getElementById('adminContent');
       content.innerHTML = '<div class="flex justify-center items-center h-64"><div class="loader"></div></div>';
-
+      if (!supabaseClient) { showDbError(content, 'Database not connected.'); return; }
       try {
-        const { data: docs, error } = await supabase
-          .from('documents')
-          .select('*')
-          .order('created_at', { ascending: false });
-
+        var { data: docs, error } = await supabaseClient.from('documents').select('*').order('created_at', { ascending: false });
         if (error) throw error;
+        var docsHtml = '';
+        if (docs && docs.length > 0) {
+          docsHtml = docs.map(function(doc) {
+            var iconClass = doc.file_type === 'pdf' ? 'fa-file-pdf text-red-500' : doc.file_type === 'docx' ? 'fa-file-word text-blue-500' : doc.file_type === 'image' ? 'fa-file-image text-green-500' : doc.file_type === 'video' ? 'fa-file-video text-purple-500' : 'fa-file-alt text-gray-500';
+            return '<div class="glass-card p-4 animate-fadeInUp hover:shadow-lg transition-all"><div class="flex items-start gap-3"><div class="text-3xl flex-shrink-0"><i class="fas ' + iconClass + '"></i></div><div class="flex-1 min-w-0"><h3 class="font-bold truncate">' + escapeHtml(doc.title) + '</h3><p class="text-xs text-gray-500 line-clamp-2">' + escapeHtml(doc.description || '') + '</p><div class="flex gap-3 mt-2 text-xs text-gray-400"><span><i class="far fa-eye"></i> ' + (doc.views || 0) + '</span><span><i class="fas fa-download"></i> ' + (doc.downloads || 0) + '</span></div></div><button data-id="' + doc.id + '" class="delete-doc-btn text-red-500 hover:text-red-700 transition-colors flex-shrink-0" title="Delete"><i class="fas fa-trash"></i></button></div></div>';
+          }).join('');
+        } else {
+          docsHtml = '<div class="col-span-3 text-center text-gray-500 py-8">No documents uploaded yet</div>';
+        }
+        content.innerHTML = '<div class="glass-card p-6 animate-fadeInUp"><div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl font-bold"><i class="fas fa-folder-open text-gold mr-2"></i> Documents</h2><button id="showUploadModal" class="btn-gold text-white px-4 py-2 rounded-xl hover:scale-105 transition-transform flex items-center gap-2"><i class="fas fa-upload"></i> Upload Document</button></div><div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">' + docsHtml + '</div></div><div id="uploadModal" class="modal-backdrop hidden"><div class="modal-content glass-card p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"><div class="flex justify-between items-center mb-4"><h3 class="text-xl font-bold"><i class="fas fa-upload text-gold mr-2"></i> Upload Document</h3><button id="closeUploadModal" class="text-gray-500 hover:text-gold text-2xl">&times;</button></div><div class="space-y-4"><div><label class="block text-sm font-medium mb-1">Title *</label><input type="text" id="docTitle" placeholder="Document title" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all"></div><div><label class="block text-sm font-medium mb-1">Description</label><textarea id="docDesc" rows="3" placeholder="Brief description..." class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all resize-none"></textarea></div><div><label class="block text-sm font-medium mb-1">File Type</label><select id="docType" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all"><option value="pdf">PDF</option><option value="docx">Word Document</option><option value="image">Image</option><option value="video">Video</option></select></div><div><label class="block text-sm font-medium mb-1">Category</label><input type="text" id="docCategory" placeholder="e.g., Sermon, Study Material" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all"></div><div><label class="block text-sm font-medium mb-1">File URL *</label><input type="url" id="docUrl" placeholder="https://..." class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all"><p class="text-xs text-gray-500 mt-1">Upload to Supabase Storage first, then paste the URL here</p></div><button id="uploadDocBtn" class="btn-gold text-white py-3 rounded-xl w-full font-bold hover:scale-105 transition-transform flex items-center justify-center gap-2"><span>Upload Document</span><i class="fas fa-spinner fa-spin hidden" id="docUploadSpinner"></i></button></div></div></div>';
 
-        content.innerHTML = `
-          <div class="glass-card p-6 animate-fadeInUp">
-            <div class="flex justify-between items-center mb-6 flex-wrap gap-3">
-              <h2 class="text-2xl font-bold"><i class="fas fa-folder-open text-gold mr-2"></i> Documents</h2>
-              <button id="showUploadModal" class="btn-gold text-white px-4 py-2 rounded-xl hover:scale-105 transition-transform flex items-center gap-2">
-                <i class="fas fa-upload"></i> Upload Document
-              </button>
-            </div>
-            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              ${docs?.map(doc => `
-                <div class="glass-card p-4 animate-fadeInUp hover:shadow-lg transition-all">
-                  <div class="flex items-start gap-3">
-                    <div class="text-3xl flex-shrink-0">
-                      <i class="fas ${doc.file_type === 'pdf' ? 'fa-file-pdf text-red-500' : doc.file_type === 'docx' ? 'fa-file-word text-blue-500' : doc.file_type === 'image' ? 'fa-file-image text-green-500' : doc.file_type === 'video' ? 'fa-file-video text-purple-500' : 'fa-file-alt text-gray-500'}"></i>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <h3 class="font-bold truncate">${escapeHtml(doc.title)}</h3>
-                      <p class="text-xs text-gray-500 line-clamp-2">${escapeHtml(doc.description || '')}</p>
-                      <div class="flex gap-3 mt-2 text-xs text-gray-400">
-                        <span><i class="far fa-eye"></i> ${doc.views || 0}</span>
-                        <span><i class="fas fa-download"></i> ${doc.downloads || 0}</span>
-                      </div>
-                    </div>
-                    <button data-id="${doc.id}" class="delete-doc-btn text-red-500 hover:text-red-700 transition-colors flex-shrink-0" title="Delete">
-                      <i class="fas fa-trash"></i>
-                    </button>
-                  </div>
-                </div>
-              `).join('') || '<div class="col-span-3 text-center text-gray-500 py-8">No documents uploaded yet</div>'}
-            </div>
-          </div>
-
-          <!-- Upload Modal -->
-          <div id="uploadModal" class="modal-backdrop hidden">
-            <div class="modal-content glass-card p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-              <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold"><i class="fas fa-upload text-gold mr-2"></i> Upload Document</h3>
-                <button id="closeUploadModal" class="text-gray-500 hover:text-gold text-2xl">&times;</button>
-              </div>
-              <div class="space-y-4">
-                <div>
-                  <label class="block text-sm font-medium mb-1">Title *</label>
-                  <input type="text" id="docTitle" placeholder="Document title" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all">
-                </div>
-                <div>
-                  <label class="block text-sm font-medium mb-1">Description</label>
-                  <textarea id="docDesc" rows="3" placeholder="Brief description..." class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all resize-none"></textarea>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium mb-1">File Type</label>
-                  <select id="docType" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all">
-                    <option value="pdf">PDF</option>
-                    <option value="docx">Word Document</option>
-                    <option value="image">Image</option>
-                    <option value="video">Video</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium mb-1">Category</label>
-                  <input type="text" id="docCategory" placeholder="e.g., Sermon, Study Material" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all">
-                </div>
-                <div>
-                  <label class="block text-sm font-medium mb-1">File URL *</label>
-                  <input type="url" id="docUrl" placeholder="https://..." class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all">
-                  <p class="text-xs text-gray-500 mt-1">Upload to Supabase Storage first, then paste the URL here</p>
-                </div>
-                <button id="uploadDocBtn" class="btn-gold text-white py-3 rounded-xl w-full font-bold hover:scale-105 transition-transform flex items-center justify-center gap-2">
-                  <span>Upload Document</span>
-                  <i class="fas fa-spinner fa-spin hidden" id="docUploadSpinner"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-        `;
-
-        document.getElementById('showUploadModal')?.addEventListener('click', () => {
-          const modal = document.getElementById('uploadModal');
+        document.getElementById('showUploadModal') && document.getElementById('showUploadModal').addEventListener('click', function() {
+          var modal = document.getElementById('uploadModal');
           modal.classList.remove('hidden');
-          requestAnimationFrame(() => modal.classList.add('open'));
+          requestAnimationFrame(function() { modal.classList.add('open'); });
         });
-
-        document.getElementById('closeUploadModal')?.addEventListener('click', () => {
-          const modal = document.getElementById('uploadModal');
+        document.getElementById('closeUploadModal') && document.getElementById('closeUploadModal').addEventListener('click', function() {
+          var modal = document.getElementById('uploadModal');
           modal.classList.remove('open');
-          setTimeout(() => modal.classList.add('hidden'), 300);
+          setTimeout(function() { modal.classList.add('hidden'); }, 300);
         });
-
-        document.getElementById('uploadDocBtn')?.addEventListener('click', async () => {
-          const title = document.getElementById('docTitle').value.trim();
-          const url = document.getElementById('docUrl').value.trim();
-
-          if (!title || !url) {
-            showToast('Title and URL are required', 'warning');
-            return;
-          }
-
-          const btn = document.getElementById('uploadDocBtn');
-          const spinner = document.getElementById('docUploadSpinner');
+        document.getElementById('uploadDocBtn') && document.getElementById('uploadDocBtn').addEventListener('click', async function() {
+          var title = document.getElementById('docTitle').value.trim();
+          var url = document.getElementById('docUrl').value.trim();
+          if (!title || !url) { showToast('Title and URL are required', 'warning'); return; }
+          var btn = document.getElementById('uploadDocBtn');
+          var spinner = document.getElementById('docUploadSpinner');
           btn.disabled = true;
           spinner.classList.remove('hidden');
-
           try {
-            await supabase.from('documents').insert([{
-              title: title,
-              description: document.getElementById('docDesc').value,
-              file_type: document.getElementById('docType').value,
-              file_url: url,
-              category: document.getElementById('docCategory').value,
-              uploaded_by: currentUser.id
-            }]);
-
+            await supabaseClient.from('documents').insert([{ title: title, description: document.getElementById('docDesc').value, file_type: document.getElementById('docType').value, file_url: url, category: document.getElementById('docCategory').value, uploaded_by: currentUser.id }]);
             showToast('Document uploaded!', 'success');
-            const modal = document.getElementById('uploadModal');
+            var modal = document.getElementById('uploadModal');
             modal.classList.remove('open');
-            setTimeout(() => {
-              modal.classList.add('hidden');
-              document.getElementById('docTitle').value = '';
-              document.getElementById('docDesc').value = '';
-              document.getElementById('docUrl').value = '';
-              document.getElementById('docCategory').value = '';
-            }, 300);
-
+            setTimeout(function() { modal.classList.add('hidden'); document.getElementById('docTitle').value = ''; document.getElementById('docDesc').value = ''; document.getElementById('docUrl').value = ''; document.getElementById('docCategory').value = ''; }, 300);
             loadDocuments();
-          } catch (err) {
-            showToast('Upload failed: ' + err.message, 'error');
-          } finally {
-            btn.disabled = false;
-            spinner.classList.add('hidden');
-          }
+          } catch (err) { showToast('Upload failed: ' + err.message, 'error'); }
+          finally { btn.disabled = false; spinner.classList.add('hidden'); }
         });
-
-        document.querySelectorAll('.delete-doc-btn').forEach(btn => {
-          btn.addEventListener('click', async () => {
+        document.querySelectorAll('.delete-doc-btn').forEach(function(btn) {
+          btn.addEventListener('click', async function() {
             if (!confirm('Delete this document?')) return;
-            try {
-              await supabase.from('documents').delete().eq('id', btn.dataset.id);
-              showToast('Document deleted', 'success');
-              loadDocuments();
-            } catch (err) {
-              showToast('Failed to delete', 'error');
-            }
+            try { await supabaseClient.from('documents').delete().eq('id', btn.dataset.id); showToast('Document deleted', 'success'); loadDocuments(); } catch (err) { showToast('Failed to delete', 'error'); }
           });
         });
-
       } catch (error) {
         console.error('Documents error:', error);
-        content.innerHTML = '<div class="text-center text-red-500 p-6">Error loading documents. <button onclick="loadDocuments()" class="text-gold underline ml-2">Retry</button></div>';
+        content.innerHTML = '<div class="text-center text-red-500 p-6">Error loading documents: ' + escapeHtml(error.message) + '. <button onclick="loadDocuments()" class="text-gold underline ml-2">Retry</button></div>';
       }
     }
 
-    // =====================================================
-    // SPEAKERS MANAGEMENT
-    // =====================================================
     async function loadSpeakers() {
-      const content = document.getElementById('adminContent');
+      var content = document.getElementById('adminContent');
       content.innerHTML = '<div class="flex justify-center items-center h-64"><div class="loader"></div></div>';
-
+      if (!supabaseClient) { showDbError(content, 'Database not connected.'); return; }
       try {
-        const { data: speakers } = await supabase.from('speakers').select('*');
+        var { data: speakers } = await supabaseClient.from('speakers').select('*');
+        var youthPres = speakers && speakers.find(function(s) { return s.position === 'Youth President'; });
+        var genSec = speakers && speakers.find(function(s) { return s.position === 'General Secretary'; });
+        var vp = speakers && speakers.find(function(s) { return s.position === 'Vice President'; });
+        content.innerHTML = '<div class="glass-card p-6 animate-fadeInUp"><h2 class="text-2xl font-bold mb-6"><i class="fas fa-microphone-alt text-gold mr-2"></i> Manage Speakers</h2><div class="max-w-lg mx-auto space-y-4"><div class="glass-card p-5 animate-fadeInUp"><label class="block text-sm font-medium mb-2 text-gold">Youth President</label><input type="text" id="speakerYouthPresident" value="' + escapeHtml(youthPres && youthPres.name || 'Sis. Blessing Ifemenam') + '" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all"></div><div class="glass-card p-5 animate-fadeInUp" style="animation-delay:0.05s"><label class="block text-sm font-medium mb-2 text-gold">General Secretary</label><input type="text" id="speakerGenSec" value="' + escapeHtml(genSec && genSec.name || 'Bro. Simi') + '" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all"></div><div class="glass-card p-5 animate-fadeInUp" style="animation-delay:0.1s"><label class="block text-sm font-medium mb-2 text-gold">Vice President</label><input type="text" id="speakerVP" value="' + escapeHtml(vp && vp.name || 'Bro. Avan') + '" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all"></div><button id="saveSpeakers" class="btn-gold text-white py-3 rounded-xl font-bold w-full hover:scale-105 transition-transform flex items-center justify-center gap-2"><i class="fas fa-save"></i> Save Speakers</button></div></div>';
 
-        content.innerHTML = `
-          <div class="glass-card p-6 animate-fadeInUp">
-            <h2 class="text-2xl font-bold mb-6"><i class="fas fa-microphone-alt text-gold mr-2"></i> Manage Speakers</h2>
-            <div class="max-w-lg mx-auto space-y-4">
-              <div class="glass-card p-5 animate-fadeInUp" style="animation-delay:0.1s">
-                <label class="block text-sm font-medium mb-2 text-gold">Youth President</label>
-                <input type="text" id="speakerYouthPresident" value="${escapeHtml(speakers?.find(s => s.position === 'Youth President')?.name || 'Sis. Blessing Ifemenam')}" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all">
-              </div>
-              <div class="glass-card p-5 animate-fadeInUp" style="animation-delay:0.15s">
-                <label class="block text-sm font-medium mb-2 text-gold">General Secretary</label>
-                <input type="text" id="speakerGenSec" value="${escapeHtml(speakers?.find(s => s.position === 'General Secretary')?.name || 'Bro. Simi')}" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all">
-              </div>
-              <div class="glass-card p-5 animate-fadeInUp" style="animation-delay:0.2s">
-                <label class="block text-sm font-medium mb-2 text-gold">Vice President</label>
-                <input type="text" id="speakerVP" value="${escapeHtml(speakers?.find(s => s.position === 'Vice President')?.name || 'Bro. Avan')}" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all">
-              </div>
-              <button id="saveSpeakers" class="btn-gold text-white py-3 rounded-xl font-bold w-full hover:scale-105 transition-transform flex items-center justify-center gap-2">
-                <i class="fas fa-save"></i> Save Speakers
-              </button>
-            </div>
-          </div>
-        `;
-
-        document.getElementById('saveSpeakers')?.addEventListener('click', async () => {
-          const updates = [
+        document.getElementById('saveSpeakers') && document.getElementById('saveSpeakers').addEventListener('click', async function() {
+          var updates = [
             { position: 'Youth President', name: document.getElementById('speakerYouthPresident').value.trim() },
             { position: 'General Secretary', name: document.getElementById('speakerGenSec').value.trim() },
             { position: 'Vice President', name: document.getElementById('speakerVP').value.trim() }
           ];
-
           try {
-            for (const update of updates) {
+            for (var i = 0; i < updates.length; i++) {
+              var update = updates[i];
               if (!update.name) continue;
-              const existing = speakers?.find(s => s.position === update.position);
-              if (existing) {
-                await supabase.from('speakers').update({ name: update.name }).eq('id', existing.id);
-              } else {
-                await supabase.from('speakers').insert([{ position: update.position, name: update.name }]);
-              }
+              var existing = speakers && speakers.find(function(s) { return s.position === update.position; });
+              if (existing) { await supabaseClient.from('speakers').update({ name: update.name }).eq('id', existing.id); }
+              else { await supabaseClient.from('speakers').insert([{ position: update.position, name: update.name }]); }
             }
             showToast('Speakers saved!', 'success');
-          } catch (err) {
-            showToast('Failed to save: ' + err.message, 'error');
-          }
+          } catch (err) { showToast('Failed to save: ' + err.message, 'error'); }
         });
-
       } catch (error) {
         console.error('Speakers error:', error);
-        content.innerHTML = '<div class="text-center text-red-500 p-6">Error loading speakers. <button onclick="loadSpeakers()" class="text-gold underline ml-2">Retry</button></div>';
+        content.innerHTML = '<div class="text-center text-red-500 p-6">Error loading speakers: ' + escapeHtml(error.message) + '. <button onclick="loadSpeakers()" class="text-gold underline ml-2">Retry</button></div>';
       }
     }
 
-    // =====================================================
-    // SEND NOTIFICATIONS
-    // =====================================================
     async function loadNotificationsTab() {
-      const content = document.getElementById('adminContent');
+      var content = document.getElementById('adminContent');
       content.innerHTML = '<div class="flex justify-center items-center h-64"><div class="loader"></div></div>';
-
+      if (!supabaseClient) { showDbError(content, 'Database not connected.'); return; }
       try {
-        const { data: users } = await supabase.from('profiles').select('id, full_name, email').order('full_name');
+        var { data: users } = await supabaseClient.from('profiles').select('id, full_name, email').order('full_name');
+        var userOptions = '';
+        if (users && users.length > 0) {
+          userOptions = users.map(function(u) { return '<option value="' + u.id + '">' + escapeHtml(u.full_name) + ' (' + escapeHtml(u.email || '') + ')</option>'; }).join('');
+        }
+        content.innerHTML = '<div class="glass-card p-6 animate-fadeInUp"><h2 class="text-2xl font-bold mb-6"><i class="fas fa-bell text-gold mr-2"></i> Send Notification</h2><div class="max-w-lg mx-auto space-y-4"><div><label class="block text-sm font-medium mb-1">Send To</label><select id="notificationRecipient" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all"><option value="all">All Users (' + (users ? users.length : 0) + ')</option><option value="registered">Registered Users Only</option><option value="approved">Approved Registrations Only</option>' + userOptions + '</select></div><div><label class="block text-sm font-medium mb-1">Notification Type</label><select id="notificationType" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all"><option value="info">Info</option><option value="success">Success</option><option value="warning">Warning</option><option value="announcement">Announcement</option></select></div><div><label class="block text-sm font-medium mb-1">Title *</label><input type="text" id="notificationTitle" placeholder="Notification title" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all"></div><div><label class="block text-sm font-medium mb-1">Message *</label><textarea id="notificationMessage" rows="4" placeholder="Write your message..." class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all resize-none"></textarea></div><button id="sendNotificationBtn" class="btn-gold text-white py-3 rounded-xl font-bold w-full hover:scale-105 transition-transform flex items-center justify-center gap-2"><i class="fas fa-paper-plane"></i><span>Send Notification</span><i class="fas fa-spinner fa-spin hidden" id="notifSpinner"></i></button></div></div>';
 
-        content.innerHTML = `
-          <div class="glass-card p-6 animate-fadeInUp">
-            <h2 class="text-2xl font-bold mb-6"><i class="fas fa-bell text-gold mr-2"></i> Send Notification</h2>
-            <div class="max-w-lg mx-auto space-y-4">
-              <div>
-                <label class="block text-sm font-medium mb-1">Send To</label>
-                <select id="notificationRecipient" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all">
-                  <option value="all">All Users (${users?.length || 0})</option>
-                  <option value="registered">Registered Users Only</option>
-                  <option value="approved">Approved Registrations Only</option>
-                  ${users?.map(u => `<option value="${u.id}">${escapeHtml(u.full_name)} (${escapeHtml(u.email || '')})</option>`).join('')}
-                </select>
-              </div>
-              <div>
-                <label class="block text-sm font-medium mb-1">Notification Type</label>
-                <select id="notificationType" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all">
-                  <option value="info">Info</option>
-                  <option value="success">Success</option>
-                  <option value="warning">Warning</option>
-                  <option value="announcement">Announcement</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-sm font-medium mb-1">Title *</label>
-                <input type="text" id="notificationTitle" placeholder="Notification title" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all">
-              </div>
-              <div>
-                <label class="block text-sm font-medium mb-1">Message *</label>
-                <textarea id="notificationMessage" rows="4" placeholder="Write your message..." class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all resize-none"></textarea>
-              </div>
-              <button id="sendNotificationBtn" class="btn-gold text-white py-3 rounded-xl font-bold w-full hover:scale-105 transition-transform flex items-center justify-center gap-2">
-                <i class="fas fa-paper-plane"></i>
-                <span>Send Notification</span>
-                <i class="fas fa-spinner fa-spin hidden" id="notifSpinner"></i>
-              </button>
-            </div>
-          </div>
-        `;
-
-        document.getElementById('sendNotificationBtn')?.addEventListener('click', async () => {
-          const recipient = document.getElementById('notificationRecipient').value;
-          const type = document.getElementById('notificationType').value;
-          const title = document.getElementById('notificationTitle').value.trim();
-          const message = document.getElementById('notificationMessage').value.trim();
-
-          if (!title || !message) {
-            showToast('Title and message are required', 'warning');
-            return;
-          }
-
-          const btn = document.getElementById('sendNotificationBtn');
-          const spinner = document.getElementById('notifSpinner');
+        document.getElementById('sendNotificationBtn') && document.getElementById('sendNotificationBtn').addEventListener('click', async function() {
+          var recipient = document.getElementById('notificationRecipient').value;
+          var type = document.getElementById('notificationType').value;
+          var title = document.getElementById('notificationTitle').value.trim();
+          var message = document.getElementById('notificationMessage').value.trim();
+          if (!title || !message) { showToast('Title and message are required', 'warning'); return; }
+          var btn = document.getElementById('sendNotificationBtn');
+          var spinner = document.getElementById('notifSpinner');
           btn.disabled = true;
           spinner.classList.remove('hidden');
-
           try {
-            let userIds = [];
-
+            var userIds = [];
             if (recipient === 'all') {
-              const { data: allUsers } = await supabase.from('profiles').select('id');
-              userIds = allUsers?.map(u => u.id) || [];
+              var { data: allUsers } = await supabaseClient.from('profiles').select('id');
+              userIds = allUsers ? allUsers.map(function(u) { return u.id; }) : [];
             } else if (recipient === 'registered') {
-              const { data: regUsers } = await supabase.from('registrations').select('user_id');
-              userIds = regUsers?.map(u => u.user_id) || [];
+              var { data: regUsers } = await supabaseClient.from('registrations').select('user_id');
+              userIds = regUsers ? regUsers.map(function(u) { return u.user_id; }) : [];
             } else if (recipient === 'approved') {
-              const { data: approvedUsers } = await supabase.from('registrations').select('user_id').eq('status', 'approved');
-              userIds = approvedUsers?.map(u => u.user_id) || [];
+              var { data: approvedUsers } = await supabaseClient.from('registrations').select('user_id').eq('status', 'approved');
+              userIds = approvedUsers ? approvedUsers.map(function(u) { return u.user_id; }) : [];
             } else {
               userIds = [recipient];
             }
-
-            if (userIds.length === 0) {
-              showToast('No recipients found', 'warning');
-              return;
+            if (userIds.length === 0) { showToast('No recipients found', 'warning'); return; }
+            var notifications = userIds.map(function(userId) { return { user_id: userId, title: title, message: message, type: type }; });
+            for (var i = 0; i < notifications.length; i += 100) {
+              var batch = notifications.slice(i, i + 100);
+              await supabaseClient.from('notifications').insert(batch);
             }
-
-            // Batch insert notifications
-            const notifications = userIds.map(userId => ({
-              user_id: userId,
-              title: title,
-              message: message,
-              type: type
-            }));
-
-            // Insert in batches of 100
-            for (let i = 0; i < notifications.length; i += 100) {
-              const batch = notifications.slice(i, i + 100);
-              await supabase.from('notifications').insert(batch);
-            }
-
-            showToast(`Sent to ${userIds.length} user(s)!`, 'success');
+            showToast('Sent to ' + userIds.length + ' user(s)!', 'success');
             document.getElementById('notificationTitle').value = '';
             document.getElementById('notificationMessage').value = '';
-          } catch (err) {
-            showToast('Failed to send: ' + err.message, 'error');
-          } finally {
-            btn.disabled = false;
-            spinner.classList.add('hidden');
-          }
+          } catch (err) { showToast('Failed to send: ' + err.message, 'error'); }
+          finally { btn.disabled = false; spinner.classList.add('hidden'); }
         });
-
       } catch (error) {
         console.error('Notifications error:', error);
-        content.innerHTML = '<div class="text-center text-red-500 p-6">Error loading users. <button onclick="loadNotificationsTab()" class="text-gold underline ml-2">Retry</button></div>';
+        content.innerHTML = '<div class="text-center text-red-500 p-6">Error loading users: ' + escapeHtml(error.message) + '. <button onclick="loadNotificationsTab()" class="text-gold underline ml-2">Retry</button></div>';
       }
     }
 
-    // =====================================================
-    // ANALYTICS
-    // =====================================================
     async function loadAnalytics() {
-      const content = document.getElementById('adminContent');
+      var content = document.getElementById('adminContent');
       content.innerHTML = '<div class="flex justify-center items-center h-64"><div class="loader"></div></div>';
-
+      if (!supabaseClient) { showDbError(content, 'Database not connected.'); return; }
       try {
-        const [{ data: registrations }, { data: posts }, { data: users }] = await Promise.all([
-          supabase.from('registrations').select('created_at, status'),
-          supabase.from('posts').select('created_at'),
-          supabase.from('profiles').select('created_at, parish')
+        var [{ data: registrations }, { data: posts }, { data: users }] = await Promise.all([
+          supabaseClient.from('registrations').select('created_at, status'),
+          supabaseClient.from('posts').select('created_at'),
+          supabaseClient.from('profiles').select('created_at, parish')
         ]);
+        var regByDate = {};
+        if (registrations) registrations.forEach(function(r) { var d = new Date(r.created_at).toLocaleDateString(); regByDate[d] = (regByDate[d] || 0) + 1; });
+        var postsByDate = {};
+        if (posts) posts.forEach(function(p) { var d = new Date(p.created_at).toLocaleDateString(); postsByDate[d] = (postsByDate[d] || 0) + 1; });
+        var parishCounts = {};
+        if (users) users.forEach(function(u) { if(u.parish) parishCounts[u.parish] = (parishCounts[u.parish] || 0) + 1; });
+        var dateKeys = Object.keys(regByDate).concat(Object.keys(postsByDate));
+        var dates = dateKeys.filter(function(v, i, a) { return a.indexOf(v) === i; }).sort();
 
-        const regByDate = {};
-        registrations?.forEach(r => {
-          const date = new Date(r.created_at).toLocaleDateString();
-          regByDate[date] = (regByDate[date] || 0) + 1;
-        });
+        content.innerHTML = '<div class="space-y-6 animate-fadeInUp"><div class="grid md:grid-cols-2 gap-6"><div class="glass-card p-6"><h3 class="font-bold mb-4"><i class="fas fa-chart-line text-gold mr-2"></i> Registration Trend</h3><canvas id="trendChart" height="250"></canvas></div><div class="glass-card p-6"><h3 class="font-bold mb-4"><i class="fas fa-chart-pie text-gold mr-2"></i> Registration Status</h3><canvas id="statusChart" height="250"></canvas></div></div><div class="glass-card p-6"><h3 class="font-bold mb-4"><i class="fas fa-users text-gold mr-2"></i> Parish Distribution</h3><canvas id="parishDistChart" height="200"></canvas></div><div class="glass-card p-6"><h3 class="font-bold mb-4"><i class="fas fa-file-export text-gold mr-2"></i> Export Reports</h3><div class="flex gap-3 flex-wrap"><button id="exportRegCSV" class="btn-royal text-white px-4 py-2 rounded-xl hover:scale-105 transition-transform"><i class="fas fa-file-csv mr-2"></i> Export Registrations CSV</button><button id="exportUsersCSV" class="btn-royal text-white px-4 py-2 rounded-xl hover:scale-105 transition-transform"><i class="fas fa-file-csv mr-2"></i> Export Users CSV</button><button id="exportJSON" class="btn-gold text-white px-4 py-2 rounded-xl hover:scale-105 transition-transform"><i class="fas fa-file-code mr-2"></i> Export Full JSON</button></div></div></div>';
 
-        const postsByDate = {};
-        posts?.forEach(p => {
-          const date = new Date(p.created_at).toLocaleDateString();
-          postsByDate[date] = (postsByDate[date] || 0) + 1;
-        });
-
-        const parishCounts = {};
-        users?.forEach(u => { if(u.parish) parishCounts[u.parish] = (parishCounts[u.parish] || 0) + 1; });
-
-        const dates = [...new Set([...Object.keys(regByDate), ...Object.keys(postsByDate)])].sort();
-
-        content.innerHTML = `
-          <div class="space-y-6 animate-fadeInUp">
-            <div class="grid md:grid-cols-2 gap-6">
-              <div class="glass-card p-6">
-                <h3 class="font-bold mb-4"><i class="fas fa-chart-line text-gold mr-2"></i> Registration Trend</h3>
-                <canvas id="trendChart" height="250"></canvas>
-              </div>
-              <div class="glass-card p-6">
-                <h3 class="font-bold mb-4"><i class="fas fa-chart-pie text-gold mr-2"></i> Registration Status</h3>
-                <canvas id="statusChart" height="250"></canvas>
-              </div>
-            </div>
-            <div class="glass-card p-6">
-              <h3 class="font-bold mb-4"><i class="fas fa-users text-gold mr-2"></i> Parish Distribution</h3>
-              <canvas id="parishDistChart" height="200"></canvas>
-            </div>
-            <div class="glass-card p-6">
-              <h3 class="font-bold mb-4"><i class="fas fa-file-export text-gold mr-2"></i> Export Reports</h3>
-              <div class="flex gap-3 flex-wrap">
-                <button id="exportRegCSV" class="btn-royal text-white px-4 py-2 rounded-xl hover:scale-105 transition-transform">
-                  <i class="fas fa-file-csv mr-2"></i> Export Registrations CSV
-                </button>
-                <button id="exportUsersCSV" class="btn-royal text-white px-4 py-2 rounded-xl hover:scale-105 transition-transform">
-                  <i class="fas fa-file-csv mr-2"></i> Export Users CSV
-                </button>
-                <button id="exportJSON" class="btn-gold text-white px-4 py-2 rounded-xl hover:scale-105 transition-transform">
-                  <i class="fas fa-file-code mr-2"></i> Export Full JSON
-                </button>
-              </div>
-            </div>
-          </div>
-        `;
-
-        // Trend chart
-        const trendCtx = document.getElementById('trendChart')?.getContext('2d');
+        var trendCtx = document.getElementById('trendChart');
         if (trendCtx) {
-          new Chart(trendCtx, {
+          new Chart(trendCtx.getContext('2d'), {
             type: 'line',
-            data: {
-              labels: dates,
-              datasets: [
-                { label: 'Registrations', data: dates.map(d => regByDate[d] || 0), borderColor: '#D4AF37', fill: true, backgroundColor: 'rgba(212,175,55,0.1)', tension: 0.4 },
-                { label: 'Posts', data: dates.map(d => postsByDate[d] || 0), borderColor: '#0A2E73', fill: true, backgroundColor: 'rgba(10,46,115,0.1)', tension: 0.4 }
-              ]
-            },
+            data: { labels: dates, datasets: [
+              { label: 'Registrations', data: dates.map(function(d) { return regByDate[d] || 0; }), borderColor: '#D4AF37', fill: true, backgroundColor: 'rgba(212,175,55,0.1)', tension: 0.4 },
+              { label: 'Posts', data: dates.map(function(d) { return postsByDate[d] || 0; }), borderColor: '#0A2E73', fill: true, backgroundColor: 'rgba(10,46,115,0.1)', tension: 0.4 }
+            ]},
             options: { responsive: true, maintainAspectRatio: true }
           });
         }
-
-        // Status chart
-        const statusCtx = document.getElementById('statusChart')?.getContext('2d');
+        var statusCtx = document.getElementById('statusChart');
         if (statusCtx) {
-          const pending = registrations?.filter(r => r.status === 'pending').length || 0;
-          const approved = registrations?.filter(r => r.status === 'approved').length || 0;
-          const rejected = registrations?.filter(r => r.status === 'rejected').length || 0;
-          new Chart(statusCtx, {
+          var pending = registrations ? registrations.filter(function(r) { return r.status === 'pending'; }).length : 0;
+          var approved = registrations ? registrations.filter(function(r) { return r.status === 'approved'; }).length : 0;
+          var rejected = registrations ? registrations.filter(function(r) { return r.status === 'rejected'; }).length : 0;
+          new Chart(statusCtx.getContext('2d'), {
             type: 'doughnut',
-            data: {
-              labels: ['Pending', 'Approved', 'Rejected'],
-              datasets: [{ data: [pending, approved, rejected], backgroundColor: ['#fbbf24', '#10b981', '#ef4444'] }]
-            },
+            data: { labels: ['Pending', 'Approved', 'Rejected'], datasets: [{ data: [pending, approved, rejected], backgroundColor: ['#fbbf24', '#10b981', '#ef4444'] }] },
             options: { responsive: true, maintainAspectRatio: true }
           });
         }
-
-        // Parish distribution
-        const parishCtx = document.getElementById('parishDistChart')?.getContext('2d');
+        var parishCtx = document.getElementById('parishDistChart');
         if (parishCtx && Object.keys(parishCounts).length > 0) {
-          new Chart(parishCtx, {
+          new Chart(parishCtx.getContext('2d'), {
             type: 'bar',
-            data: {
-              labels: Object.keys(parishCounts),
-              datasets: [{ label: 'Members', data: Object.values(parishCounts), backgroundColor: '#D4AF37', borderRadius: 8 }]
-            },
+            data: { labels: Object.keys(parishCounts), datasets: [{ label: 'Members', data: Object.values(parishCounts), backgroundColor: '#D4AF37', borderRadius: 8 }] },
             options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } } }
           });
         }
 
-        // Export handlers
-        document.getElementById('exportRegCSV')?.addEventListener('click', async () => {
-          const { data: regs } = await supabase.from('registrations').select('*, profiles(full_name, email, phone, parish, ayf_position, gender, age_range)');
-          let csv = 'Name,Email,Phone,Parish,Position,Gender,Age,Status,Conference ID,Registered At\n';
-          regs?.forEach(r => {
-            csv += `"${r.profiles?.full_name || ''}","${r.profiles?.email || ''}","${r.profiles?.phone || ''}","${r.profiles?.parish || ''}","${r.profiles?.ayf_position || ''}","${r.profiles?.gender || ''}","${r.profiles?.age_range || ''}","${r.status}","${r.conference_id || ''}","${r.created_at}"\n`;
+        document.getElementById('exportRegCSV') && document.getElementById('exportRegCSV').addEventListener('click', async function() {
+          var { data: regs } = await supabaseClient.from('registrations').select('*, profiles(full_name, email, phone, parish, ayf_position, gender, age_range)');
+          var csv = 'Name,Email,Phone,Parish,Position,Gender,Age,Status,Conference ID,Registered At\n';
+          if (regs) regs.forEach(function(r) {
+            csv += '"' + (r.profiles && r.profiles.full_name || '') + '","' + (r.profiles && r.profiles.email || '') + '","' + (r.profiles && r.profiles.phone || '') + '","' + (r.profiles && r.profiles.parish || '') + '","' + (r.profiles && r.profiles.ayf_position || '') + '","' + (r.profiles && r.profiles.gender || '') + '","' + (r.profiles && r.profiles.age_range || '') + '","' + r.status + '","' + (r.conference_id || '') + '","' + r.created_at + '"\n';
           });
           downloadFile(csv, 'registrations.csv', 'text/csv');
           showToast('Registrations exported!', 'success');
         });
-
-        document.getElementById('exportUsersCSV')?.addEventListener('click', async () => {
-          const { data: allUsers } = await supabase.from('profiles').select('*');
-          let csv = 'Name,Email,Phone,Parish,Position,Gender,Age,Role,Joined\n';
-          allUsers?.forEach(u => {
-            csv += `"${u.full_name || ''}","${u.email || ''}","${u.phone || ''}","${u.parish || ''}","${u.ayf_position || ''}","${u.gender || ''}","${u.age_range || ''}","${u.role}","${u.created_at}"\n`;
+        document.getElementById('exportUsersCSV') && document.getElementById('exportUsersCSV').addEventListener('click', async function() {
+          var { data: allUsers } = await supabaseClient.from('profiles').select('*');
+          var csv = 'Name,Email,Phone,Parish,Position,Gender,Age,Role,Joined\n';
+          if (allUsers) allUsers.forEach(function(u) {
+            csv += '"' + (u.full_name || '') + '","' + (u.email || '') + '","' + (u.phone || '') + '","' + (u.parish || '') + '","' + (u.ayf_position || '') + '","' + (u.gender || '') + '","' + (u.age_range || '') + '","' + u.role + '","' + u.created_at + '"\n';
           });
           downloadFile(csv, 'users.csv', 'text/csv');
           showToast('Users exported!', 'success');
         });
-
-        document.getElementById('exportJSON')?.addEventListener('click', async () => {
-          const tables = ['profiles', 'registrations', 'posts', 'comments', 'likes', 'notifications', 'documents', 'events', 'attendance_logs', 'parishes'];
-          const backup = {};
-          for (const table of tables) {
-            const { data } = await supabase.from(table).select('*');
-            backup[table] = data;
+        document.getElementById('exportJSON') && document.getElementById('exportJSON').addEventListener('click', async function() {
+          var tables = ['profiles', 'registrations', 'posts', 'comments', 'likes', 'notifications', 'documents', 'events', 'attendance_logs', 'parishes'];
+          var backup = {};
+          for (var i = 0; i < tables.length; i++) {
+            var { data } = await supabaseClient.from(tables[i]).select('*');
+            backup[tables[i]] = data;
           }
-          downloadFile(JSON.stringify(backup, null, 2), `backup_${new Date().toISOString().split('T')[0]}.json`, 'application/json');
+          downloadFile(JSON.stringify(backup, null, 2), 'backup_' + new Date().toISOString().split('T')[0] + '.json', 'application/json');
           showToast('Full backup exported!', 'success');
         });
-
       } catch (error) {
         console.error('Analytics error:', error);
-        content.innerHTML = '<div class="text-center text-red-500 p-6">Error loading analytics. <button onclick="loadAnalytics()" class="text-gold underline ml-2">Retry</button></div>';
+        content.innerHTML = '<div class="text-center text-red-500 p-6">Error loading analytics: ' + escapeHtml(error.message) + '. <button onclick="loadAnalytics()" class="text-gold underline ml-2">Retry</button></div>';
       }
     }
 
     function downloadFile(content, filename, type) {
-      const blob = new Blob([content], { type });
-      const link = document.createElement('a');
+      var blob = new Blob([content], { type: type });
+      var link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
       link.download = filename;
       link.click();
       URL.revokeObjectURL(link.href);
     }
 
-    // =====================================================
-    // SETTINGS
-    // =====================================================
     async function loadSettings() {
-      const content = document.getElementById('adminContent');
-      content.innerHTML = `
-        <div class="glass-card p-6 animate-fadeInUp max-w-2xl mx-auto">
-          <h2 class="text-2xl font-bold mb-6"><i class="fas fa-cog text-gold mr-2"></i> Settings</h2>
-          <div class="space-y-6">
-            <div class="glass-card p-5">
-              <h3 class="font-bold mb-3"><i class="fas fa-calendar-alt text-gold mr-2"></i> Conference Settings</h3>
-              <div class="space-y-3">
-                <div><label class="text-sm font-medium">Conference Date</label><input type="date" id="confDate" value="2026-06-27" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all mt-1"></div>
-                <div><label class="text-sm font-medium">Conference Time</label><input type="time" id="confTime" value="08:00" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all mt-1"></div>
-                <div><label class="text-sm font-medium">Venue</label><input type="text" id="confVenue" value="St Philip Gwarimpa" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all mt-1"></div>
-                <button id="saveConfSettings" class="btn-gold text-white px-4 py-2 rounded-xl w-full hover:scale-105 transition-transform">
-                  <i class="fas fa-save mr-2"></i> Save Conference Settings
-                </button>
-              </div>
-            </div>
-            <div class="glass-card p-5">
-              <h3 class="font-bold mb-3"><i class="fas fa-database text-gold mr-2"></i> Database Operations</h3>
-              <div class="space-y-3">
-                <button id="backupDb" class="btn-royal text-white px-4 py-2 rounded-xl w-full hover:scale-105 transition-transform">
-                  <i class="fas fa-download mr-2"></i> Export Full Database Backup
-                </button>
-                <p class="text-xs text-gray-500">Downloads a JSON file with all tables for offline backup.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
+      var content = document.getElementById('adminContent');
+      content.innerHTML = '<div class="glass-card p-6 animate-fadeInUp max-w-2xl mx-auto"><h2 class="text-2xl font-bold mb-6"><i class="fas fa-cog text-gold mr-2"></i> Settings</h2><div class="space-y-6"><div class="glass-card p-5"><h3 class="font-bold mb-3"><i class="fas fa-calendar-alt text-gold mr-2"></i> Conference Settings</h3><div class="space-y-3"><div><label class="text-sm font-medium">Conference Date</label><input type="date" id="confDate" value="2026-06-27" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all mt-1"></div><div><label class="text-sm font-medium">Conference Time</label><input type="time" id="confTime" value="08:00" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all mt-1"></div><div><label class="text-sm font-medium">Venue</label><input type="text" id="confVenue" value="St Philip Gwarimpa" class="w-full p-3 rounded-xl border dark:bg-gray-800 focus:ring-2 focus:ring-gold transition-all mt-1"></div><button id="saveConfSettings" class="btn-gold text-white px-4 py-2 rounded-xl w-full hover:scale-105 transition-transform"><i class="fas fa-save mr-2"></i> Save Conference Settings</button></div></div><div class="glass-card p-5"><h3 class="font-bold mb-3"><i class="fas fa-database text-gold mr-2"></i> Database Operations</h3><div class="space-y-3"><button id="backupDb" class="btn-royal text-white px-4 py-2 rounded-xl w-full hover:scale-105 transition-transform"><i class="fas fa-download mr-2"></i> Export Full Database Backup</button><p class="text-xs text-gray-500">Downloads a JSON file with all tables for offline backup.</p></div></div></div></div>';
 
-      document.getElementById('saveConfSettings')?.addEventListener('click', () => {
-        showToast('Settings saved!', 'success');
-      });
-
-      document.getElementById('backupDb')?.addEventListener('click', async () => {
-        const tables = ['profiles', 'registrations', 'posts', 'comments', 'likes', 'notifications', 'documents', 'events', 'attendance_logs', 'parishes', 'organizations'];
-        const backup = { exported_at: new Date().toISOString() };
-        for (const table of tables) {
-          const { data } = await supabase.from(table).select('*');
-          backup[table] = data;
+      document.getElementById('saveConfSettings') && document.getElementById('saveConfSettings').addEventListener('click', function() { showToast('Settings saved!', 'success'); });
+      document.getElementById('backupDb') && document.getElementById('backupDb').addEventListener('click', async function() {
+        if (!supabaseClient) { showToast('Database not connected', 'error'); return; }
+        var tables = ['profiles', 'registrations', 'posts', 'comments', 'likes', 'notifications', 'documents', 'events', 'attendance_logs', 'parishes', 'organizations'];
+        var backup = { exported_at: new Date().toISOString() };
+        for (var i = 0; i < tables.length; i++) {
+          var { data } = await supabaseClient.from(tables[i]).select('*');
+          backup[tables[i]] = data;
         }
-        downloadFile(JSON.stringify(backup, null, 2), `ayf_backup_${new Date().toISOString().split('T')[0]}.json`, 'application/json');
+        downloadFile(JSON.stringify(backup, null, 2), 'ayf_backup_' + new Date().toISOString().split('T')[0] + '.json', 'application/json');
         showToast('Full backup exported!', 'success');
       });
     }
 
-    // =====================================================
-    // TAB SWITCHING (Fixed: proper cleanup, mobile support)
-    // =====================================================
-    function initializeTabs() {
-      // Desktop sidebar
-      document.querySelectorAll('.sidebar-item').forEach(item => {
-        item.addEventListener('click', () => {
-          switchTab(item.dataset.tab);
-        });
-      });
-
-      // Mobile bottom nav
-      document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          if (btn.dataset.tab === 'more') {
-            // Show more options modal
-            showToast('More options coming soon', 'info');
-            return;
-          }
-          switchTab(btn.dataset.tab);
-        });
-      });
-
-      // Mobile menu toggle
-      document.getElementById('mobileMenuBtn')?.addEventListener('click', () => {
-        const sidebar = document.querySelector('.sidebar-desktop');
-        const overlay = document.getElementById('mobileSidebarOverlay');
-        sidebar?.classList.toggle('hidden');
-        overlay?.classList.toggle('hidden');
-      });
-
-      document.getElementById('mobileSidebarOverlay')?.addEventListener('click', () => {
-        const sidebar = document.querySelector('.sidebar-desktop');
-        const overlay = document.getElementById('mobileSidebarOverlay');
-        sidebar?.classList.add('hidden');
-        overlay?.classList.add('hidden');
-      });
-    }
+    // ============================================
+    // TAB NAVIGATION & INITIALIZATION
+    // ============================================
 
     async function switchTab(tab) {
       // Stop scanner if leaving checkin tab
       if (currentTab === 'checkin' && tab !== 'checkin') {
         await stopScanner();
       }
-
+      
+      if (currentTab === tab && tab !== 'checkin') return;
       currentTab = tab;
-
-      // Update page title in header
-      const pageTitle = document.getElementById('pageTitle');
+      
+      // Update page title
+      var pageTitle = document.getElementById('pageTitle');
       if (pageTitle) {
-        const titles = {
+        var titles = {
           dashboard: 'Dashboard',
-          registrations: 'Manage Registrations',
+          registrations: 'Registrations',
           posts: 'Manage Posts',
           users: 'Manage Users',
           checkin: 'QR Check-in',
@@ -1930,79 +1152,119 @@
           speakers: 'Speakers',
           notifications: 'Send Notification',
           analytics: 'Analytics',
-          settings: 'Settings'
+          settings: 'Settings',
+          more: 'More Options'
         };
-        pageTitle.textContent = titles[tab] || 'Admin Panel';
+        pageTitle.textContent = titles[tab] || tab.charAt(0).toUpperCase() + tab.slice(1);
+      }
+      
+      // Update sidebar active state
+      document.querySelectorAll('.sidebar-item').forEach(function(item) {
+        item.classList.toggle('active', item.dataset.tab === tab);
+      });
+      
+      // Update mobile nav active state
+      document.querySelectorAll('.mobile-nav-btn').forEach(function(btn) {
+        var isActive = btn.dataset.tab === tab;
+        btn.classList.toggle('active', isActive);
+        btn.classList.toggle('text-gold', isActive);
+        btn.classList.toggle('text-gray-500', !isActive);
+        btn.classList.toggle('dark:text-gray-400', !isActive);
+      });
+
+      // Hide mobile sidebar if open
+      var overlay = document.getElementById('mobileSidebarOverlay');
+      var sidebar = document.querySelector('aside');
+      if (overlay && !overlay.classList.contains('hidden')) {
+        overlay.classList.add('hidden');
+        if (sidebar) {
+          sidebar.classList.remove('translate-x-0');
+          sidebar.classList.add('-translate-x-full');
+        }
       }
 
-      // Update desktop sidebar
-      document.querySelectorAll('.sidebar-item').forEach(i => {
-        i.classList.toggle('active', i.dataset.tab === tab);
-      });
-
-      // Update mobile nav
-      document.querySelectorAll('.mobile-nav-btn').forEach(b => {
-        b.classList.toggle('active', b.dataset.tab === tab);
-        if (b.dataset.tab === tab) {
-          b.classList.remove('text-gray-500', 'dark:text-gray-400');
-          b.classList.add('text-gold');
-        } else {
-          b.classList.add('text-gray-500', 'dark:text-gray-400');
-          b.classList.remove('text-gold');
-        }
-      });
-
-      // Close mobile sidebar
-      document.querySelector('.sidebar-desktop')?.classList.add('hidden');
-      document.getElementById('mobileSidebarOverlay')?.classList.add('hidden');
-
-      // Load content
-      if (tab === 'dashboard') loadDashboard();
-      else if (tab === 'registrations') loadRegistrations();
-      else if (tab === 'posts') loadPosts();
-      else if (tab === 'users') loadUsers();
-      else if (tab === 'checkin') loadCheckin();
-      else if (tab === 'documents') loadDocuments();
-      else if (tab === 'speakers') loadSpeakers();
-      else if (tab === 'notifications') loadNotificationsTab();
-      else if (tab === 'analytics') loadAnalytics();
-      else if (tab === 'settings') loadSettings();
-
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Route to correct loader
+      switch(tab) {
+        case 'dashboard': await loadDashboard(); break;
+        case 'registrations': await loadRegistrations(); break;
+        case 'posts': await loadPosts(); break;
+        case 'users': await loadUsers(); break;
+        case 'checkin': await loadCheckin(); break;
+        case 'documents': await loadDocuments(); break;
+        case 'speakers': await loadSpeakers(); break;
+        case 'notifications': await loadNotificationsTab(); break;
+        case 'analytics': await loadAnalytics(); break;
+        case 'settings': await loadSettings(); break;
+        case 'more': await loadSettings(); break;
+        default: await loadDashboard(); break;
+      }
     }
 
-    // =====================================================
-    // GLOBAL EVENTS
-    // =====================================================
-    window.addEventListener('beforeunload', async () => {
-      await stopScanner();
-    });
+    // Initialize everything when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+      // Sidebar navigation
+      document.querySelectorAll('.sidebar-item[data-tab]').forEach(function(item) {
+        item.addEventListener('click', function() {
+          switchTab(this.dataset.tab);
+        });
+      });
 
-    window.addEventListener('error', (e) => {
-      console.error('Global error:', e.error);
-      showToast('An error occurred. Please refresh.', 'error');
-    });
+      // Mobile navigation
+      document.querySelectorAll('.mobile-nav-btn[data-tab]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          switchTab(this.dataset.tab);
+        });
+      });
 
-    // Keyboard shortcuts
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        closeLightbox();
-        document.querySelectorAll('.modal-backdrop.open').forEach(m => {
-          m.classList.remove('open');
-          setTimeout(() => m.classList.add('hidden'), 300);
+      // Mobile menu toggle
+      var mobileMenuBtn = document.getElementById('mobileMenuBtn');
+      var sidebar = document.querySelector('aside');
+      var overlay = document.getElementById('mobileSidebarOverlay');
+      
+      if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', function() {
+          if (sidebar) {
+            sidebar.classList.toggle('-translate-x-full');
+            sidebar.classList.toggle('translate-x-0');
+          }
+          if (overlay) overlay.classList.toggle('hidden');
         });
       }
+      
+      if (overlay) {
+        overlay.addEventListener('click', function() {
+          if (sidebar) {
+            sidebar.classList.add('-translate-x-full');
+            sidebar.classList.remove('translate-x-0');
+          }
+          overlay.classList.add('hidden');
+        });
+      }
+
+      // Dark mode toggle
+      var darkModeToggle = document.getElementById('darkModeToggle');
+      if (darkModeToggle) {
+        darkModeToggle.addEventListener('click', function() {
+          darkMode = !darkMode;
+          applyDarkMode();
+        });
+      }
+
+      // Start auth check
+      checkAuth();
     });
 
-    // =====================================================
-    // INIT
-    // =====================================================
-    initializeTabs();
-    document.getElementById('darkModeToggle')?.addEventListener('click', () => {
-      darkMode = !darkMode;
-      applyDarkMode();
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', function() {
+      stopScanner();
     });
-    checkAuth();
+
+    // Handle visibility change (tab switching)
+    document.addEventListener('visibilitychange', function() {
+      if (document.hidden && isScannerRunning) {
+        stopScanner();
+      }
+    });
   </script>
 </body>
 </html>
